@@ -9,8 +9,8 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${ANTLR_OUTPUT_DIRS})
 
 set(kr_app_core_SRCS
-    Field.h
-    Field.cpp
+    field.h
+    field.cpp
     ${ANTLR_FieldGrammarParser_CXX_OUTPUTS}
 )
 
@@ -18,7 +18,7 @@ add_library(kr_app_core
     ${kr_app_core_SRCS}
 )
 
-add_dependencies(kr_app_core    
+add_dependencies(kr_app_core
     antlr4_static
 )
 

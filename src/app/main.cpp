@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include <core/Field.h>
+#include <core/field.h>
 
 int main(int argc, const char* argv[]) 
 {
