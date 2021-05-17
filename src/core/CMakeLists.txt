@@ -9,8 +9,12 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${ANTLR_OUTPUT_DIRS})
 
 set(kr_app_core_SRCS
+    core.h
+    core.cpp
     idl.h
     idl.cpp
+    idl_visitor.h 
+    idl_visitor.cpp
     ${ANTLR_FieldGrammarParser_CXX_OUTPUTS}
 )
 

@@ -15,7 +15,7 @@
 class  IDLBaseVisitor : public IDLVisitor {
 public:
 
-  virtual antlrcpp::Any visitProg(IDLParser::ProgContext *ctx) override {
+  virtual antlrcpp::Any visitProgram(IDLParser::ProgramContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -39,6 +39,6 @@ public:
     return visitChildren(ctx);
   }
 
-
+  
 };
 

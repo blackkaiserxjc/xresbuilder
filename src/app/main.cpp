@@ -4,9 +4,9 @@
 #include <core/idl.h>
 
 int main(int argc, const char* argv[]) 
-{
-    print();
-    print();
+{  
+    kr::core::Parser parser;
+    parser.Parse("[int");
     return 0;
 }
 

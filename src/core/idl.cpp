@@ -1,20 +1,39 @@
-#include <iostream>
+#include <stdexcept>
 
-#include "antlr4-runtime.h"
+#include "idl.h"
+#include "idl_visitor.h"
 #include "IDLLexer.h"
 #include "IDLParser.h"
 
-using namespace std;
-using namespace antlr4;
-
-void print()
+namespace kr
 {
-    std::string str = "[int]";
-    ANTLRInputStream input(str);
-    IDLLexer lexer(&input);
-    CommonTokenStream tokens(&lexer);
-    IDLParser parser(&tokens);    
+    namespace core
+    {
+        bool Parser::Parse(const std::string& source)
+        {
+            using namespace antlr4;
+            ANTLRInputStream input(source);
+            IDLLexer lexer(&input);
+            CommonTokenStream tokens(&lexer);
+            IDLParser parser(&tokens);
 
-    auto tree = parser.prog(); 
-    std::cout << tree->toStringTree(&parser, true) << std::endl;
+            IDLParseVisitor visitor;
+            auto tree = parser.program();
+            try
+            {
+                type_ = visitor.visitProgram(tree).as<Type>();
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+                return false;
+            }
+            return true;
+        }
+
+        Type Parser::Message() const
+        {
+            return type_;
+        }
+    }
 }

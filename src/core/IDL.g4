@@ -1,6 +1,6 @@
 grammar IDL;
 
-prog
+program
   : statement
   ;
 

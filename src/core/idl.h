@@ -42,7 +42,7 @@ namespace kr
             }
 
             BaseType base_type;
-            BaseType element;
+            BaseType element; 
             std::shared_ptr<ObjectDef> obj_def;
         };
 
@@ -80,7 +80,7 @@ namespace kr
                 auto iter = dict.find(name);
                 return iter == dict.end() ? nullptr : iter->second;
             }
-
+            
         public:
             std::unordered_map<std::string, std::shared_ptr<T>> dict;
             std::vector<std::shared_ptr<T>> vec;
@@ -112,10 +112,19 @@ namespace kr
             SymbolTable<FieldDef> fields;
         };
 
-        
+        class Parser
+        {
+        public:
+            Parser() = default;
+            ~Parser() = default;
+
+            bool Parse(const std::string& source);
+
+            Type Message() const;
+        protected:
+            Type type_;
+        };
     }
 } // namespace kr
-
-void print();
 
 #endif /* KR_APP_CORE_IDL_H_ */

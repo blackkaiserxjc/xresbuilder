@@ -31,32 +31,32 @@ dfa::Vocabulary& IDLParser::getVocabulary() const {
 }
 
 
-//----------------- ProgContext ------------------------------------------------------------------
+//----------------- ProgramContext ------------------------------------------------------------------
 
-IDLParser::ProgContext::ProgContext(ParserRuleContext *parent, size_t invokingState)
+IDLParser::ProgramContext::ProgramContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-IDLParser::StatementContext* IDLParser::ProgContext::statement() {
+IDLParser::StatementContext* IDLParser::ProgramContext::statement() {
   return getRuleContext<IDLParser::StatementContext>(0);
 }
 
 
-size_t IDLParser::ProgContext::getRuleIndex() const {
-  return IDLParser::RuleProg;
+size_t IDLParser::ProgramContext::getRuleIndex() const {
+  return IDLParser::RuleProgram;
 }
 
 
-antlrcpp::Any IDLParser::ProgContext::accept(tree::ParseTreeVisitor *visitor) {
+antlrcpp::Any IDLParser::ProgramContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<IDLVisitor*>(visitor))
-    return parserVisitor->visitProg(this);
+    return parserVisitor->visitProgram(this);
   else
     return visitor->visitChildren(this);
 }
 
-IDLParser::ProgContext* IDLParser::prog() {
-  ProgContext *_localctx = _tracker.createInstance<ProgContext>(_ctx, getState());
-  enterRule(_localctx, 0, IDLParser::RuleProg);
+IDLParser::ProgramContext* IDLParser::program() {
+  ProgramContext *_localctx = _tracker.createInstance<ProgramContext>(_ctx, getState());
+  enterRule(_localctx, 0, IDLParser::RuleProgram);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -444,7 +444,7 @@ atn::ATN IDLParser::_atn;
 std::vector<uint16_t> IDLParser::_serializedATN;
 
 std::vector<std::string> IDLParser::_ruleNames = {
-  "prog", "statement", "pod", "object", "field", "array"
+  "program", "statement", "pod", "object", "field", "array"
 };
 
 std::vector<std::string> IDLParser::_literalNames = {

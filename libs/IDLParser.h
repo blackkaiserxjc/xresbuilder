@@ -18,7 +18,7 @@ public:
   };
 
   enum {
-    RuleProg = 0, RuleStatement = 1, RulePod = 2, RuleObject = 3, RuleField = 4, 
+    RuleProgram = 0, RuleStatement = 1, RulePod = 2, RuleObject = 3, RuleField = 4, 
     RuleArray = 5
   };
 
@@ -32,16 +32,16 @@ public:
   virtual antlr4::dfa::Vocabulary& getVocabulary() const override;
 
 
-  class ProgContext;
+  class ProgramContext;
   class StatementContext;
   class PodContext;
   class ObjectContext;
   class FieldContext;
   class ArrayContext; 
 
-  class  ProgContext : public antlr4::ParserRuleContext {
+  class  ProgramContext : public antlr4::ParserRuleContext {
   public:
-    ProgContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    ProgramContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     StatementContext *statement();
 
@@ -50,7 +50,7 @@ public:
    
   };
 
-  ProgContext* prog();
+  ProgramContext* program();
 
   class  StatementContext : public antlr4::ParserRuleContext {
   public:

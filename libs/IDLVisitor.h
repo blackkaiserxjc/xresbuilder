@@ -19,7 +19,7 @@ public:
   /**
    * Visit parse trees produced by IDLParser.
    */
-    virtual antlrcpp::Any visitProg(IDLParser::ProgContext *context) = 0;
+    virtual antlrcpp::Any visitProgram(IDLParser::ProgramContext *context) = 0;
 
     virtual antlrcpp::Any visitStatement(IDLParser::StatementContext *context) = 0;
 
