@@ -1,5 +1,5 @@
 
-// Generated from Field.g4 by ANTLR 4.9.1
+// Generated from IDL.g4 by ANTLR 4.9.1
 
 #pragma once
 
@@ -9,7 +9,7 @@
 
 
 
-class  FieldLexer : public antlr4::Lexer {
+class  IDLLexer : public antlr4::Lexer {
 public:
   enum {
     BooleanLiteral = 1, Bool = 2, Int = 3, Float = 4, False_ = 5, String = 6, 
@@ -17,8 +17,8 @@ public:
     Comma = 12, Colon = 13, Identifier = 14, Whitespace = 15, Newline = 16
   };
 
-  explicit FieldLexer(antlr4::CharStream *input);
-  ~FieldLexer();
+  explicit IDLLexer(antlr4::CharStream *input);
+  ~IDLLexer();
 
   virtual std::string getGrammarFileName() const override;
   virtual const std::vector<std::string>& getRuleNames() const override;

@@ -1,4 +1,4 @@
-grammar Field;
+grammar IDL;
 
 prog
   : statement

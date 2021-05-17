@@ -1,50 +1,50 @@
 
-// Generated from Field.g4 by ANTLR 4.9.1
+// Generated from IDL.g4 by ANTLR 4.9.1
 
 
-#include "FieldLexer.h"
+#include "IDLLexer.h"
 
 
 using namespace antlr4;
 
 
-FieldLexer::FieldLexer(CharStream *input) : Lexer(input) {
+IDLLexer::IDLLexer(CharStream *input) : Lexer(input) {
   _interpreter = new atn::LexerATNSimulator(this, _atn, _decisionToDFA, _sharedContextCache);
 }
 
-FieldLexer::~FieldLexer() {
+IDLLexer::~IDLLexer() {
   delete _interpreter;
 }
 
-std::string FieldLexer::getGrammarFileName() const {
-  return "Field.g4";
+std::string IDLLexer::getGrammarFileName() const {
+  return "IDL.g4";
 }
 
-const std::vector<std::string>& FieldLexer::getRuleNames() const {
+const std::vector<std::string>& IDLLexer::getRuleNames() const {
   return _ruleNames;
 }
 
-const std::vector<std::string>& FieldLexer::getChannelNames() const {
+const std::vector<std::string>& IDLLexer::getChannelNames() const {
   return _channelNames;
 }
 
-const std::vector<std::string>& FieldLexer::getModeNames() const {
+const std::vector<std::string>& IDLLexer::getModeNames() const {
   return _modeNames;
 }
 
-const std::vector<std::string>& FieldLexer::getTokenNames() const {
+const std::vector<std::string>& IDLLexer::getTokenNames() const {
   return _tokenNames;
 }
 
-dfa::Vocabulary& FieldLexer::getVocabulary() const {
+dfa::Vocabulary& IDLLexer::getVocabulary() const {
   return _vocabulary;
 }
 
-const std::vector<uint16_t> FieldLexer::getSerializedATN() const {
+const std::vector<uint16_t> IDLLexer::getSerializedATN() const {
   return _serializedATN;
 }
 
-const atn::ATN& FieldLexer::getATN() const {
+const atn::ATN& IDLLexer::getATN() const {
   return _atn;
 }
 
@@ -52,44 +52,44 @@ const atn::ATN& FieldLexer::getATN() const {
 
 
 // Static vars and initialization.
-std::vector<dfa::DFA> FieldLexer::_decisionToDFA;
-atn::PredictionContextCache FieldLexer::_sharedContextCache;
+std::vector<dfa::DFA> IDLLexer::_decisionToDFA;
+atn::PredictionContextCache IDLLexer::_sharedContextCache;
 
 // We own the ATN which in turn owns the ATN states.
-atn::ATN FieldLexer::_atn;
-std::vector<uint16_t> FieldLexer::_serializedATN;
+atn::ATN IDLLexer::_atn;
+std::vector<uint16_t> IDLLexer::_serializedATN;
 
-std::vector<std::string> FieldLexer::_ruleNames = {
+std::vector<std::string> IDLLexer::_ruleNames = {
   "BooleanLiteral", "Bool", "Int", "Float", "False_", "String", "LeftBracket", 
   "RightBracket", "LeftBrace", "RightBrace", "True_", "Comma", "Colon", 
   "Identifier", "IdentifierNondigit", "Nondigit", "Digit", "UniversalCharacterName", 
   "HexQuad", "HexadecimalDigit", "Whitespace", "Newline"
 };
 
-std::vector<std::string> FieldLexer::_channelNames = {
+std::vector<std::string> IDLLexer::_channelNames = {
   "DEFAULT_TOKEN_CHANNEL", "HIDDEN"
 };
 
-std::vector<std::string> FieldLexer::_modeNames = {
+std::vector<std::string> IDLLexer::_modeNames = {
   "DEFAULT_MODE"
 };
 
-std::vector<std::string> FieldLexer::_literalNames = {
+std::vector<std::string> IDLLexer::_literalNames = {
   "", "", "'bool'", "'int'", "'float'", "'false'", "'string'", "'['", "']'", 
   "'{'", "'}'", "'true'", "','", "':'"
 };
 
-std::vector<std::string> FieldLexer::_symbolicNames = {
+std::vector<std::string> IDLLexer::_symbolicNames = {
   "", "BooleanLiteral", "Bool", "Int", "Float", "False_", "String", "LeftBracket", 
   "RightBracket", "LeftBrace", "RightBrace", "True_", "Comma", "Colon", 
   "Identifier", "Whitespace", "Newline"
 };
 
-dfa::Vocabulary FieldLexer::_vocabulary(_literalNames, _symbolicNames);
+dfa::Vocabulary IDLLexer::_vocabulary(_literalNames, _symbolicNames);
 
-std::vector<std::string> FieldLexer::_tokenNames;
+std::vector<std::string> IDLLexer::_tokenNames;
 
-FieldLexer::Initializer::Initializer() {
+IDLLexer::Initializer::Initializer() {
   // This code could be in a static initializer lambda, but VS doesn't allow access to private class members from there.
 	for (size_t i = 0; i < _symbolicNames.size(); ++i) {
 		std::string name = _vocabulary.getLiteralName(i);
@@ -215,4 +215,4 @@ FieldLexer::Initializer::Initializer() {
   }
 }
 
-FieldLexer::Initializer FieldLexer::_init;
+IDLLexer::Initializer IDLLexer::_init;

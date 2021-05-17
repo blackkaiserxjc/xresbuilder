@@ -2,15 +2,15 @@ find_package(ANTLR REQUIRED)
 find_package(Boost REQUIRED)
 
 set(ANTLR_OUTPUT_DIRS ${PROJECT_SOURCE_DIR}/libs/)
-antlr_target(FieldGrammarParser Field.g4 VISITOR OUTPUT_DIRECTORY ${ANTLR_OUTPUT_DIRS})
+antlr_target(FieldGrammarParser IDL.g4 VISITOR OUTPUT_DIRECTORY ${ANTLR_OUTPUT_DIRS})
 
 include_directories(${ANTLR4_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${ANTLR_OUTPUT_DIRS})
 
 set(kr_app_core_SRCS
-    field.h
-    field.cpp
+    idl.h
+    idl.cpp
     ${ANTLR_FieldGrammarParser_CXX_OUTPUTS}
 )
 

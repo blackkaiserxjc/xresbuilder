@@ -1,5 +1,5 @@
 
-// Generated from Field.g4 by ANTLR 4.9.1
+// Generated from IDL.g4 by ANTLR 4.9.1
 
 #pragma once
 
@@ -9,7 +9,7 @@
 
 
 
-class  FieldParser : public antlr4::Parser {
+class  IDLParser : public antlr4::Parser {
 public:
   enum {
     BooleanLiteral = 1, Bool = 2, Int = 3, Float = 4, False_ = 5, String = 6, 
@@ -22,8 +22,8 @@ public:
     RuleArray = 5
   };
 
-  explicit FieldParser(antlr4::TokenStream *input);
-  ~FieldParser();
+  explicit IDLParser(antlr4::TokenStream *input);
+  ~IDLParser();
 
   virtual std::string getGrammarFileName() const override;
   virtual const antlr4::atn::ATN& getATN() const override { return _atn; };

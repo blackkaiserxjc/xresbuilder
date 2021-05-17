@@ -1,62 +1,62 @@
 
-// Generated from Field.g4 by ANTLR 4.9.1
+// Generated from IDL.g4 by ANTLR 4.9.1
 
 
-#include "FieldVisitor.h"
+#include "IDLVisitor.h"
 
-#include "FieldParser.h"
+#include "IDLParser.h"
 
 
 using namespace antlrcpp;
 using namespace antlr4;
 
-FieldParser::FieldParser(TokenStream *input) : Parser(input) {
+IDLParser::IDLParser(TokenStream *input) : Parser(input) {
   _interpreter = new atn::ParserATNSimulator(this, _atn, _decisionToDFA, _sharedContextCache);
 }
 
-FieldParser::~FieldParser() {
+IDLParser::~IDLParser() {
   delete _interpreter;
 }
 
-std::string FieldParser::getGrammarFileName() const {
-  return "Field.g4";
+std::string IDLParser::getGrammarFileName() const {
+  return "IDL.g4";
 }
 
-const std::vector<std::string>& FieldParser::getRuleNames() const {
+const std::vector<std::string>& IDLParser::getRuleNames() const {
   return _ruleNames;
 }
 
-dfa::Vocabulary& FieldParser::getVocabulary() const {
+dfa::Vocabulary& IDLParser::getVocabulary() const {
   return _vocabulary;
 }
 
 
 //----------------- ProgContext ------------------------------------------------------------------
 
-FieldParser::ProgContext::ProgContext(ParserRuleContext *parent, size_t invokingState)
+IDLParser::ProgContext::ProgContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-FieldParser::StatementContext* FieldParser::ProgContext::statement() {
-  return getRuleContext<FieldParser::StatementContext>(0);
+IDLParser::StatementContext* IDLParser::ProgContext::statement() {
+  return getRuleContext<IDLParser::StatementContext>(0);
 }
 
 
-size_t FieldParser::ProgContext::getRuleIndex() const {
-  return FieldParser::RuleProg;
+size_t IDLParser::ProgContext::getRuleIndex() const {
+  return IDLParser::RuleProg;
 }
 
 
-antlrcpp::Any FieldParser::ProgContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<FieldVisitor*>(visitor))
+antlrcpp::Any IDLParser::ProgContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<IDLVisitor*>(visitor))
     return parserVisitor->visitProg(this);
   else
     return visitor->visitChildren(this);
 }
 
-FieldParser::ProgContext* FieldParser::prog() {
+IDLParser::ProgContext* IDLParser::prog() {
   ProgContext *_localctx = _tracker.createInstance<ProgContext>(_ctx, getState());
-  enterRule(_localctx, 0, FieldParser::RuleProg);
+  enterRule(_localctx, 0, IDLParser::RuleProg);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -82,38 +82,38 @@ FieldParser::ProgContext* FieldParser::prog() {
 
 //----------------- StatementContext ------------------------------------------------------------------
 
-FieldParser::StatementContext::StatementContext(ParserRuleContext *parent, size_t invokingState)
+IDLParser::StatementContext::StatementContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-FieldParser::PodContext* FieldParser::StatementContext::pod() {
-  return getRuleContext<FieldParser::PodContext>(0);
+IDLParser::PodContext* IDLParser::StatementContext::pod() {
+  return getRuleContext<IDLParser::PodContext>(0);
 }
 
-FieldParser::ObjectContext* FieldParser::StatementContext::object() {
-  return getRuleContext<FieldParser::ObjectContext>(0);
+IDLParser::ObjectContext* IDLParser::StatementContext::object() {
+  return getRuleContext<IDLParser::ObjectContext>(0);
 }
 
-FieldParser::ArrayContext* FieldParser::StatementContext::array() {
-  return getRuleContext<FieldParser::ArrayContext>(0);
-}
-
-
-size_t FieldParser::StatementContext::getRuleIndex() const {
-  return FieldParser::RuleStatement;
+IDLParser::ArrayContext* IDLParser::StatementContext::array() {
+  return getRuleContext<IDLParser::ArrayContext>(0);
 }
 
 
-antlrcpp::Any FieldParser::StatementContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<FieldVisitor*>(visitor))
+size_t IDLParser::StatementContext::getRuleIndex() const {
+  return IDLParser::RuleStatement;
+}
+
+
+antlrcpp::Any IDLParser::StatementContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<IDLVisitor*>(visitor))
     return parserVisitor->visitStatement(this);
   else
     return visitor->visitChildren(this);
 }
 
-FieldParser::StatementContext* FieldParser::statement() {
+IDLParser::StatementContext* IDLParser::statement() {
   StatementContext *_localctx = _tracker.createInstance<StatementContext>(_ctx, getState());
-  enterRule(_localctx, 2, FieldParser::RuleStatement);
+  enterRule(_localctx, 2, IDLParser::RuleStatement);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -126,24 +126,24 @@ FieldParser::StatementContext* FieldParser::statement() {
     setState(17);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
-      case FieldParser::Bool:
-      case FieldParser::Int:
-      case FieldParser::Float:
-      case FieldParser::String: {
+      case IDLParser::Bool:
+      case IDLParser::Int:
+      case IDLParser::Float:
+      case IDLParser::String: {
         enterOuterAlt(_localctx, 1);
         setState(14);
         pod();
         break;
       }
 
-      case FieldParser::Identifier: {
+      case IDLParser::Identifier: {
         enterOuterAlt(_localctx, 2);
         setState(15);
         object();
         break;
       }
 
-      case FieldParser::LeftBracket: {
+      case IDLParser::LeftBracket: {
         enterOuterAlt(_localctx, 3);
         setState(16);
         array();
@@ -166,42 +166,42 @@ FieldParser::StatementContext* FieldParser::statement() {
 
 //----------------- PodContext ------------------------------------------------------------------
 
-FieldParser::PodContext::PodContext(ParserRuleContext *parent, size_t invokingState)
+IDLParser::PodContext::PodContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* FieldParser::PodContext::Bool() {
-  return getToken(FieldParser::Bool, 0);
+tree::TerminalNode* IDLParser::PodContext::Bool() {
+  return getToken(IDLParser::Bool, 0);
 }
 
-tree::TerminalNode* FieldParser::PodContext::Int() {
-  return getToken(FieldParser::Int, 0);
+tree::TerminalNode* IDLParser::PodContext::Int() {
+  return getToken(IDLParser::Int, 0);
 }
 
-tree::TerminalNode* FieldParser::PodContext::Float() {
-  return getToken(FieldParser::Float, 0);
+tree::TerminalNode* IDLParser::PodContext::Float() {
+  return getToken(IDLParser::Float, 0);
 }
 
-tree::TerminalNode* FieldParser::PodContext::String() {
-  return getToken(FieldParser::String, 0);
-}
-
-
-size_t FieldParser::PodContext::getRuleIndex() const {
-  return FieldParser::RulePod;
+tree::TerminalNode* IDLParser::PodContext::String() {
+  return getToken(IDLParser::String, 0);
 }
 
 
-antlrcpp::Any FieldParser::PodContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<FieldVisitor*>(visitor))
+size_t IDLParser::PodContext::getRuleIndex() const {
+  return IDLParser::RulePod;
+}
+
+
+antlrcpp::Any IDLParser::PodContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<IDLVisitor*>(visitor))
     return parserVisitor->visitPod(this);
   else
     return visitor->visitChildren(this);
 }
 
-FieldParser::PodContext* FieldParser::pod() {
+IDLParser::PodContext* IDLParser::pod() {
   PodContext *_localctx = _tracker.createInstance<PodContext>(_ctx, getState());
-  enterRule(_localctx, 4, FieldParser::RulePod);
+  enterRule(_localctx, 4, IDLParser::RulePod);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -216,10 +216,10 @@ FieldParser::PodContext* FieldParser::pod() {
     setState(19);
     _la = _input->LA(1);
     if (!((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & ((1ULL << FieldParser::Bool)
-      | (1ULL << FieldParser::Int)
-      | (1ULL << FieldParser::Float)
-      | (1ULL << FieldParser::String))) != 0))) {
+      ((1ULL << _la) & ((1ULL << IDLParser::Bool)
+      | (1ULL << IDLParser::Int)
+      | (1ULL << IDLParser::Float)
+      | (1ULL << IDLParser::String))) != 0))) {
     _errHandler->recoverInline(this);
     }
     else {
@@ -239,42 +239,42 @@ FieldParser::PodContext* FieldParser::pod() {
 
 //----------------- ObjectContext ------------------------------------------------------------------
 
-FieldParser::ObjectContext::ObjectContext(ParserRuleContext *parent, size_t invokingState)
+IDLParser::ObjectContext::ObjectContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-std::vector<FieldParser::FieldContext *> FieldParser::ObjectContext::field() {
-  return getRuleContexts<FieldParser::FieldContext>();
+std::vector<IDLParser::FieldContext *> IDLParser::ObjectContext::field() {
+  return getRuleContexts<IDLParser::FieldContext>();
 }
 
-FieldParser::FieldContext* FieldParser::ObjectContext::field(size_t i) {
-  return getRuleContext<FieldParser::FieldContext>(i);
+IDLParser::FieldContext* IDLParser::ObjectContext::field(size_t i) {
+  return getRuleContext<IDLParser::FieldContext>(i);
 }
 
-std::vector<tree::TerminalNode *> FieldParser::ObjectContext::Comma() {
-  return getTokens(FieldParser::Comma);
+std::vector<tree::TerminalNode *> IDLParser::ObjectContext::Comma() {
+  return getTokens(IDLParser::Comma);
 }
 
-tree::TerminalNode* FieldParser::ObjectContext::Comma(size_t i) {
-  return getToken(FieldParser::Comma, i);
-}
-
-
-size_t FieldParser::ObjectContext::getRuleIndex() const {
-  return FieldParser::RuleObject;
+tree::TerminalNode* IDLParser::ObjectContext::Comma(size_t i) {
+  return getToken(IDLParser::Comma, i);
 }
 
 
-antlrcpp::Any FieldParser::ObjectContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<FieldVisitor*>(visitor))
+size_t IDLParser::ObjectContext::getRuleIndex() const {
+  return IDLParser::RuleObject;
+}
+
+
+antlrcpp::Any IDLParser::ObjectContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<IDLVisitor*>(visitor))
     return parserVisitor->visitObject(this);
   else
     return visitor->visitChildren(this);
 }
 
-FieldParser::ObjectContext* FieldParser::object() {
+IDLParser::ObjectContext* IDLParser::object() {
   ObjectContext *_localctx = _tracker.createInstance<ObjectContext>(_ctx, getState());
-  enterRule(_localctx, 6, FieldParser::RuleObject);
+  enterRule(_localctx, 6, IDLParser::RuleObject);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -294,7 +294,7 @@ FieldParser::ObjectContext* FieldParser::object() {
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
         setState(22);
-        match(FieldParser::Comma);
+        match(IDLParser::Comma);
         setState(23);
         field(); 
       }
@@ -315,38 +315,38 @@ FieldParser::ObjectContext* FieldParser::object() {
 
 //----------------- FieldContext ------------------------------------------------------------------
 
-FieldParser::FieldContext::FieldContext(ParserRuleContext *parent, size_t invokingState)
+IDLParser::FieldContext::FieldContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* FieldParser::FieldContext::Identifier() {
-  return getToken(FieldParser::Identifier, 0);
+tree::TerminalNode* IDLParser::FieldContext::Identifier() {
+  return getToken(IDLParser::Identifier, 0);
 }
 
-tree::TerminalNode* FieldParser::FieldContext::Colon() {
-  return getToken(FieldParser::Colon, 0);
+tree::TerminalNode* IDLParser::FieldContext::Colon() {
+  return getToken(IDLParser::Colon, 0);
 }
 
-FieldParser::StatementContext* FieldParser::FieldContext::statement() {
-  return getRuleContext<FieldParser::StatementContext>(0);
-}
-
-
-size_t FieldParser::FieldContext::getRuleIndex() const {
-  return FieldParser::RuleField;
+IDLParser::StatementContext* IDLParser::FieldContext::statement() {
+  return getRuleContext<IDLParser::StatementContext>(0);
 }
 
 
-antlrcpp::Any FieldParser::FieldContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<FieldVisitor*>(visitor))
+size_t IDLParser::FieldContext::getRuleIndex() const {
+  return IDLParser::RuleField;
+}
+
+
+antlrcpp::Any IDLParser::FieldContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<IDLVisitor*>(visitor))
     return parserVisitor->visitField(this);
   else
     return visitor->visitChildren(this);
 }
 
-FieldParser::FieldContext* FieldParser::field() {
+IDLParser::FieldContext* IDLParser::field() {
   FieldContext *_localctx = _tracker.createInstance<FieldContext>(_ctx, getState());
-  enterRule(_localctx, 8, FieldParser::RuleField);
+  enterRule(_localctx, 8, IDLParser::RuleField);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -358,9 +358,9 @@ FieldParser::FieldContext* FieldParser::field() {
   try {
     enterOuterAlt(_localctx, 1);
     setState(29);
-    match(FieldParser::Identifier);
+    match(IDLParser::Identifier);
     setState(30);
-    match(FieldParser::Colon);
+    match(IDLParser::Colon);
     setState(31);
     statement();
    
@@ -376,38 +376,38 @@ FieldParser::FieldContext* FieldParser::field() {
 
 //----------------- ArrayContext ------------------------------------------------------------------
 
-FieldParser::ArrayContext::ArrayContext(ParserRuleContext *parent, size_t invokingState)
+IDLParser::ArrayContext::ArrayContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* FieldParser::ArrayContext::LeftBracket() {
-  return getToken(FieldParser::LeftBracket, 0);
+tree::TerminalNode* IDLParser::ArrayContext::LeftBracket() {
+  return getToken(IDLParser::LeftBracket, 0);
 }
 
-FieldParser::StatementContext* FieldParser::ArrayContext::statement() {
-  return getRuleContext<FieldParser::StatementContext>(0);
+IDLParser::StatementContext* IDLParser::ArrayContext::statement() {
+  return getRuleContext<IDLParser::StatementContext>(0);
 }
 
-tree::TerminalNode* FieldParser::ArrayContext::RightBracket() {
-  return getToken(FieldParser::RightBracket, 0);
-}
-
-
-size_t FieldParser::ArrayContext::getRuleIndex() const {
-  return FieldParser::RuleArray;
+tree::TerminalNode* IDLParser::ArrayContext::RightBracket() {
+  return getToken(IDLParser::RightBracket, 0);
 }
 
 
-antlrcpp::Any FieldParser::ArrayContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<FieldVisitor*>(visitor))
+size_t IDLParser::ArrayContext::getRuleIndex() const {
+  return IDLParser::RuleArray;
+}
+
+
+antlrcpp::Any IDLParser::ArrayContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<IDLVisitor*>(visitor))
     return parserVisitor->visitArray(this);
   else
     return visitor->visitChildren(this);
 }
 
-FieldParser::ArrayContext* FieldParser::array() {
+IDLParser::ArrayContext* IDLParser::array() {
   ArrayContext *_localctx = _tracker.createInstance<ArrayContext>(_ctx, getState());
-  enterRule(_localctx, 10, FieldParser::RuleArray);
+  enterRule(_localctx, 10, IDLParser::RuleArray);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -419,11 +419,11 @@ FieldParser::ArrayContext* FieldParser::array() {
   try {
     enterOuterAlt(_localctx, 1);
     setState(33);
-    match(FieldParser::LeftBracket);
+    match(IDLParser::LeftBracket);
     setState(34);
     statement();
     setState(35);
-    match(FieldParser::RightBracket);
+    match(IDLParser::RightBracket);
    
   }
   catch (RecognitionException &e) {
@@ -436,33 +436,33 @@ FieldParser::ArrayContext* FieldParser::array() {
 }
 
 // Static vars and initialization.
-std::vector<dfa::DFA> FieldParser::_decisionToDFA;
-atn::PredictionContextCache FieldParser::_sharedContextCache;
+std::vector<dfa::DFA> IDLParser::_decisionToDFA;
+atn::PredictionContextCache IDLParser::_sharedContextCache;
 
 // We own the ATN which in turn owns the ATN states.
-atn::ATN FieldParser::_atn;
-std::vector<uint16_t> FieldParser::_serializedATN;
+atn::ATN IDLParser::_atn;
+std::vector<uint16_t> IDLParser::_serializedATN;
 
-std::vector<std::string> FieldParser::_ruleNames = {
+std::vector<std::string> IDLParser::_ruleNames = {
   "prog", "statement", "pod", "object", "field", "array"
 };
 
-std::vector<std::string> FieldParser::_literalNames = {
+std::vector<std::string> IDLParser::_literalNames = {
   "", "", "'bool'", "'int'", "'float'", "'false'", "'string'", "'['", "']'", 
   "'{'", "'}'", "'true'", "','", "':'"
 };
 
-std::vector<std::string> FieldParser::_symbolicNames = {
+std::vector<std::string> IDLParser::_symbolicNames = {
   "", "BooleanLiteral", "Bool", "Int", "Float", "False_", "String", "LeftBracket", 
   "RightBracket", "LeftBrace", "RightBrace", "True_", "Comma", "Colon", 
   "Identifier", "Whitespace", "Newline"
 };
 
-dfa::Vocabulary FieldParser::_vocabulary(_literalNames, _symbolicNames);
+dfa::Vocabulary IDLParser::_vocabulary(_literalNames, _symbolicNames);
 
-std::vector<std::string> FieldParser::_tokenNames;
+std::vector<std::string> IDLParser::_tokenNames;
 
-FieldParser::Initializer::Initializer() {
+IDLParser::Initializer::Initializer() {
 	for (size_t i = 0; i < _symbolicNames.size(); ++i) {
 		std::string name = _vocabulary.getLiteralName(i);
 		if (name.empty()) {
@@ -513,4 +513,4 @@ FieldParser::Initializer::Initializer() {
   }
 }
 
-FieldParser::Initializer FieldParser::_init;
+IDLParser::Initializer IDLParser::_init;
