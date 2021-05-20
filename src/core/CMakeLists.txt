@@ -15,11 +15,19 @@ set(kr_app_core_SRCS
     idl.cpp
     idl_visitor.h 
     idl_visitor.cpp
+    pack.h
+    types.h
+    unpack.h
     ${ANTLR_FieldGrammarParser_CXX_OUTPUTS}
+)
+
+set(kr_app_core_detail_SRCS
+    detail/msgpack.h
 )
 
 add_library(kr_app_core
     ${kr_app_core_SRCS}
+    ${kr_app_core_detail_SRCS}
 )
 
 add_dependencies(kr_app_core
