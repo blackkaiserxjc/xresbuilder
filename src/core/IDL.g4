@@ -28,6 +28,8 @@ array
   : LeftBracket statement RightBracket
   ;
 
+
+/* keywords */
 BooleanLiteral: False_ | True_;
 
 Bool: 'bool';

@@ -1,115 +1,148 @@
 grammar Cell;
 
-program
-    : statement
+/* parser */
+program:
+    statement
     ;
 
-statement
-    : object
+statement:
+    pod
+    |object
     | array
     ;
 
-object
-    : field (',' field)*
+object:
+    field (Comma field)*
     ;
 
-field
-    : Identifier
-    | DigitSequence
+field:
+    pod
+    | array
+    ;
+
+pod:
+    BooleanLiteral
     | StringLiteral
-    | array
+    | IntegerLiteral
+    | FloatingLiteral
     ;
 
 array
-    : '[' statement (';' statement)* ']'
+    : LeftBracket statement (Semi statement)* RightBracket
     ;
 
-Identifier
-  :   IdentifierNondigit
-  (   IdentifierNondigit
-  |   Digit
-  )*
-    ;
-fragment
-IdentifierNondigit
-  :   Nondigit
-  |   UniversalCharacterName
-  ;
+/* lexer */
+IntegerLiteral:
+	DecimalLiteral
+	| OctalLiteral
+	| HexadecimalLiteral
+	| BinaryLiteral;
 
-fragment
-Nondigit
-  :   [a-zA-Z_]
-    ;
+FloatingLiteral:
+	Fractionalconstant Exponentpart?
+	| Digitsequence Exponentpart;
 
-fragment
-Digit
-  :   [0-9]
-    ;
+StringLiteral:
+    '"' Schar* '"';
 
-fragment
-UniversalCharacterName
-  :   '\\u' HexQuad
-  |   '\\U' HexQuad HexQuad
-  ;
+BooleanLiteral: False_ | True_;
 
-fragment
-HexQuad
-  :   HexadecimalDigit HexadecimalDigit HexadecimalDigit HexadecimalDigit
-  ;
+/* keywords */
+LeftBracket : '[';
 
-fragment
-HexadecimalDigit
-  :   [0-9a-fA-F]
-    ;
+RightBracket : ']';
 
-DigitSequence
-    :   Digit+
-    ;
+Comma : ',';
 
-StringLiteral
-    : '"' CCharSequence'"'
-    ;
+Semi : ';';
 
-fragment
-CCharSequence
-    :   CChar+
-    ;
+False_ : 'false' | 'False' | 'FALSE';
 
-fragment
-CChar
-    :   ~['\\\r\n]
-    |   EscapeSequence
-    ;
-fragment
-EscapeSequence
-    :   SimpleEscapeSequence
-    |   OctalEscapeSequence
-    |   HexadecimalEscapeSequence
-    |   UniversalCharacterName
-    ;
-fragment
-SimpleEscapeSequence
-    :   '\\' ['"?abfnrtv\\]
-    ;
-fragment
-OctalEscapeSequence
-    :   '\\' OctalDigit OctalDigit? OctalDigit?
-    ;
-fragment
-HexadecimalEscapeSequence
-    :   '\\x' HexadecimalDigit+
-    ;
+True_ : 'true' | 'True' | 'TRUE';
 
-fragment
-OctalConstant
-    :   '0' OctalDigit*
-    ;
+/* fragment */
+fragment Hexquad:
+	HEXADECIMALDIGIT HEXADECIMALDIGIT HEXADECIMALDIGIT HEXADECIMALDIGIT;
 
-fragment
-OctalDigit
-    :   [0-7]
-    ;
+fragment Universalcharactername:
+	'\\u' Hexquad
+	| '\\U' Hexquad Hexquad;
 
+Identifier:
+	Identifiernondigit (Identifiernondigit | DIGIT)*;
+
+fragment Identifiernondigit: NONDIGIT | Universalcharactername;
+
+fragment NONDIGIT: [a-zA-Z_];
+
+fragment DIGIT: [0-9];
+
+DecimalLiteral: NONZERODIGIT ('\''? DIGIT)*;
+
+OctalLiteral: '0' ('\''? OCTALDIGIT)*;
+
+HexadecimalLiteral: ('0x' | '0X') HEXADECIMALDIGIT (
+		'\''? HEXADECIMALDIGIT
+	)*;
+
+BinaryLiteral: ('0b' | '0B') BINARYDIGIT ('\''? BINARYDIGIT)*;
+
+fragment NONZERODIGIT: [1-9];
+
+fragment OCTALDIGIT: [0-7];
+
+fragment HEXADECIMALDIGIT: [0-9a-fA-F];
+
+fragment BINARYDIGIT: [01];
+
+fragment Cchar:
+	~ ['\\\r\n]
+	| Escapesequence
+	| Universalcharactername;
+fragment Escapesequence:
+	Simpleescapesequence
+	| Octalescapesequence
+	| Hexadecimalescapesequence;
+fragment Simpleescapesequence:
+	'\\\''
+	| '\\"'
+	| '\\?'
+	| '\\\\'
+	| '\\a'
+	| '\\b'
+	| '\\f'
+	| '\\n'
+	| '\\r'
+	| ('\\' ('\r' '\n'? | '\n'))
+	| '\\t'
+	| '\\v';
+
+fragment Octalescapesequence:
+	'\\' OCTALDIGIT
+	| '\\' OCTALDIGIT OCTALDIGIT
+	| '\\' OCTALDIGIT OCTALDIGIT OCTALDIGIT;
+
+fragment Hexadecimalescapesequence: '\\x' HEXADECIMALDIGIT+;
+
+fragment Fractionalconstant:
+	Digitsequence? '.' Digitsequence
+	| Digitsequence '.';
+
+fragment Exponentpart:
+	'e' SIGN? Digitsequence
+	| 'E' SIGN? Digitsequence;
+
+fragment SIGN: [+-];
+
+fragment Digitsequence: DIGIT ('\''? DIGIT)*;
+
+fragment Schar:
+	~ ["\\\r\n]
+	| Escapesequence
+	| Universalcharactername;
+fragment Rawstring: 'R"' (( '\\' ["()] )|~[\r\n (])*? '(' ~[)]*? ')'  (( '\\' ["()]) | ~[\r\n "])*? '"';
+
+/* skip */
 Whitespace: [ \t]+ -> skip;
 
 Newline: ('\r' '\n'? | '\n') -> skip;

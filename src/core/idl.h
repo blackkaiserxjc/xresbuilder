@@ -89,7 +89,8 @@ public:
   Parser(const Parser &) = delete;
   Parser &operator=(const Parser &) = delete;
 
-  bool Parse(const std::string &source);
+  bool Parse(const std::string& source);
+  bool ParseCell(const std::string& source);
   Type Message() const;
 
 protected:

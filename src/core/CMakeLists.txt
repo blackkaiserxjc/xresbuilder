@@ -1,8 +1,10 @@
 find_package(ANTLR REQUIRED)
 find_package(Boost REQUIRED)
+find_package(msgpack REQUIRED)
 
 set(ANTLR_OUTPUT_DIRS ${PROJECT_SOURCE_DIR}/libs/)
-antlr_target(FieldGrammarParser IDL.g4 VISITOR OUTPUT_DIRECTORY ${ANTLR_OUTPUT_DIRS})
+antlr_target(IDLGrammarParser IDL.g4 VISITOR OUTPUT_DIRECTORY ${ANTLR_OUTPUT_DIRS})
+antlr_target(CellGrammarParser Cell.g4 VISITOR OUTPUT_DIRECTORY ${ANTLR_OUTPUT_DIRS})
 
 include_directories(${ANTLR4_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
@@ -13,16 +15,17 @@ set(kr_app_core_SRCS
     core.cpp
     idl.h
     idl.cpp
-    idl_visitor.h 
-    idl_visitor.cpp
+    ast_builder.h 
+    ast_builder.cpp
     pack.h
     types.h
     unpack.h
-    ${ANTLR_FieldGrammarParser_CXX_OUTPUTS}
+    ${ANTLR_IDLGrammarParser_CXX_OUTPUTS}
+    ${ANTLR_CellGrammarParser_CXX_OUTPUTS}
 )
 
 set(kr_app_core_detail_SRCS
-    detail/msgpack.h
+    impl/msgpack.h
 )
 
 add_library(kr_app_core
