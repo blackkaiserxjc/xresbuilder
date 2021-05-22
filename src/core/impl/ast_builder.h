@@ -1,5 +1,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/convert.hpp>
+#include <boost/convert/stream.hpp>
 
 namespace kr 
 {
@@ -33,13 +35,16 @@ namespace kr
         template <typename Packer>
         antlrcpp::Any CellAstBuilder<Packer>::visitPod(CellParser::PodContext *context)
         {
+            using boost::convert;
+            boost::cnv::cstream cnv;
             auto lower = [](auto node)
             {
                 return boost::algorithm::to_lower_copy(node->getText());
             };
             if (context->BooleanLiteral())
             {
-                packer_.pack(boost::lexical_cast<bool>(lower(context->BooleanLiteral())));
+                auto value = convert<bool>(lower(context->BooleanLiteral()),cnv(std::boolalpha)).value_or(false);
+                packer_.pack(value);
             }
             else if (context->IntegerLiteral())
             {
