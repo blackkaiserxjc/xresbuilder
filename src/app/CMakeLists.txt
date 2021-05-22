@@ -1,6 +1,7 @@
 find_package(Boost REQUIRED)
 find_package(Fmt REQUIRED)
 find_package(ANTLR REQUIRED)
+find_package(msgpack REQUIRED)
 
 include_directories(${ANTLR4_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
