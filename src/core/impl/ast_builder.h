@@ -60,7 +60,7 @@ namespace kr
             {
                 packer_.pack(cvt(context->StringLiteral()));
             }
-            return nullptr;
+            return nullptr; 
         }
         
         template <typename Packer>
