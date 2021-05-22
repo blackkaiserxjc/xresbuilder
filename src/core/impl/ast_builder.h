@@ -1,7 +1,8 @@
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/convert.hpp>
 #include <boost/convert/stream.hpp>
+
+struct boost::cnv::by_default : public boost::cnv::cstream {};
 
 namespace kr 
 {
@@ -35,28 +36,29 @@ namespace kr
         template <typename Packer>
         antlrcpp::Any CellAstBuilder<Packer>::visitPod(CellParser::PodContext *context)
         {
-            using boost::convert;
-            boost::cnv::cstream cnv;
-            auto lower = [](auto node)
+            auto cvt = [](auto node)
             {
-                return boost::algorithm::to_lower_copy(node->getText());
+                auto text = node->getText();
+                boost::algorithm::trim_if(text, [](auto ch) { return ch == '\"';});
+                boost::algorithm::to_lower(text);
+                return text;
             };
+            boost::cnv::cstream cnv;
             if (context->BooleanLiteral())
             {
-                auto value = convert<bool>(lower(context->BooleanLiteral()),cnv(std::boolalpha)).value_or(false);
-                packer_.pack(value);
+                packer_.pack(boost::convert<bool>(cvt(context->BooleanLiteral()), cnv(std::boolalpha)).value_or(false));
             }
             else if (context->IntegerLiteral())
             {
-                packer_.pack(boost::lexical_cast<std::int64_t>(lower(context->IntegerLiteral())));
+                packer_.pack(boost::convert<std::int64_t>(cvt(context->IntegerLiteral())).value_or(0));
             }
             else if (context->FloatingLiteral())
             {
-                packer_.pack(boost::lexical_cast<double>(lower(context->FloatingLiteral())));
+                packer_.pack(boost::convert<double>(cvt(context->FloatingLiteral())).value_or(0.0f));
             }
             else if (context->StringLiteral())
             {
-                packer_.pack(lower(context->StringLiteral()));
+                packer_.pack(cvt(context->StringLiteral()));
             }
             return nullptr;
         }
