@@ -37,7 +37,7 @@ bool Parser::ParseCell(const std::string& source)
     
     msgpack::sbuffer buffer;
     Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer};
-    CellAstBuilder<delctype(packer)> ast_builder{packer};
+    CellAstBuilder ast_builder{packer};
 
     auto tree = parser.program();
     ast_builder.visitProgram(tree);

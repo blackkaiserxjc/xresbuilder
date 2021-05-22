@@ -14,13 +14,13 @@ namespace kr
         antlrcpp::Any CellAstBuilder<Packer>::visitObject(CellParser::ObjectContext *context)
         {   
             auto filed_size = context->field().size();
-            packer_.pack_map_begin(filed_size);
+            packer_.pack_begin_map(filed_size);
             for (auto index = 0; index < filed_size; index++)
             {
-                packer_.key<std::uint32_t>(index + 1);
+                packer_.key(static_cast<std::uint32_t>(index + 1));
                 visitField(context->field(index));
             }
-            Packer::packer_.pack_map_end();
+            packer_.pack_end_map();
             return nullptr;
         }
 
@@ -39,15 +39,15 @@ namespace kr
             };
             if (context->BooleanLiteral())
             {
-                packer_.pack_bool(boost::lexical_cast<bool>(lower(context->BooleanLiteral())));
+                packer_.pack(boost::lexical_cast<bool>(lower(context->BooleanLiteral())));
             }
             else if (context->IntegerLiteral())
             {
-                packer_.pack_int64(boost::lexical_cast<std::int64_t>(lower(context->IntegerLiteral())));
+                packer_.pack(boost::lexical_cast<std::int64_t>(lower(context->IntegerLiteral())));
             }
             else if (context->FloatingLiteral())
             {
-                packer_.pack_double(boost::lexical_cast<double>(lower(context->FloatingLiteral())));
+                packer_.pack(boost::lexical_cast<double>(lower(context->FloatingLiteral())));
             }
             else if (context->StringLiteral())
             {
@@ -59,12 +59,12 @@ namespace kr
         template <typename Packer>
         antlrcpp::Any CellAstBuilder<Packer>::visitArray(CellParser::ArrayContext *context)
         {
-            packer_.pack_array_begin(context->statement().size());
+            packer_.pack_begin_array(context->statement().size());
             for (auto ctx : context->statement())
             {
                 visitStatement(ctx);
             }
-            packer_.pack_array_end();
+            packer_.pack_end_array();
             return nullptr;
         }
     }   
