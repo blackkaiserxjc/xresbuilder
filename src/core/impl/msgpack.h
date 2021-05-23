@@ -91,158 +91,153 @@ private:
   ::msgpack::packer<Stream> packer_;
 };
 
-template <>
-struct UnPacker<::msgpack::object> {    
+template <> struct UnPacker<::msgpack::object> {
 public:
-    explicit UnPacker(const ::msgpack::object& object)
-        : object_{object}
-    {}
+  explicit UnPacker(const ::msgpack::object &object) : object_{object} {}
 
-    BaseType type() const {
-        switch(object_.type) {
-        case ::msgpack::type::NIL:
-            return BASE_TYPE_NONE;
-        case ::msgpack::type::BOOLEAN:
-            return BASE_TYPE_BOOL;
-        case ::msgpack::type::POSITIVE_INTEGER:
-        case ::msgpack::type::NEGATIVE_INTEGER:
-            return BASE_TYPE_INT;
-        case ::msgpack::type::FLOAT32:
-        case ::msgpack::type::FLOAT64:
-            return BASE_TYPE_FLOAT;
-        case ::msgpack::type::STR:
-        case ::msgpack::type::BIN:
-        case ::msgpack::type::EXT:
-            return BASE_TYPE_STRING;
-        case ::msgpack::type::ARRAY:
-            return BASE_TYPE_ARRAY;
-        case ::msgpack::type::MAP:
-            return BASE_TYPE_OBJECT;
-        default:
-            assert("unknow type");
-            return BASE_TYPE_NONE;
-        }
+  BaseType type() const {
+    switch (object_.type) {
+    case ::msgpack::type::NIL:
+      return BASE_TYPE_NONE;
+    case ::msgpack::type::BOOLEAN:
+      return BASE_TYPE_BOOL;
+    case ::msgpack::type::POSITIVE_INTEGER:
+    case ::msgpack::type::NEGATIVE_INTEGER:
+      return BASE_TYPE_INT;
+    case ::msgpack::type::FLOAT32:
+    case ::msgpack::type::FLOAT64:
+      return BASE_TYPE_FLOAT;
+    case ::msgpack::type::STR:
+    case ::msgpack::type::BIN:
+    case ::msgpack::type::EXT:
+      return BASE_TYPE_STRING;
+    case ::msgpack::type::ARRAY:
+      return BASE_TYPE_ARRAY;
+    case ::msgpack::type::MAP:
+      return BASE_TYPE_OBJECT;
+    default:
+      assert("unknow type");
+      return BASE_TYPE_NONE;
     }
+  }
 
-    template <typename T>
-    T as() const {
-        return ::msgpack::adaptor::as<T>()(object_);
-    }   
+  template <typename T> T as() const {
+    return ::msgpack::adaptor::as<T>()(object_);
+  }
 
-    template <typename T, typename Action,typename Except>
-    void to(Action&& action, Except&& except) const {
-        if constexpr (std::is_same_v<T, bool>) {
-            switch (object_.type) {
-            case ::msgpack::type::BOOLEAN:
-                action(object_.via.boolean);
-                break;
-            case ::msgpack::type::POSITIVE_INTEGER:
-                action(object_.via.u64 != 0);
-                break;
-            case ::msgpack::type::NEGATIVE_INTEGER:
-                action(object_.via.i64 != 0);
-                break;
-            case ::msgpack::type::FLOAT32:
-            case ::msgpack::type::FLOAT64:
-                action(object_.via.f64 != 0);
-                break;
-            default:
-                except();
-                break;
-            }
-        } else if constexpr(std::is_same_v<T, std::int32_t>) {
-            switch (object_.type) {
-            case ::msgpack::type::BOOLEAN:
-                action(object_.via.boolean ? 1 : 0);
-                break;
-            case ::msgpack::type::POSITIVE_INTEGER:
-                action(static_cast<std::int32_t>(object_.via.u64));
-                break;
-            case ::msgpack::type::NEGATIVE_INTEGER:
-                action(static_cast<std::int32_t>(object_.via.i64));
-                break;
-            case ::msgpack::type::FLOAT32:
-            case ::msgpack::type::FLOAT64:
-                action(static_cast<std::int32_t>(object_.via.f64));
-                break;
-            }
-        } else if constexpr(std::is_same_v<T, std::uint32_t>) {
-            switch (object_.type) {
-            case ::msgpack::type::BOOLEAN:
-                action(object_.via.boolean ? 1 : 0);
-                break;
-            case ::msgpack::type::POSITIVE_INTEGER:
-                action(static_cast<std::uint32_t>(object_.via.u64));
-                break;
-            case ::msgpack::type::NEGATIVE_INTEGER:
-                action(static_cast<std::uint32_t>(object_.via.i64));
-                break;
-            case ::msgpack::type::FLOAT32:
-            case ::msgpack::type::FLOAT64:
-                action(static_cast<std::uint32_t>(object_.via.f64));
-                break;
-            }
-        } else if constexpr(std::is_same_v<T, std::int64_t>) {
-            switch (object_.type) {
-            case ::msgpack::type::BOOLEAN:
-                action(object_.via.boolean ? 1 : 0);
-                break;
-            case ::msgpack::type::POSITIVE_INTEGER:
-                action(static_cast<std::int64_t>(object_.via.u64));
-                break;
-            case ::msgpack::type::NEGATIVE_INTEGER:
-                action(static_cast<std::int64_t>(object_.via.i64));
-                break;
-            case ::msgpack::type::FLOAT32:
-            case ::msgpack::type::FLOAT64:
-                action(static_cast<std::int64_t>(object_.via.f64));
-                break;
-            }
-        } else if constexpr(std::is_same_v<T, std::uint64_t>) {
-            switch (object_.type) {
-            case ::msgpack::type::BOOLEAN:
-                action(object_.via.boolean ? 1: 0);
-                break;
-            case ::msgpack::type::POSITIVE_INTEGER:
-                action(static_cast<std::uint64_t>(object_.via.u64));
-                break;
-            case ::msgpack::type::NEGATIVE_INTEGER:
-                action(static_cast<std::uint64_t>(object_.via.i64));
-                break;
-            case ::msgpack::type::FLOAT32:
-            case ::msgpack::type::FLOAT64:
-                action(static_cast<std::uint64_t>(object_.via.f64));
-                break;
-            }
-        } else if constexpr(std::is_same_v<T, std::string_view>) {
-            switch (object_.type) {
-            case ::msgpack::type::STR:
-            case ::msgpack::type::BIN:
-            case ::msgpack::type::EXT:
-                action(std::string_view(object_.via.str.ptr, object_.via.str.size));
-                break;
-            }
-        }
+  template <typename T, typename Action, typename Except>
+  void to(Action &&action, Except &&except) const {
+    if constexpr (std::is_same_v<T, bool>) {
+      switch (object_.type) {
+      case ::msgpack::type::BOOLEAN:
+        action(object_.via.boolean);
+        break;
+      case ::msgpack::type::POSITIVE_INTEGER:
+        action(object_.via.u64 != 0);
+        break;
+      case ::msgpack::type::NEGATIVE_INTEGER:
+        action(object_.via.i64 != 0);
+        break;
+      case ::msgpack::type::FLOAT32:
+      case ::msgpack::type::FLOAT64:
+        action(object_.via.f64 != 0);
+        break;
+      default:
+        except();
+        break;
+      }
+    } else if constexpr (std::is_same_v<T, std::int32_t>) {
+      switch (object_.type) {
+      case ::msgpack::type::BOOLEAN:
+        action(object_.via.boolean ? 1 : 0);
+        break;
+      case ::msgpack::type::POSITIVE_INTEGER:
+        action(static_cast<std::int32_t>(object_.via.u64));
+        break;
+      case ::msgpack::type::NEGATIVE_INTEGER:
+        action(static_cast<std::int32_t>(object_.via.i64));
+        break;
+      case ::msgpack::type::FLOAT32:
+      case ::msgpack::type::FLOAT64:
+        action(static_cast<std::int32_t>(object_.via.f64));
+        break;
+      }
+    } else if constexpr (std::is_same_v<T, std::uint32_t>) {
+      switch (object_.type) {
+      case ::msgpack::type::BOOLEAN:
+        action(object_.via.boolean ? 1 : 0);
+        break;
+      case ::msgpack::type::POSITIVE_INTEGER:
+        action(static_cast<std::uint32_t>(object_.via.u64));
+        break;
+      case ::msgpack::type::NEGATIVE_INTEGER:
+        action(static_cast<std::uint32_t>(object_.via.i64));
+        break;
+      case ::msgpack::type::FLOAT32:
+      case ::msgpack::type::FLOAT64:
+        action(static_cast<std::uint32_t>(object_.via.f64));
+        break;
+      }
+    } else if constexpr (std::is_same_v<T, std::int64_t>) {
+      switch (object_.type) {
+      case ::msgpack::type::BOOLEAN:
+        action(object_.via.boolean ? 1 : 0);
+        break;
+      case ::msgpack::type::POSITIVE_INTEGER:
+        action(static_cast<std::int64_t>(object_.via.u64));
+        break;
+      case ::msgpack::type::NEGATIVE_INTEGER:
+        action(static_cast<std::int64_t>(object_.via.i64));
+        break;
+      case ::msgpack::type::FLOAT32:
+      case ::msgpack::type::FLOAT64:
+        action(static_cast<std::int64_t>(object_.via.f64));
+        break;
+      case ::msgpack::type::BOOLEAN:
+        action(object_.via.boolean);
+        break;
+      case ::msgpack::type::POSITIVE_INTEGER:
+        action(static_cast<std::uint64_t>(object_.via.u64));
+        break;
+      case ::msgpack::type::POSITIVE_INTEGER:
+        action(static_cast<std::uint64_t>(object_.via.u64));
+        break;
+      case ::msgpack::type::NEGATIVE_INTEGER:
+        action(static_cast<std::uint64_t>(object_.via.i64));
+        break;
+      case ::msgpack::type::FLOAT32:
+      case ::msgpack::type::FLOAT64:
+        action(static_cast<std::uint64_t>(object_.via.f64));
+        break;
+      }
+    } else if constexpr (std::is_same_v<T, std::string_view>) {
+      switch (object_.type) {
+      case ::msgpack::type::STR:
+      case ::msgpack::type::BIN:
+      case ::msgpack::type::EXT:
+        action(std::string_view(object_.via.str.ptr, object_.via.str.size));
+        break;
+      }
     }
+  }
 
-    template <typename Action>
-    void visit_array(Action&& action) const {
-        assert(object.type_ == ::msgpack::type::ARRAY);
-        for (std::size_t index = 0; index != object_.via.array.size; index++) {
-            action(index, UnPacker((object_.via.array.ptr[index])));
-        }
+  template <typename Action> void visit_array(Action &&action) const {
+    assert(object_.type == ::msgpack::type::ARRAY);
+    for (std::size_t index = 0; index != object_.via.array.size; index++) {
+      action(index, UnPacker((object_.via.array.ptr[index])));
     }
+  }
 
-    template <typename Action>
-    void visit_map(Action&& action) const {
-        assert(object_.type == ::msgpack::type::MAP);
-        for(std::size_t index = 0; index != object_.via.map.size; index++) {
-            action(UnPacker(object_.via.map.ptr[index].key), UnPacker(object_.via.map.ptr[index].val));
-        }
+  template <typename Action> void visit_map(Action &&action) const {
+    assert(object_.type == ::msgpack::type::MAP);
+    for (std::size_t index = 0; index != object_.via.map.size; index++) {
+      action(UnPacker(object_.via.map.ptr[index].key),
+             UnPacker(object_.via.map.ptr[index].val));
     }
+  }
 
 private:
-    const ::msgpack::object object_;
+  const ::msgpack::object object_;
 };
 
 } // namespace core

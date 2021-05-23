@@ -28,6 +28,16 @@ template <typename Stream> struct Packer {
   Packer &pack_end_map();
 };
 
+template <typename Layer> struct UnPacker {
+  template <typename T> T as() const;
+  
+  template <typename T, typename Action, typename Except>   
+  void to(Action&& action, Except&& except) const;
+
+  template <typename Action> void visit_array(Action &&action) const;
+  template <typename Action> void visit_map(Action &&action) const;
+};
+
 } // namespace core
 } // namespace kr
 
