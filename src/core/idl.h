@@ -15,9 +15,13 @@ namespace core {
 struct FieldDef;
 struct ObjectDef;
 struct Type {
-  Type(BaseType base_type = BASE_TYPE_NONE,
-       std::shared_ptr<ObjectDef> obj_def = nullptr)
-      : base_type(base_type), element(BASE_TYPE_NONE), obj_def(obj_def) {}
+  explicit Type(BaseType base_type = BASE_TYPE_NONE,
+                std::shared_ptr<ObjectDef> obj_def = nullptr,
+                std::uint16_t fixed_length = 0)
+      : base_type(base_type), 
+        element(BASE_TYPE_NONE), 
+        obj_def(obj_def),
+        fixed_length(fixed_length) {}
 
   bool operator==(const Type &t) {
     return base_type == t.base_type && element == t.element &&
@@ -27,6 +31,7 @@ struct Type {
   BaseType base_type;
   BaseType element;
   std::shared_ptr<ObjectDef> obj_def;
+  uint16_t fixed_length;
 };
 
 struct Value {
@@ -89,8 +94,8 @@ public:
   Parser(const Parser &) = delete;
   Parser &operator=(const Parser &) = delete;
 
-  bool Parse(const std::string& source);
-  bool ParseCell(const std::string& source);
+  bool Parse(const std::string &source);
+  bool ParseCell(const std::string &source);
   Type Message() const;
 
 protected:
