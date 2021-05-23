@@ -1,5 +1,5 @@
 #include "ast_builder.h"
-#include "idl.h"
+#include "type.h"
 
 namespace kr {
 namespace core {
