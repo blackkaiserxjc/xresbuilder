@@ -19,7 +19,6 @@ set(kr_app_core_SRCS
     ast_builder.cpp
     pack.h
     types.h
-    unpack.h
     ${ANTLR_IDLGrammarParser_CXX_OUTPUTS}
     ${ANTLR_CellGrammarParser_CXX_OUTPUTS}
 )

@@ -1,3 +1,5 @@
+#include <string_view>
+
 #include <msgpack.hpp>
 
 namespace kr
@@ -114,6 +116,66 @@ namespace kr
             }
         private:
             ::msgpack::packer<Stream> packer_;
+        };
+
+        template <>
+        struct UnPacker<::msgpack::object>
+        {   
+            explicit UnPacker(const ::msgpack::object& object)
+                :object_(object)
+            {}
+
+            template <typename T>
+            T as() const
+            {
+                if constexpr (std::is_same_v<T, nullptr>)
+                {
+                    return nullptr;
+                }
+                else if constexpr (std::is_same_v<T, bool>)
+                {
+                    return object_.via.boolean;
+                }
+                else if constexpr (std::is_same_v<T, std::int32_t>)
+                {
+                    return static_cast<std::int32_t>(object_.via.i64);
+                }
+                else if constexpr (std::is_same_v<T, std::uint32_t>)
+                {
+                    return static_cast<std::uint32_t>(object_.via.u64);
+                }
+                else if (constexpr (std::is_same_v<T, std::int64_t>)
+                {
+                    return object_.via.i64;
+                }
+                else if (constexpr (std::is_same_v<T, std::uint64_t>))
+                {
+                    return object_.via.u64;
+                }
+                else if constexpr (std::is_same_v<T, double>)
+                {
+                    return object_.via.float;
+                }
+                else if (constexpr (std::is_same_v<T, std::string_view>))
+                {
+                    return std::string_view(object_.via.str.ptr, object_.via.str.ptr.size);
+                }
+            }
+
+            template <typename Action>
+            void visit_map(Action&& action)
+            {
+
+            }
+
+            template <typename Action>
+            void visit_array(Action&& action)
+            {
+
+            }
+            
+        private:
+            const ::msgpack::object& object_;
         };
     }
 }

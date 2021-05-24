@@ -32,7 +32,22 @@ namespace kr
             Packer& pack_begin_map(std::string_view name, std::size_t size);
             Packer& pack_begin_map(std::size_t size);
             Packer& pack_end_map();
-        };  
+        };
+
+        template <typename Layer>
+        struct UnPacker
+        {   
+            BaseType type() const;
+
+            template <typename T>
+            T as() const;
+
+            template <typename Action>
+            void visit_map(Action&& action) const;
+
+            template <typename Action>
+            void visit_array(Action&& action) const;
+        };
     }
 }
 

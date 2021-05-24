@@ -128,7 +128,6 @@ bool Parser::ParseCell(const std::string& source)
     auto tree = parser.program();
     ast_builder.visitProgram(tree);
 
-
     std::string json_like;
     json_like_visitor v(json_like);
     std::size_t offset = 0;

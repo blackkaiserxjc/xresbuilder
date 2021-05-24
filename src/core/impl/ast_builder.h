@@ -36,9 +36,8 @@ namespace kr
         template <typename Packer>
         antlrcpp::Any CellAstBuilder<Packer>::visitPod(CellParser::PodContext *context)
         {
-            auto cvt = [](auto node)
+            auto cvt = [](auto text)
             {
-                auto text = node->getText();
                 boost::algorithm::trim_if(text, [](auto ch) { return ch == '\"';});
                 boost::algorithm::to_lower(text);
                 return text;
@@ -46,19 +45,19 @@ namespace kr
             boost::cnv::cstream cnv;
             if (context->BooleanLiteral())
             {
-                packer_.pack(boost::convert<bool>(cvt(context->BooleanLiteral()), cnv(std::boolalpha)).value_or(false));
+                packer_.pack(boost::convert<bool>(cvt(context->BooleanLiteral()->getText()), cnv(std::boolalpha)).value_or(false));
             }
             else if (context->IntegerLiteral())
             {
-                packer_.pack(boost::convert<std::int64_t>(cvt(context->IntegerLiteral())).value_or(0));
+                packer_.pack(boost::convert<std::int64_t>(cvt(context->IntegerLiteral()->getText())).value_or(0));
             }
             else if (context->FloatingLiteral())
             {
-                packer_.pack(boost::convert<double>(cvt(context->FloatingLiteral())).value_or(0.0f));
+                packer_.pack(boost::convert<double>(cvt(context->FloatingLiteral()->getText())).value_or(0.0f));
             }
             else if (context->StringLiteral())
             {
-                packer_.pack(cvt(context->StringLiteral()));
+                packer_.pack(cvt(context->StringLiteral()->getText()));
             } 
             return nullptr; 
         }
