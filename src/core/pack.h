@@ -34,7 +34,7 @@ template <typename Layer> struct UnPacker {
   template <typename T, typename Action, typename Except>
   void to(Action&& action, Except&& except) const;
 
-  template <typename Action> void visit_array(Action &&action) const;
+  template <typename Init, typename Action> void visit_array(Init&& init, Action &&action) const;
   template <typename Action> void visit_map(Action &&action) const;
 };
 

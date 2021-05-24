@@ -73,6 +73,10 @@ public:
     return iter == dict.end() ? nullptr : iter->second;
   }
 
+  std::size_t Size() const {
+    return dict.size();
+  }
+  
 public:
   std::unordered_map<std::string, std::shared_ptr<T>> dict;
   std::vector<std::shared_ptr<T>> vec;

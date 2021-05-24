@@ -122,7 +122,21 @@ public:
   }
 
   template <typename T> T as() const {
-    return ::msgpack::adaptor::as<T>()(object_);
+    if constexpr(std::is_same_v<T, bool>) {
+        return object_.via.boolean;
+    } else if constexpr(std::is_same_v<T, std::int32_t>) {
+       return static_cast<std::int32_t>(object_.via.i64);
+    } else if constexpr(std::is_same_v<T, std::uint32_t>) {
+       return static_cast<std::uint32_t>(object_.via.u64);
+    } else if constexpr(std::is_same_v<T, std::int64_t>) {
+       return object_.via.i64;
+    } else if constexpr(std::is_same_v<T, std::uint64_t>) {
+       return object_.via.u64;
+    } else if constexpr(std::is_same_v<T, double>) {
+      return object_.via.f64;
+    } else if constexpr(std::is_same_v<T, std::string>) {
+      return std::string(object_.via.str.ptr, object_.via.str.size);
+    }
   }
 
   template <typename T, typename Action, typename Except>
@@ -193,6 +207,9 @@ public:
       case ::msgpack::type::FLOAT64:
         action(static_cast<std::int64_t>(object_.via.f64));
         break;
+      }
+    } else if constexpr (std::is_same_v<T, std::uint64_t>) {
+      switch (object_.type) {
       case ::msgpack::type::BOOLEAN:
         action(object_.via.boolean);
         break;
@@ -221,8 +238,15 @@ public:
     }
   }
 
-  template <typename Action> void visit_array(Action &&action) const {
+  template <typename Action> void visit_begin_array(Action &&action) const {
     assert(object_.type == ::msgpack::type::ARRAY);
+    action(object_.via.array.size);
+  }
+
+  template <typename Init, typename Action>
+  void visit_array(Init &&init, Action &&action) const {
+    assert(object_.type == ::msgpack::type::ARRAY);
+    init(object_.via.array.size);
     for (std::size_t index = 0; index != object_.via.array.size; index++) {
       action(index, UnPacker((object_.via.array.ptr[index])));
     }

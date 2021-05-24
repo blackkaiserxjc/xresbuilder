@@ -7,8 +7,8 @@ program:
 
 statement:
     pod
-    |object
     | array
+    | object
     ;
 
 object:

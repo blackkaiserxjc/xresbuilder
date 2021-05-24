@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.g4": "antlr4",
         "memory": "cpp",
         "array": "cpp",
         "*.tcc": "cpp",
@@ -67,7 +68,11 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "strstream": "cpp",
+        "complex": "cpp",
+        "cfenv": "cpp",
+        "typeindex": "cpp"
     },
     "cmake.configureOnOpen": true
 }

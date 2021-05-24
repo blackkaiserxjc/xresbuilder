@@ -58,8 +58,8 @@ public:
     StatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     PodContext *pod();
-    ObjectContext *object();
     ArrayContext *array();
+    ObjectContext *object();
 
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;

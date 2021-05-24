@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "type.h"
+#include "object_pack.h"
 
 /** 解析结构 */
 namespace kr {
@@ -21,8 +22,9 @@ public:
   Parser(const Parser &) = delete;
   Parser &operator=(const Parser &) = delete;
 
-  bool Parse(const std::string &source);
-  bool ParseCell(const std::string &source);
+  bool Parse(const std::string &field, const std::string& cell);
+  bool ParseField(const std::string& source);
+  msgpack::object ParseCell(const std::string &source);
   Type Message() const;
 
 protected:

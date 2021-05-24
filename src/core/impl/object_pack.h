@@ -4,52 +4,93 @@
 #include <exception>
 #include <msgpack.hpp>
 
-#include "type.h"
-
 namespace kr {
 namespace core {
 
-template <>
-void pack<Packer<msgpack::packer<msgpack::sbuffer>>, msgpack::object>(
-    Packer<msgpack::packer<msgpack::sbuffer>> &packer, 
-    const Type &type,
-    msgpack::object &message) {
-    Unpacker<msgpack::object> unpacker{message};
+template <typename Packer, typename Reader>
+void pack(Packer &packer, const Type &type, const Reader &reader) {
     if (IsPod(type.base_type)) {
-        assert(type.base_type == unpacker.type(), "type not equal.");
-        
-        switch (type.base_type) {
-        case BASE_TYPE_BOOL: {
-            unpacker.template to<bool>(
-                [&packer](bool value) { packer.pack(value); },
-                [] { throw std::bad_cast("invaild_cast"); });
-        } break;
-        
-        case BASE_TYPE_INT: {
-            unpacker.template to<std::int64_t>(
-                [&packer](std::int64_t value) { packer.pack(value); },
-                []{ throw std::bad_cast("invalid_cast") });
-        } break;
-        
-        case BASE_TYPE_FLOAT: {
-            unpacker.template to<double>(
-                [&packer](double value) { packer.pack(value); },
-                []{ throw std::bad_cast("invaild_cast"); });
-        } break;
-        
-        case BASE_TYPE_STRING: {
-            unpacker.template to<std::string_view>(
-                [&packer](std::string_view value) { packer.pack(value); },
-                []{ throw std::bad_cast("invaild_cast");});
-        } break;
-        }
+        pack_pod(packer, type, reader);
     } else if(IsObject(type.base_type)) {
-        
+        pack_object(packer, type, reader);
     } else if(IsArray(type.base_type)) {
-        assert(type.element == unpacker.type(), "type not equal.");
+        pack_array(packer, type, reader);
     }
 }
 
+template <typename Packer, typename Reader>
+void pack_pod(Packer &packer, const Type &type, const Reader &reader) {
+    if (!(IsPod(type.base_type) && type.base_type == reader.type())) {
+        throw std::runtime_error("invaild type.");
+    } 
+    switch (type.base_type) {
+    case BASE_TYPE_BOOL: {
+        reader.template to<bool>(
+            [&packer](bool value) { packer.pack(value); },
+            [] { throw "invaild_cast"; });
+    } break;
+
+    case BASE_TYPE_INT: {
+        reader.template to<std::int64_t>(
+            [&packer](std::int64_t value) { packer.pack(value); },
+            [] { throw "invalid_cast"; });
+    } break;
+
+    case BASE_TYPE_FLOAT: {
+        reader.template to<double>(
+            [&packer](double value) { packer.pack(value); },
+            [] { throw "invaild_cast"; });
+    } break;
+
+    case BASE_TYPE_STRING: {
+        reader.template to<std::string>(
+            [&packer](std::string value) { packer.pack(value); },
+            [] { throw "invaild_cast"; });
+    } break;
+    }
+}
+
+template <typename Packer, typename Reader>
+void pack_object(Packer &packer, const Type &type, const Reader &reader) {
+    if (type.base_type != BASE_TYPE_OBJECT && type.obj_def) {
+        throw std::runtime_error("invaild type.");
+    }
+    packer.pack_begin_map(type.obj_def->fields.Size());
+    reader.visit_map([&packer, obj_def = type.obj_def](const Reader& key, const Reader& value) {
+        if (key.type() != BASE_TYPE_INT) {
+            throw std::runtime_error("map type not std::uint32_t");
+        }
+        auto index = key.template as<std::uint32_t>();
+        if (index < 0 or index >= obj_def->fields.Size()) {
+            throw std::out_of_range("index out of range");
+        }
+        auto one_field = obj_def->fields.vec[index];
+        if (one_field && one_field->index == index) {
+            packer.key(one_field->name);
+            pack(packer, one_field->value.type, value);
+        }
+    });
+    packer.pack_end_map();
+}
+
+template <typename Packer, typename Reader>
+void pack_array(Packer &packer, const Type &type, const Reader &reader) {
+  if (type.base_type != BASE_TYPE_ARRAY) {
+    throw std::runtime_error("invaild type.");
+  }
+  reader.visit_array(
+        [&packer](std::size_t size) { 
+            packer.pack_begin_array(size); 
+        },
+        [&packer, type](std::size_t index, const Reader &reader) {
+            if (IsPod(type.element)) {
+                pack_pod(packer, Type(type.element), reader);
+            } else if (IsObject(type.element)) {
+                pack_object(packer, Type(type.element, type.obj_def), reader);
+            }
+        });
+    packer.pack_end_array();
+}
 } // namespace core
 } // namespace kr
 #endif

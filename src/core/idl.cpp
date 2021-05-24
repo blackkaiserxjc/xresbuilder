@@ -94,7 +94,25 @@ struct json_like_visitor : msgpack::null_visitor {
 
 namespace kr {
 namespace core {
-bool Parser::Parse(const std::string& source) {
+
+bool Parser::Parse(const std::string& field, const std::string& cell) {
+    ParseField(field);
+    auto object = ParseCell(cell);
+
+    msgpack::sbuffer sbuffer;
+    Packer<msgpack::packer<msgpack::sbuffer>> packer(sbuffer);
+    UnPacker<msgpack::object> unpacker(object);
+    pack(packer, type_, unpacker);
+
+    std::string json_like;
+    json_like_visitor v(json_like);
+    std::size_t offset = 0;
+    bool ret = msgpack::parse(sbuffer.data(), sbuffer.size(), offset, v);
+    std::cout << json_like << std::endl;
+    return true;
+}
+
+bool Parser::ParseField(const std::string& source) {
   using namespace antlr4;
   ANTLRInputStream input(source);
   IDLLexer lexer(&input);
@@ -113,7 +131,7 @@ bool Parser::Parse(const std::string& source) {
   return true;
 }
 
-bool Parser::ParseCell(const std::string& source)
+msgpack::object Parser::ParseCell(const std::string& source)
 { 
     using namespace antlr4;
     ANTLRInputStream input(source);
@@ -128,12 +146,15 @@ bool Parser::ParseCell(const std::string& source)
     auto tree = parser.program();
     ast_builder.visitProgram(tree);
 
+    msgpack::object_handle oh =
+        msgpack::unpack(buffer.data(), buffer.size());
+
     std::string json_like;
     json_like_visitor v(json_like);
     std::size_t offset = 0;
     bool ret = msgpack::parse(buffer.data(), buffer.size(), offset, v);
     std::cout << json_like << std::endl;
-    return true;
+    return oh.get();
 }
 
 Type Parser::Message() const { return type_; }
