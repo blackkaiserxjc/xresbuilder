@@ -17,14 +17,17 @@ set(kr_app_core_SRCS
     idl.cpp
     ast_builder.h 
     ast_builder.cpp
+    object_pack.h
     pack.h
-    types.h
+    type.h
     ${ANTLR_IDLGrammarParser_CXX_OUTPUTS}
     ${ANTLR_CellGrammarParser_CXX_OUTPUTS}
 )
 
 set(kr_app_core_detail_SRCS
+    impl/ast_builder.h
     impl/msgpack.h
+    impl/object_pack.h
 )
 
 add_library(kr_app_core
