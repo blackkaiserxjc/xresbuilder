@@ -25,6 +25,6 @@ void pack_array(Packer& packer, const Type& type, const Reader& message);
 }
 }
 
-#include "impl/object_pack.h"
+#include "detail/object_pack.h"
 
 #endif

@@ -47,6 +47,6 @@ public:
 } // namespace core
 } // namespace kr
 
-#include "impl/ast_builder.h"
+#include "detail/ast_builder.h"
 
 #endif

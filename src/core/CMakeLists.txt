@@ -40,6 +40,7 @@ set(kr_app_core_impl_SRCS
 add_library(kr_app_core
     ${kr_app_core_SRCS}
     ${kr_app_core_detail_SRCS}
+    ${kr_app_core_impl_SRCS}
 )
 
 add_dependencies(kr_app_core
