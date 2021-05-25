@@ -30,9 +30,7 @@ struct Type {
   explicit Type(BaseType base_type = BASE_TYPE_NONE,
                 std::shared_ptr<ObjectDef> obj_def = nullptr,
                 std::uint16_t fixed_length = 0)
-      : base_type(base_type), 
-        element(BASE_TYPE_NONE), 
-        obj_def(obj_def),
+      : base_type(base_type), element(BASE_TYPE_NONE), obj_def(obj_def),
         fixed_length(fixed_length) {}
 
   bool operator==(const Type &t) {
@@ -73,10 +71,8 @@ public:
     return iter == dict.end() ? nullptr : iter->second;
   }
 
-  std::size_t Size() const {
-    return dict.size();
-  }
-  
+  std::size_t Size() const { return dict.size(); }
+
 public:
   std::unordered_map<std::string, std::shared_ptr<T>> dict;
   std::vector<std::shared_ptr<T>> vec;
