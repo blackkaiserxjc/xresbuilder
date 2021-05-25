@@ -9,7 +9,6 @@
 #include "type.h"
 #include "object_pack.h"
 
-/** 解析结构 */
 namespace kr {
 namespace core {
 

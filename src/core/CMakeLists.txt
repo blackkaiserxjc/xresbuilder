@@ -17,6 +17,8 @@ set(kr_app_core_SRCS
     idl.cpp
     ast_builder.h 
     ast_builder.cpp
+    code_generator.h
+    code_generator.cpp
     object_pack.h
     pack.h
     type.h
@@ -25,9 +27,14 @@ set(kr_app_core_SRCS
 )
 
 set(kr_app_core_detail_SRCS
-    impl/ast_builder.h
-    impl/msgpack.h
-    impl/object_pack.h
+    detail/ast_builder.h
+    detail/msgpack.h
+    detail/object_pack.h
+)
+
+set(kr_app_core_impl_SRCS
+    impl/idl_gen_json.cpp
+    impl/idl_gen_lua.cpp
 )
 
 add_library(kr_app_core

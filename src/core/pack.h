@@ -34,13 +34,15 @@ template <typename Layer> struct UnPacker {
   template <typename T, typename Action, typename Except>
   void to(Action&& action, Except&& except) const;
 
-  template <typename Init, typename Action> void visit_array(Init&& init, Action &&action) const;
+  template <typename Init, typename Action> 
+  void visit_array(Init&& init, Action &&action) const;
+  
   template <typename Action> void visit_map(Action &&action) const;
 };
 
 } // namespace core
 } // namespace kr
 
-#include "impl/msgpack.h"
+#include "detail/msgpack.h"
 
 #endif

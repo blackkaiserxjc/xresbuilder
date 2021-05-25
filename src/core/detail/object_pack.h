@@ -8,17 +8,6 @@ namespace kr {
 namespace core {
 
 template <typename Packer, typename Reader>
-void pack(Packer &packer, const Type &type, const Reader &reader) {
-    if (IsPod(type.base_type)) {
-        pack_pod(packer, type, reader);
-    } else if(IsObject(type.base_type)) {
-        pack_object(packer, type, reader);
-    } else if(IsArray(type.base_type)) {
-        pack_array(packer, type, reader);
-    }
-}
-
-template <typename Packer, typename Reader>
 void pack_statement(Packer &packer, const Type &type, const Reader &reader) {
     if (IsPod(type.base_type)) {
         pack_pod(packer, type, reader);
@@ -102,6 +91,30 @@ void pack_array(Packer &packer, const Type &type, const Reader &reader) {
         });
     packer.pack_end_array();
 }
+
+template <typename Packer, typename Reader>
+void pack_root_array(Packer& packer, const Type &type, const Reader &reader) {
+    if (type.base_type != BASE_TYPE_ARRAY) {
+        throw std::runtime_error("invaild type");
+    }
+    if (IsPod(type.element)) {
+        pack_pod(packer, Type(type.element), reader);
+    } else if (IsObject(type.element)) {
+        pack_object(packer, Type(type.element, type.obj_def), reader);
+    }
+}
+
+template <typename Packer, typename Reader>
+void pack(Packer &packer, const Type &type, const Reader &reader) {
+    if (IsPod(type.base_type)) {
+        pack_pod(packer, type, reader);
+    } else if(IsObject(type.base_type)) {
+        pack_object(packer, type, reader);
+    } else if(IsArray(type.base_type)) {
+        pack_root_array(packer, type, reader);
+    }
+}
+
 } // namespace core
 } // namespace kr
 #endif
