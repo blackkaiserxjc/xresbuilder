@@ -6,8 +6,10 @@ namespace core {
 
 class JsonGenerator : public CodeGenerator {
 public:
-    
+
 };
+
+
 
 }
 }

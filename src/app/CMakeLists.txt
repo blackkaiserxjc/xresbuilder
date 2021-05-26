@@ -1,7 +1,7 @@
 find_package(Boost REQUIRED)
 find_package(Fmt REQUIRED)
 find_package(ANTLR REQUIRED)
-find_package(msgpack REQUIRED)
+find_package(Threads)
 
 include_directories(${ANTLR4_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
@@ -17,4 +17,6 @@ add_executable(kr_app_builder
 target_link_libraries(kr_app_builder
     kr_app_core
     antlr4_static
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${CMAKE_DL_LIBS}
 )
