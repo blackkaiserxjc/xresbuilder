@@ -66,18 +66,23 @@ void DataTable::parse()
         std::cout << "rows less start row index." << std::endl;
         return ;
     }
-    parse_header();
+
+    if (parse_header())
+    {
+        std::cout << "parse header failed." << std::endl;
+        return ;
+    }
     parse_data();
 }
 
-void DataTable::parse_header()
+bool DataTable::parse_header()
 {
     auto type_row = doc_.GetRow(static_cast<std::uint32_t>(HeaderRowIndex::TYPE));
     auto value_row = doc_.GetRow(static_cast<std::uint32_t>(HeaderRowIndex::VALUE));
     if (type_row.empty() || value_row.empty() || type_row.size() != value_row.size()) 
     {
         std::cout << "type row or value row is empty." << std::endl;
-        return ;
+        return false;
     }
 
     std::vector<int> field_indexs;
@@ -106,21 +111,22 @@ void DataTable::parse_header()
         if (!parse_field(field.type, child_type))
         {
             std::cout << field.value << "parse error." << std::endl;
-            return;
+            return false;
         }
         auto field_def = std::make_shared<FieldDef>();
+        field_def.type = child_type;
         field_def.index = field.index;
         field_def.name = field.value;
         field_def.begin_index = field.begin_index;
         field_def.end_index = field.end_index;
-        field_def.type = child_type;
         object_def.fields.Add(field.value, field_def);
     });
+    return true;
 }
 
-void DataTable::parse_data()
+bool DataTable::parse_data()
 {
-
+    return true;
 }
 
 }

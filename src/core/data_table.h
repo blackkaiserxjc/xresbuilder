@@ -85,9 +85,9 @@ namespace kr
             // 解析
             void parse();
             // 解析头
-            void parse_header();
+            bool parse_header();
             // 解析行
-            void parse_data();
+            bool parse_data();
             // reader
             rapidcsv::Document doc_;
             // 行数

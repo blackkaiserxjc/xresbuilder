@@ -91,9 +91,7 @@ struct FieldDef : public Definition {
 
   Value value;
   bool key;
-  // 列开始索引
   std::uint32_t begin_index;
-  // 列结束索引
   std::uint32_t end_index;
 };
 
