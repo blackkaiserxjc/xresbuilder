@@ -14,6 +14,7 @@ enum class SourceType
     XLSX    = 2,
 };
 
+
 class DataSource 
 {
 public:
@@ -29,8 +30,6 @@ public:
 
     virtual std::size_t rows() const = 0;
     virtual std::size_t cols() const = 0;
-    
-    virtual Row index_of(std::size_t row) const = 0;
 protected:
     SourceType type_;
     std::string path_;  
