@@ -8,7 +8,8 @@
                 "/usr/local/include/**",
                 "/usr/include/**",
                 "/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/include",
-                "/home/alien/code/cpp/package/vcpkg/installed/x64-linux/include/**"
+                "/home/alien/code/cpp/package/vcpkg/installed/x64-linux/include/**",
+                "/home/kaiser/Desktop/code/cpp/package/vcpkg/installed/x64-linux/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

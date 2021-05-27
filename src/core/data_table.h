@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <unordered_map>
+#include <map>
 
 #include "rapidcsv.h"
 #include "type.h"
@@ -17,24 +17,25 @@ namespace kr
         class DataRow
         {
         public:
-            DataRow();
-            DataRow(DataTable *parent, int row_number);
+            explicit DataRow(DataTable *parent = nullptr, int row_number = 0, const std::vector<std::string>& row = {});
+            ~DataRow();
 
             bool empty() const noexcept { return size() == 0; }
-            size_t size() const noexcept { return cells_.size(); }
+            size_t size() const noexcept { return field_.size(); }
 
             template <class Archive>
             void serialize(Archive &ar);
 
-            const std::string operator[](std::size_t n) const;
-            operator std::vector<std::string>() const;
+            const std::string operator[](std::size_t index) const;
 
             friend class DataTable;
 
         protected:
+            void standard(const std::vector<std::string>& row);
+
             DataTable* parent_;
             int row_number_;
-            std::vector<std::string> cells_;
+            std::map<int, std::string> fields_;
         };
 
         class DataTable
@@ -50,10 +51,12 @@ namespace kr
 
             explicit DataTable(const std::string& path = {});
 
+            /*
             template <class Stream,
                       std::enable_if_t<std::is_base_of_v<std::istream, Stream>,
                                        int> = 0>
             DataTable(Stream &stream);
+            */
 
             DataTable(DataTable&&) = default;
             DataTable(const DataTable&) = delete;
@@ -62,16 +65,18 @@ namespace kr
             ~DataTable();
 
             bool empty() const { return n_rows_ == 0; }
-            Type type() const { return type_; }
+            Type type() const { return root_type_; }
             size_t n_rows() const { return n_rows_; }
             size_t n_cols() const { return n_cols_; }
 
             void load(const std::string& path);
 
+            /*
             template <class Stream,
                       std::enable_if_t<std::is_base_of_v<std::istream, Stream>,
                                        int> = 0>
             void load(Stream &stream);
+            */
             void clear();
 
             template <typename Archive>
@@ -95,9 +100,9 @@ namespace kr
             // 列数
             std::uint32_t n_cols_;
             // 表结构
-            Type type_;
+            Type root_type_;
             // 数据集
-            std::unordered_map<int, std::shared_ptr<DataRow>> data_;   
+            std::map<int, std::shared_ptr<DataRow>> data_;   
         };
     }
 }
