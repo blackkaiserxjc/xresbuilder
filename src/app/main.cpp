@@ -2,30 +2,25 @@
 #include <string>
 #include <sstream>
 
+#include <msgpack.hpp>
+
 #include "core/idl.h"
-#include "core/csv.hpp"
+#include "core/pack.h"
+#include "core/data_table.h"
 
 void csv_test()
-{
-  CSVFormat format;
-  format.no_header()
-      .trim({ '\t', ' ' })
-      .delimiter(',');
-  csv::CSVReader reader("/home/alien/doc/1.csv", format);
-  std::stringstream my_json;
+{ 
+    kr::core::DataTable dt("/home/alien/doc/1.csv");
+    msgpack::sbuffer buffer;
+    kr::core::Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer};
+    dt.serialize(packer);
 
-  for (auto value : reader.get_col_names())  {
-    std::cout << "coliseum: " << value << std::endl;
-  }
-
-  for (auto& row: reader) {
-      std::vector<std::string> line = row;
-      for (auto value : line ) {
-        std::cout << value << ',';
-      }
-      std::cout << std::endl;
-  }
-  std::cout << my_json.str() << std::endl;
+    std::string json_like;
+    json_like_visitor v(json_like);
+    std::size_t offset = 0;
+    bool ret = msgpack::parse(buffer.data(), buffer.size(), offset, v);
+    std::cout << json_like << std::endl;
+    std::cout << dt.n_rows() << ":" << dt.n_cols() << std::endl;
 }
 
 int main(int argc, const char *argv[]) {

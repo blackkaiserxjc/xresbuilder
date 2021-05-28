@@ -19,18 +19,19 @@ set(kr_app_core_SRCS
     ast_builder.cpp
     code_generator.h
     code_generator.cpp
-    rapidcsv.h
-    data_set.h
-    data_set.cpp
+    data_table.h
+    data_table.cpp
     object_pack.h
     pack.h
+    rapidcsv.h
     type.h
     ${ANTLR_IDLGrammarParser_CXX_OUTPUTS}
     ${ANTLR_CellGrammarParser_CXX_OUTPUTS}
 )
 
-set(kr_app_core_detail_SRCS
+set(kr_app_core_detail_SRC
     detail/ast_builder.h
+    detail/data_table.h
     detail/msgpack.h
     detail/object_pack.h
 )

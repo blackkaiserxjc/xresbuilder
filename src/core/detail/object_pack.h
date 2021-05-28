@@ -20,7 +20,7 @@ void pack_statement(Packer &packer, const Type &type, const Reader &reader) {
 
 template <typename Packer, typename Reader>
 void pack_pod(Packer &packer, const Type &type, const Reader &reader) {
-    if (!(IsPod(type.base_type) && type.base_type == reader.type())) {
+    if (!(IsPod(type.base_type))) {
         throw std::runtime_error("invaild type.");
     } 
     switch (type.base_type) {
@@ -111,7 +111,7 @@ void pack(Packer &packer, const Type &type, const Reader &reader) {
     } else if(IsObject(type.base_type)) {
         pack_object(packer, type, reader);
     } else if(IsArray(type.base_type)) {
-        pack_root_array(packer, type, reader);
+        pack_array(packer, type, reader);
     }
 }
 

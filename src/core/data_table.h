@@ -8,6 +8,7 @@
 
 #include "rapidcsv.h"
 #include "type.h"
+#include "object_pack.h"
 
 namespace kr
 {
@@ -20,22 +21,18 @@ namespace kr
             explicit DataRow(DataTable *parent = nullptr, int row_number = 0, const std::vector<std::string>& row = {});
             ~DataRow();
 
-            bool empty() const noexcept { return size() == 0; }
-            size_t size() const noexcept { return field_.size(); }
+            msgpack::sbuffer& buffer() { return buffer_; };
 
             template <class Archive>
             void serialize(Archive &ar);
 
-            const std::string operator[](std::size_t index) const;
-
             friend class DataTable;
-
         protected:
-            void standard(const std::vector<std::string>& row);
+            void convert(const std::vector<std::string>& row);
 
             DataTable* parent_;
             int row_number_;
-            std::map<int, std::string> fields_;
+            msgpack::sbuffer buffer_;
         };
 
         class DataTable
@@ -81,7 +78,7 @@ namespace kr
 
             template <typename Archive>
             void serialize(Archive &ar);
-
+            
         private:
             // 数据读取
             void read_data(const std::string& path);
@@ -104,9 +101,26 @@ namespace kr
             // 数据集
             std::map<int, std::shared_ptr<DataRow>> data_;   
         };
+        
+        template<typename Archive>
+        void DataRow::serialize(Archive &ar)
+        {
+            msgpack::object_handle oh = msgpack::unpack(buffer_.data(), buffer_.size());
+            UnPacker<msgpack::object> unpakcer(oh.get());
+            pack(ar, parent_->type(), unpakcer); 
+        }
+
+        template <typename Archive>
+        void DataTable::serialize(Archive &ar)
+        {   
+            ar.pack_begin_array(data_.size());
+            for(auto&& [key, row] : data_)
+            {
+                row->serialize(ar);
+            }
+            ar.pack_end_array();
+        }
     }
 }
-
-#include "impl/data_table.h"
 
 #endif

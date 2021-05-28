@@ -5,6 +5,9 @@ find_package(Threads)
 
 include_directories(${ANTLR4_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${FMT_INCLUDE_DIRS})
+
+message(DEBUG "11111 ${FMT_INCLUDE_DIRS} ${FMT_LIBRARYS}")
 
 # 源码
 set(kr_app_builder_SRCS
@@ -17,6 +20,7 @@ add_executable(kr_app_builder
 target_link_libraries(kr_app_builder
     kr_app_core
     antlr4_static
+    fmt
     ${CMAKE_THREAD_LIBS_INIT}
     ${CMAKE_DL_LIBS}
 )

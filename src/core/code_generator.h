@@ -14,12 +14,12 @@ class CodeWriter {
 public:
   CodeWriter() = default;
 
-  void Clear() {
+  void clear() {
     value_map_.clear();
     stream_.str("");
   }
 
-  void SetValue(const std::string &key, const std::string &value) {
+  void set_value(const std::string &key, const std::string &value) {
     value_map_[key] = value;
   }
 
@@ -37,7 +37,7 @@ public:
       : path_{path}, file_name_{file_name} {}
   virtual ~CodeGenerator(){};
 
-  virtual bool Generate() = 0;
+  virtual bool generate() = 0;
 private:
   const std::string &path_;
   const std::string &file_name_;

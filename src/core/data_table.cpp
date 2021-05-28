@@ -27,28 +27,23 @@ struct HeaderField {
 
 
 DataRow::DataRow(DataTable *parent, int row_number, const std::vector<std::string>& row)   
-    :parent(parent), row_number_(row_number)
+    :parent_(parent), row_number_(row_number)
 {
-    standard(row);
+    convert(row);
 }
 
-const std::string DataRow::operator[](std::size_t index) const 
+DataRow::~DataRow()
 {
-    if (index >= field_.size()) 
-    {
-        throw std::out_of_range("out of range");
-    }
-    return fields_[index];
 }
 
-void DataRow::standard(const std::vector<std::string>& row)
+void DataRow::convert(const std::vector<std::string>& row)
 {
-    if (parent == nullptr || parent->type().base_type != BASE_TYPE_OBJECT || !parent->type().obj_def)
+    if (parent_ == nullptr || parent_->type().base_type != BASE_TYPE_OBJECT || !parent_->type().obj_def)
     {
         throw "invaild args";
     } 
 
-    auto convert = [&](auto&& obj)
+    auto cvt = [&](auto&& obj)
     {   
         int begin = obj->begin_index;
         int end = obj->end_index;
@@ -66,23 +61,28 @@ void DataRow::standard(const std::vector<std::string>& row)
                     results.push_back(row[index]);
                 }
             }
-            return fmt::format("[{}]", fmt::join(results, ","));
+            return fmt::format("[{}]", fmt::join(results, ";"));
         }
         return std::string("");
     };
-    auto obj_def = parent->type().obj_def;
-    for (auto&& field_def :  object_->fields().vec) 
+
+    std::vector<std::string> fields;
+    auto obj_def = parent_->type().obj_def;
+    for (auto&& field_def :  obj_def->fields.vec) 
     {
-        auto dest = convert(field_def);
+        auto dest = cvt(field_def);
         if (!dest.empty())
         {
-            fields_.emplace(field_def->index, dest);
+            fields.emplace_back(dest);
         }
     }
+    auto source = fmt::format("{}", fmt::join(fields, ","));
+    Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer_};
+    parse_data(source, packer);
 }
 
 DataTable::DataTable(const std::string &path)
-    : doc_{}, n_rows{}, n_cols{}, type{} 
+    : doc_{}, n_rows_{}, n_cols_{}, root_type_{} 
 {
     read_data(path);
 }
@@ -111,9 +111,9 @@ void DataTable::read_data(const std::string& path)
     read_data(stream);
 }
 
-void DataTable::read_data(std::ifstream& stream)
+void DataTable::read_data(std::istream& stream)
 {
-    doc_.Load(stream);
+    doc_.Load(stream, rapidcsv::LabelParams(-1, -1));
     n_rows_ = doc_.GetRowCount();
     n_cols_ = doc_.GetColumnCount();
     parse();
@@ -127,7 +127,7 @@ void DataTable::parse()
         return ;
     }
 
-    if (parse_header())
+    if (!parse_header())
     {
         std::cout << "parse header failed." << std::endl;
         return ;
@@ -150,7 +150,7 @@ bool DataTable::parse_header()
     {
         if (!type_row[i].empty())
         {
-            fields.push_back(i);
+            field_indexs.push_back(i);
         }
     }
     std::vector<detail::HeaderField> fields;
@@ -158,28 +158,28 @@ bool DataTable::parse_header()
     for (auto i = 0; i < field_index_size; i++)
     {
         auto cur_index = field_indexs[i];
-        auto next_index = (i == field_index_size - 1) ? (n_cols_) : (field_index_size[i + 1]);
+        auto next_index = (i == field_index_size - 1) ? (n_cols_) : (field_indexs[i + 1]);
         fields.emplace_back(i, value_row[cur_index], type_row[cur_index], cur_index, next_index);
     }
 
     auto object_def = std::make_shared<ObjectDef>();
     root_type_.base_type = BASE_TYPE_OBJECT;
-    root_type_.object_def = object_def;
+    root_type_.obj_def = object_def;
     std::for_each(fields.begin(), fields.end(), [&](auto&& field)
     {   
         Type child_type;
         if (!parse_field(field.type, child_type))
         {
             std::cout << field.value << "parse error." << std::endl;
-            return false;
+            return ;
         }
         auto field_def = std::make_shared<FieldDef>();
-        field_def.type = child_type;
-        field_def.index = field.index;
-        field_def.name = field.value;
-        field_def.begin_index = field.begin_index;
-        field_def.end_index = field.end_index;
-        object_def.fields.Add(field.value, field_def);
+        field_def->value.type = child_type;
+        field_def->index = field.index;
+        field_def->name = field.value;
+        field_def->begin_index = field.begin_index;
+        field_def->end_index = field.end_index;
+        object_def->fields.Add(field.value, field_def);
     });
     return true;
 }
@@ -189,7 +189,7 @@ bool DataTable::parse_data()
     auto start_index = static_cast<std::uint32_t>(HeaderRowIndex::START);
     for (auto index = start_index; index < n_rows_; index++)
     {
-        auto& row = doc_.GetRow<std::string>(index);
+        auto row = doc_.GetRow<std::string>(index);
         if (!row.empty())
         {
             data_.emplace(index, std::make_shared<DataRow>(this, index, row));

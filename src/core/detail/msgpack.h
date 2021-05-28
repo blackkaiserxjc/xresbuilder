@@ -211,10 +211,7 @@ public:
     } else if constexpr (std::is_same_v<T, std::uint64_t>) {
       switch (object_.type) {
       case ::msgpack::type::BOOLEAN:
-        action(object_.via.boolean);
-        break;
-      case ::msgpack::type::POSITIVE_INTEGER:
-        action(static_cast<std::uint64_t>(object_.via.u64));
+        action(object_.via.boolean ? 1 : 0);
         break;
       case ::msgpack::type::POSITIVE_INTEGER:
         action(static_cast<std::uint64_t>(object_.via.u64));
@@ -225,6 +222,22 @@ public:
       case ::msgpack::type::FLOAT32:
       case ::msgpack::type::FLOAT64:
         action(static_cast<std::uint64_t>(object_.via.f64));
+        break;
+      }
+    } else if constexpr (std::is_same_v<T, double>) {
+      switch (object_.type) {
+      case ::msgpack::type::BOOLEAN:
+        action(static_cast<double>(object_.via.boolean ? 1 : 0));
+        break;
+      case ::msgpack::type::POSITIVE_INTEGER:
+        action(static_cast<double>(object_.via.u64));
+        break;
+      case ::msgpack::type::NEGATIVE_INTEGER:
+        action(static_cast<double>(object_.via.i64));
+        break;
+      case ::msgpack::type::FLOAT32:
+      case ::msgpack::type::FLOAT64:
+        action(static_cast<double>(object_.via.f64));
         break;
       }
     } else if constexpr (std::is_same_v<T, std::string_view>) {
