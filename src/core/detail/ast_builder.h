@@ -1,3 +1,6 @@
+#ifndef KR_APP_CORE_DETAIL_AST_BUILDER_H_
+#define KR_APP_CORE_DETAIL_AST_BUILDER_H_
+
 #include <boost/algorithm/string.hpp>
 #include <boost/convert.hpp>
 #include <boost/convert/stream.hpp>
@@ -70,3 +73,5 @@ CellAstBuilder<Packer>::visitArray(CellParser::ArrayContext *context) {
 
 } // namespace core
 } // namespace kr
+
+#endif

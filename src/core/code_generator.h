@@ -7,6 +7,7 @@
 
 #include <boost/core/noncopyable.hpp>
 
+
 namespace kr {
 namespace core {
 
@@ -31,13 +32,15 @@ private:
   std::stringstream stream_;
 };
 
+class DataTable;
 class CodeGenerator : private boost::noncopyable {
 public:
-  CodeGenerator(const std::string &path, const std::string &file_name)
+  CodeGenerator(const DataTable& dt, const std::string &path, const std::string &file_name)
       : path_{path}, file_name_{file_name} {}
   virtual ~CodeGenerator(){};
 
   virtual bool generate() = 0;
+  
 private:
   const std::string &path_;
   const std::string &file_name_;
