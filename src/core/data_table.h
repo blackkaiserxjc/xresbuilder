@@ -10,6 +10,8 @@
 #include "type.h"
 #include "object_pack.h"
 
+// 这个应该是model, 通过Model生成数据
+
 namespace kr
 {
     namespace core
@@ -101,7 +103,7 @@ namespace kr
             // 数据集
             std::map<int, std::shared_ptr<DataRow>> data_;   
         };
-        
+
         template<typename Archive>
         void DataRow::serialize(Archive &ar)
         {
