@@ -1,5 +1,4 @@
-#ifndef KR_APP_CORE_IDL_VISITOR_H_
-#define KR_APP_CORE_IDL_VISITOR_H
+#pragma once
 
 #include "CellBaseVisitor.h"
 #include "IDLBaseVisitor.h"
@@ -47,6 +46,3 @@ public:
 } // namespace core
 } // namespace kr
 
-#include "detail/ast_builder.h"
-
-#endif

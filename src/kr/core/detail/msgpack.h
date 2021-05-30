@@ -1,5 +1,4 @@
-#ifndef KR_APP_CORE_IMPL_MSGPACK_H_
-#define KR_APP_CORE_IMPL_MSGPACK_H_
+#pragma once
 
 #include <msgpack.hpp>
 
@@ -280,4 +279,3 @@ private:
 } // namespace core
 } // namespace kr
 
-#endif

@@ -1,4 +1,6 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_subdirectory(core)
-add_subdirectory(app)
+add_subdirectory(kr/app)
+add_subdirectory(kr/core)
+add_subdirectory(kr/dt)
+add_subdirectory(kr/utility)

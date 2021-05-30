@@ -1,5 +1,4 @@
-#ifndef KR_APP_CORE_OBJECT_PACK_H_
-#define KR_APP_CORE_OBJECT_PACK_H_
+#pragma once
 
 #include "type.h"
 #include "pack.h"
@@ -26,5 +25,3 @@ void pack_array(Packer& packer, const Type& type, const Reader& message);
 }
 
 #include "detail/object_pack.h"
-
-#endif

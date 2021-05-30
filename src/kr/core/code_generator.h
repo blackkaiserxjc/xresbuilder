@@ -1,12 +1,10 @@
-#ifndef KR_APP_CORE_CODE_GENERATOR_H_
-#define KR_APP_CORE_CODE_GENERATOR_H_
+#pragma once
 
 #include <sstream>
 #include <string>
 #include <unordered_map>
 
 #include <boost/core/noncopyable.hpp>
-
 
 namespace kr {
 namespace core {
@@ -48,5 +46,3 @@ private:
 
 } // namespace core
 } // namespace kr
-
-#endif /* KR_APP_CORE_CODE_GENERATOR_ */

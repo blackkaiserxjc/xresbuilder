@@ -1,5 +1,4 @@
-#ifndef KR_APP_CORE_IMPL_OBJECT_PACK_H_
-#define KR_APP_CORE_IMPL_OBJECT_PACK_H_
+#pragma once
 
 #include <exception>
 #include <msgpack.hpp>
@@ -117,4 +116,3 @@ void pack(Packer &packer, const Type &type, const Reader &reader) {
 
 } // namespace core
 } // namespace kr
-#endif

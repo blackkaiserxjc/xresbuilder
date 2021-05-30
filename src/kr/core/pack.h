@@ -1,5 +1,4 @@
-#ifndef KR_APP_CORE_PACK_H_
-#define KR_APP_CORE_PACK_H_
+#pragma once
 
 #include <string_view>
 
@@ -45,5 +44,3 @@ template <typename Layer> struct UnPacker {
 } // namespace kr
 
 #include "detail/msgpack.h"
-
-#endif

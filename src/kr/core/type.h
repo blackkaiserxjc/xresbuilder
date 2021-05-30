@@ -1,5 +1,4 @@
-#ifndef KR_APP_CORE_TYPE_H_
-#define KR_APP_CORE_TYPE_H_
+#pragma once
 
 namespace kr {
 namespace core {
@@ -101,5 +100,3 @@ struct ObjectDef : public Definition {
 
 } // namespace core
 } // namespace kr
-
-#endif

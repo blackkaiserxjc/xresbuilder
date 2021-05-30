@@ -1,5 +1,4 @@
-#ifndef KR_APP_CORE_IDL_H_
-#define KR_APP_CORE_IDL_H_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -122,5 +121,3 @@ protected:
 };
 } // namespace core
 } // namespace kr
-
-#endif /* KR_APP_CORE_IDL_H_ */
