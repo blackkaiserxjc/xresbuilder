@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-#include "type.h"
+#include <kr/core/type.h>
 
 namespace kr {
 namespace core {

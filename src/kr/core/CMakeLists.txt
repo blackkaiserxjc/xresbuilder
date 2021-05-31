@@ -19,6 +19,8 @@ set(kr_app_core_SRCS
     ast_builder.cpp
     code_generator.h
     code_generator.cpp
+    data_loader.h
+    data_loader.cpp
     data_table.h
     data_table.cpp
     object_pack.h

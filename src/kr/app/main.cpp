@@ -4,10 +4,12 @@
 
 #include <msgpack.hpp>
 
-#include <core/idl.h>
-#include <core/pack.h>
-#include <core/data_table.h>
+#include <kr/core/idl.h>
+#include <kr/core/pack.h>
+#include <kr/core/data_table.h>
+#include <kr/core/data_loader.h>
 
+/*
 void csv_test()
 { 
     kr::core::DataTable dt("/home/alien/doc/1.csv");
@@ -21,10 +23,36 @@ void csv_test()
     bool ret = msgpack::parse(buffer.data(), buffer.size(), offset, v);
     std::cout << json_like << std::endl;
     std::cout << dt.n_rows() << ":" << dt.n_cols() << std::endl;
+}*/
+
+void csv_test()
+{
+    using namespace kr::core;
+    DataTable dt("data table");
+
+    auto c1 = std::make_shared<DataColumn>();
+    c1->name("c1");
+    c1->value("int32");
+
+    std::cout << c1->toString() << std::endl;
+    dt.columns().add(c1);
+
+    auto r1 = dt.newRow();
+    (*r1)["c1"].value("1213131");
+    dt.rows().add(r1);
 }
+
+void data_loader_test()
+{
+    using namespace kr::core;
+    DataTable dt("data table");
+
+    DataLoader::LoadFromCSV("/home/kaiser/Documents/1.csv", dt);
+} 
 
 int main(int argc, const char *argv[]) {
   csv_test();
+  data_loader_test();
   /*
   kr::core::Parser parser;
   parser.Parse("[x:int,y:int, value:[id:int, count:int]]", "20001,200,[2000,100;2001,102;2002,1003;2004,1004]");

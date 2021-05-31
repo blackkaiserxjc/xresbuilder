@@ -7,7 +7,7 @@ include_directories(${ANTLR4_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${FMT_INCLUDE_DIRS})
 
-message(DEBUG "11111 ${FMT_INCLUDE_DIRS} ${FMT_LIBRARYS}")
+link_directories(/usr/local/lib)
 
 # 源码
 set(kr_app_builder_SRCS
@@ -21,6 +21,7 @@ target_link_libraries(kr_app_builder
     kr_app_core
     antlr4_static
     fmt
+    #${FMT_LIBRARYS}
     ${CMAKE_THREAD_LIBS_INIT}
     ${CMAKE_DL_LIBS}
 )

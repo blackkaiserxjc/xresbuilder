@@ -7,9 +7,9 @@
 #include <vector>
 #include <msgpack.hpp>
 
-#include "type.h"
-#include "pack.h"
-#include "object_pack.h"
+#include <kr/core/type.h>
+#include <kr/core/pack.h>
+#include <kr/core/object_pack.h>
 
 struct json_like_visitor : msgpack::null_visitor {
     json_like_visitor(std::string& s):m_s(s) {}

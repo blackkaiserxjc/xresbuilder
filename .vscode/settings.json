@@ -73,7 +73,8 @@
         "complex": "cpp",
         "cfenv": "cpp",
         "typeindex": "cpp",
-        "hash_map": "cpp"
+        "hash_map": "cpp",
+        "*.def": "cpp"
     },
     "cmake.configureOnOpen": true
 }
