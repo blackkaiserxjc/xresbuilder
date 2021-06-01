@@ -1,7 +1,23 @@
-#include "code_generator.h"
+#include <kr/core/code_generator.h>
 
 namespace kr {
 namespace core {
+
+void CodeWriter::indent()
+{
+    indent_string_ += indent_;
+}
+
+void CodeWriter::unindent()
+{
+    assert(indent_string_.size() >= indent_.size());
+    indent_string_.resize(indent_string_.size() - indent_.size());
+}
+
+void CodeWriter::write_indent()
+{
+    stream_ << '\n' << indent_string_;
+}
 
 void CodeWriter::operator+=(std::string text)
 {
@@ -32,7 +48,7 @@ void CodeWriter::operator+=(std::string text)
         }
         text = text.substr(end + 2);
     }
-    
+
     if (!text.empty() && text.back() == '\\')
     {
         text.pop_back();

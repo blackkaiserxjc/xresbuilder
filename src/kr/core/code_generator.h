@@ -14,7 +14,9 @@ namespace core {
 class CodeWriter
 {
 public:
-    CodeWriter() = default;
+    CodeWriter(const std::string& indent = "\t")
+      :indent_(indent)
+      {}
 
     void clear()
     {
@@ -26,6 +28,9 @@ public:
     {
       value_map_[key] = value;
     }
+    void indent();
+    void unindent();
+    void write_indent();
 
     void operator+=(std::string text);
     std::string to_string() const { return stream_.str(); };
@@ -33,6 +38,8 @@ public:
 private:
     std::unordered_map<std::string, std::string> value_map_;
     std::stringstream stream_;
+    std::string indent_;
+    std::string indent_string_;
 };
 
 class Model;

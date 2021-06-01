@@ -74,6 +74,7 @@ struct LuaVisitor : public msgpack::null_visitor
     bool start_array(uint32_t num_elements) 
     {
         current_size_.emplace_back(0, num_elements);
+        writer_.indent();
         writer_ += "{";
         return true;
     }
@@ -82,6 +83,7 @@ struct LuaVisitor : public msgpack::null_visitor
     {
         auto&&[index, size] = current_size_.back();
         index++;
+        writer_.write_indent();
         writer_ += fmt::format("[{}] = ", index);
         return true;
     }
@@ -95,6 +97,8 @@ struct LuaVisitor : public msgpack::null_visitor
     bool end_array() 
     {
         current_size_.pop_back();
+        writer_.unindent();
+        writer_.write_indent();
         writer_ += "}";
         return true;
     }
@@ -102,19 +106,21 @@ struct LuaVisitor : public msgpack::null_visitor
     bool start_map(uint32_t num_kv_pairs) 
     {
         current_size_.emplace_back(0, num_kv_pairs);
+        writer_.indent();
         writer_ += "{";
         return true;
     }
 
     bool start_map_key() 
     {
+        writer_.write_indent();
         writer_ += "[";
         return true;
     }
 
     bool end_map_key() 
     {
-        writer_ += "] =";
+        writer_ += "] = ";
         return true;
     }
 
@@ -132,12 +138,15 @@ struct LuaVisitor : public msgpack::null_visitor
     bool end_map() 
     {
         current_size_.pop_back();
+        writer_.unindent();
+        writer_.write_indent();
         writer_ += "}";
         return true;
     }
 
 private:
     CodeWriter& writer_;
+    uint32_t depath_;
     std::vector<std::tuple<uint32_t, uint32_t>> current_size_;
 };
 
@@ -154,12 +163,13 @@ public:
         kr::core::Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer};
         model_.serialize(packer);
 
-        code_ +="local M = ";
+        code_ += "local M = ";
 
         std::size_t offset = 0;
         LuaVisitor visitor(code_);
         msgpack::parse(buffer.data(), buffer.size(), offset, visitor);
 
+        code_ += "\n";
         code_ += "return M";
 
         const std::string file_path = lua::generated_filename(path_, file_name_);
