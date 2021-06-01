@@ -160,7 +160,7 @@ public:
     {   
         code_.clear();
         msgpack::sbuffer buffer;
-        kr::core::Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer};
+        Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer};
         model_.serialize(packer);
 
         code_ += "local M = ";

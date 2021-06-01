@@ -139,7 +139,7 @@ public:
     {   
         code_.clear();
         msgpack::sbuffer buffer;
-        kr::core::Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer};
+        Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer};
         model_.serialize(packer);
     
         std::size_t offset = 0;
