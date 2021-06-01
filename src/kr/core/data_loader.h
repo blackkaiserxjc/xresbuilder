@@ -11,8 +11,8 @@ class DataTable;
 class DataLoader : boost::noncopyable
 {
 public:
-    static bool LoadFromCSV(const std::string& path, DataTable& table);
-    static bool LoadFromExecl(const std::string& path, DataTable& table);
+    static bool load_from_csv(const std::string& path, DataTable& table);
+    static bool load_from_excel(const std::string& path, DataTable& table);
 };
 
 }

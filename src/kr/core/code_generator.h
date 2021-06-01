@@ -6,42 +6,49 @@
 
 #include <boost/core/noncopyable.hpp>
 
+#include <kr/core/model.h>
+
 namespace kr {
 namespace core {
 
-class CodeWriter {
+class CodeWriter
+{
 public:
-  CodeWriter() = default;
+    CodeWriter() = default;
 
-  void clear() {
-    value_map_.clear();
-    stream_.str("");
-  }
+    void clear()
+    {
+      value_map_.clear();
+      stream_.str("");
+    }
 
-  void set_value(const std::string &key, const std::string &value) {
-    value_map_[key] = value;
-  }
+    void set_value(const std::string &key, const std::string &value)
+    {
+      value_map_[key] = value;
+    }
 
-  void operator+=(std::string text);
-  std::string ToString() const { return stream_.str(); };
+    void operator+=(std::string text);
+    std::string to_string() const { return stream_.str(); };
 
 private:
-  std::unordered_map<std::string, std::string> value_map_;
-  std::stringstream stream_;
+    std::unordered_map<std::string, std::string> value_map_;
+    std::stringstream stream_;
 };
 
-class DataTable;
-class CodeGenerator : private boost::noncopyable {
+class Model;
+class CodeGenerator : private boost::noncopyable
+{
 public:
-  CodeGenerator(const DataTable& dt, const std::string &path, const std::string &file_name)
-      : path_{path}, file_name_{file_name} {}
-  virtual ~CodeGenerator(){};
-
-  virtual bool generate() = 0;
-  
-private:
-  const std::string &path_;
-  const std::string &file_name_;
+    CodeGenerator(Model& model, const std::string& path, const std::string& file_name)
+        : path_{path}, file_name_{file_name}, model_{model}
+      {}
+    virtual ~CodeGenerator(){};
+    virtual bool generate() = 0;
+    
+protected:
+    Model& model_;
+    const std::string& path_;
+    const std::string& file_name_;
 };
 
 } // namespace core

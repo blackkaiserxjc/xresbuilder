@@ -19,6 +19,7 @@ add_executable(kr_app_builder
 
 target_link_libraries(kr_app_builder
     kr_app_core
+    kr_app_utility
     antlr4_static
     fmt
     #${FMT_LIBRARYS}

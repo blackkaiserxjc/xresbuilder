@@ -2,112 +2,85 @@
 
 #include <vector>
 #include <string>
-#include <memory>
 #include <map>
 
-#include "rapidcsv.h"
-#include "type.h"
+#include <boost/core/noncopyable.hpp>
+#include <msgpack.hpp>
 
-namespace kr
+#include <kr/core/type.h>
+#include <kr/core/pack.h>
+#include <kr/core/idl.h>
+#include <kr/core/data_table.h>
+
+namespace kr{
+namespace core {
+
+class Model;
+class Object
 {
-    namespace core
-    {
-        class DataTable;
-        class DataRow
-        {
-        public:
-            explicit DataRow(DataTable *parent = nullptr, int row_number = 0, const std::vector<std::string>& row = {});
-            ~DataRow();
+public:
+    Object(Model& model, DataRow& data);
+    ~Object();
 
-            bool empty() const noexcept { return size() == 0; }
-            size_t size() const noexcept { return field_.size(); }
+    template <typename Archive>
+    void serialize(Archive& ar);
 
-            template <class Archive>
-            void serialize(Archive &ar);
+    int id() const { return id_; }
+    std::string to_string() const { return value_; }
+    
+protected:
+    friend class Model;
+    void init(DataRow& data);
+    void pack_buffer(const std::string& source);
 
-            const std::string operator[](std::size_t index) const;
+    int id_;
+    Model& model_;
+    std::string value_;
+    msgpack::sbuffer buffer_;
+};
 
-            friend class DataTable;
+class Model : public boost::noncopyable
+{
+public:
+    explicit Model(DataTable& table);
+    ~Model();
 
-        protected:
-            void standard(const std::vector<std::string>& row);
+    template <typename Archive>
+    void serialize(Archive& ar);
 
-            DataTable* parent_;
-            int row_number_;
-            std::map<int, std::string> fields_;
-        };
+    Type type() const { return table_def_; }
+private:
+    // 解析
+    void parse(DataTable& table);
+    // 解析table结构
+    void parse_table_def(DataTable& table);
+    // 解析数据
+    void parse_table_data(DataTable& table);
+    
+    // 表结构
+    Type table_def_;
+    // 数据集
+    std::map<int, std::shared_ptr<Object>> data_;
+};
 
-        class DataTable
-        {
-        public:
-            enum class HeaderRowIndex 
-            {
-                VALUE   = 0,
-                TYPE    = 1,
-                COMMENT = 2,
-                START   = 3,
-            };
-
-            explicit DataTable(const std::string& path = {});
-
-            /*
-            template <class Stream,
-                      std::enable_if_t<std::is_base_of_v<std::istream, Stream>,
-                                       int> = 0>
-            DataTable(Stream &stream);
-            */
-
-            DataTable(DataTable&&) = default;
-            DataTable(const DataTable&) = delete;
-            DataTable& operator=(DataTable&&) = default;
-            DataTable& operator=(const DataTable&) = delete;
-            ~DataTable();
-
-            bool empty() const { return n_rows_ == 0; }
-            Type type() const { return root_type_; }
-            size_t n_rows() const { return n_rows_; }
-            size_t n_cols() const { return n_cols_; }
-
-            void load(const std::string& path);
-
-            /*
-            template <class Stream,
-                      std::enable_if_t<std::is_base_of_v<std::istream, Stream>,
-                                       int> = 0>
-            void load(Stream &stream);
-            */
-            void clear();
-
-            template <typename Archive>
-            void serialize(Archive &ar);
-
-        private:
-            // 数据读取
-            void read_data(const std::string& path);
-            // 数据读取
-            void read_data(std::istream &stream);
-            // 解析
-            void parse();
-            // 解析头
-            bool parse_header();
-            // 解析行
-            bool parse_data();
-            // reader
-            rapidcsv::Document doc_;
-            // 行数
-            std::uint32_t n_rows_;
-            // 列数
-            std::uint32_t n_cols_;
-            // 表结构
-            Type root_type_;
-            // 数据集
-            std::map<int, std::shared_ptr<DataRow>> data_;   
-        };
-    }
+template<typename Archive>
+void Object::serialize(Archive& ar)
+{
+    msgpack::object_handle oh = msgpack::unpack(buffer_.data(), buffer_.size());
+    UnPacker<msgpack::object> unpakcer(oh.get());
+    pack(ar, model_.type(), unpakcer);
 }
 
-#include "impl/data_table.h"
+template <typename Archive>
+void Model::serialize(Archive& ar)
+{
+    ar.pack_begin_array(data_.size());
+    for(auto&& [key, object] : data_)
+    {
+        object->serialize(ar);
+    }
+    ar.pack_end_array();
+}
 
-
-
-
+}
+} 

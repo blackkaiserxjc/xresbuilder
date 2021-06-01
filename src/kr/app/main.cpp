@@ -6,6 +6,7 @@
 
 #include <kr/core/idl.h>
 #include <kr/core/pack.h>
+#include <kr/core/model.h>
 #include <kr/core/data_table.h>
 #include <kr/core/data_loader.h>
 
@@ -46,8 +47,24 @@ void data_loader_test()
 {
     using namespace kr::core;
     DataTable dt("data table");
+    DataLoader::load_from_csv("/home/alien/doc/1.csv", dt);
 
-    DataLoader::LoadFromCSV("/home/kaiser/Documents/1.csv", dt);
+    Model model(dt);
+    generate_json(model, "/home/alien/doc/", "json_test");
+    /*
+    Model model(dt);
+    msgpack::sbuffer buffer;
+    kr::core::Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer};
+    model.serialize(packer);
+
+
+    std::string json_like;
+    json_like_visitor v(json_like);
+    std::size_t offset = 0;
+    bool ret = msgpack::parse(buffer.data(), buffer.size(), offset, v);
+    std::cout << json_like << std::endl;
+    */
+    //DataLoader::LoadFromCSV("/home/kaiser/Documents/1.csv", dt);
 } 
 
 int main(int argc, const char *argv[]) {

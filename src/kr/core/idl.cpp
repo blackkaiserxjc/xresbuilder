@@ -6,6 +6,7 @@
 #include "CellLexer.h"
 #include "CellParser.h"
 #include "ast_builder.h"
+#include <kr/core/detail/ast_builder.h>
 
 namespace kr {
 namespace core {

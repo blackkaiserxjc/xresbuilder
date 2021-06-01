@@ -98,9 +98,13 @@ struct json_like_visitor : msgpack::null_visitor {
 namespace kr {
 namespace core {
 
+class Model;
+
 bool parse_data(const std::string& source, Packer<msgpack::packer<msgpack::sbuffer>>& packer);
 
 bool parse_field(const std::string& source, Type& type);
+
+bool generate_json(Model& model, const std::string& path, const std::string& file_name);
 
 /** 解析器 */
 class Parser {

@@ -121,7 +121,7 @@ public:
     DataRow(DataRow&&) = default;
     DataRow& operator=(DataRow &&) = default;
 
-    int id() { return row_id_; }
+    int id() const { return row_id_; }
     DataTable *table() const { return table_; }
 
     void remove(size_t index);

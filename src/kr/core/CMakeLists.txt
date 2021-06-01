@@ -23,6 +23,8 @@ set(kr_app_core_SRCS
     data_loader.cpp
     data_table.h
     data_table.cpp
+    model.h
+    model.cpp
     object_pack.h
     pack.h
     rapidcsv.h
@@ -50,7 +52,8 @@ add_library(kr_app_core
 )
 
 add_dependencies(kr_app_core
-    antlr4_static
+    antlr4_static   
+    kr_app_utility
 )
 
 

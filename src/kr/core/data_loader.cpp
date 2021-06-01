@@ -149,13 +149,13 @@ bool load_from_csv(const std::string &path, DataTable& table)
 
 }
 
-bool DataLoader::LoadFromCSV(const std::string& path, DataTable& table)
+bool DataLoader::load_from_csv(const std::string& path, DataTable& table)
 {
     detail::load_from_csv(path, table);
     return true;
 }
 
-bool DataLoader::LoadFromExecl(const std::string& path, DataTable& table)
+bool DataLoader::load_from_excel(const std::string& path, DataTable& table)
 {
     return true;
 }
