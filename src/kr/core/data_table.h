@@ -68,7 +68,7 @@ public:
     DataColumn(DataColumn&&) = default;
     DataColumn& operator=(DataColumn &&) = default;
 
-    std::string toString() const;
+    std::string to_string() const;
 
     friend class DataColumnCollection;
     friend class DataTable;
