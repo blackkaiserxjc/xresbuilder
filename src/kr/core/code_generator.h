@@ -14,20 +14,21 @@ namespace core {
 class CodeWriter
 {
 public:
-    CodeWriter(const std::string& indent = "\t")
-      :indent_(indent)
-      {}
+    CodeWriter(const std::string &indent = "\t")
+        : indent_(indent)
+    {}
 
     void clear()
     {
-      value_map_.clear();
-      stream_.str("");
+        value_map_.clear();
+        stream_.str("");
     }
 
     void set_value(const std::string &key, const std::string &value)
     {
-      value_map_[key] = value;
+        value_map_[key] = value;
     }
+
     void indent();
     void unindent();
     void write_indent();
@@ -48,7 +49,8 @@ class CodeGenerator : private boost::noncopyable
 public:
     CodeGenerator(Model& model, const std::string& path, const std::string& file_name)
         : path_{path}, file_name_{file_name}, model_{model}
-      {}
+    {}
+    
     virtual ~CodeGenerator(){};
     virtual bool generate() = 0;
     
