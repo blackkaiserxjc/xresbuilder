@@ -47,10 +47,12 @@ void data_loader_test()
 {
     using namespace kr::core;
     DataTable dt("data table");
-    DataLoader::load_from_csv("/home/alien/doc/1.csv", dt);
+    DataLoader::load_from_csv("/home/alien/doc/2.csv", dt);
 
     Model model(dt);
     generate_json(model, "/home/alien/doc/", "json_test");
+    generate_lua(model, "/home/alien/doc/", "lua_test");
+    
     /*
     Model model(dt);
     msgpack::sbuffer buffer;

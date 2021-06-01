@@ -106,6 +106,8 @@ bool parse_field(const std::string& source, Type& type);
 
 bool generate_json(Model& model, const std::string& path, const std::string& file_name);
 
+bool generate_lua(Model& model, const std::string& path, const std::string& file_name);
+
 /** 解析器 */
 class Parser {
 public:

@@ -12,18 +12,18 @@ std::string generated_filename(const std::string& path, const std::string& file_
 {
     return fmt::format("{}{}.json", path, file_name);
 }
-
 }
 
-struct JsonVisitor : msgpack::null_visitor 
+class JsonVisitor : public msgpack::null_visitor 
 {
-    JsonVisitor(std::string& str)
-        : str_(str) 
+public:
+    JsonVisitor(CodeWriter& writer)
+        : writer_(writer) 
     {}
 
     bool visit_nil() 
     {
-        str_ += "null";
+        writer_ += "null";
         return true;
     }
 
@@ -31,87 +31,102 @@ struct JsonVisitor : msgpack::null_visitor
     {
         if (v)
         {
-            str_ += "true";
+            writer_ += "true";
         }
         else 
         {
-            str_ += "false";
+            writer_ += "false";
         }
         return true;
     }
+
     bool visit_positive_integer(uint64_t v) 
     {
-        str_ += std::to_string(v);
+        writer_ += std::to_string(v);
         return true;
     }
-    bool visit_negative_integer(int64_t v) {
-        str_ += std::to_string(v);
+
+    bool visit_negative_integer(int64_t v) 
+    {
+        writer_ += std::to_string(v);
         return true;
     }
     
     bool visit_float32(float v) 
     {
-        str_ += std::to_string(v);
+        writer_ += std::to_string(v);
         return true;
     }
 
     bool visit_float64(double v)
     {
-        str_ += std::to_string(v);
+        writer_ += std::to_string(v);
         return true;
     }
 
     bool visit_str(const char* v, uint32_t size) 
     {
-        str_ += '"' + std::string(v, size) + '"';
+        writer_ += '"' + std::string(v, size) + '"';
         return true;
     }
     
     bool start_array(uint32_t num_elements) 
     {
-        str_ += "[";
+        current_size_.push_back(num_elements);
+        writer_ += "[";
         return true;
     }
     
     bool end_array_item() 
     {
-        str_ += ",";
+        --current_size_.back();
+        if (current_size_.back() != 0)
+        {
+            writer_ += ",";
+        }
         return true;
     }
     
     bool end_array() 
     {
-        str_.erase(str_.size() - 1, 1); 
-        str_ += "]";
+        current_size_.pop_back();
+        writer_ += "]";
         return true;
     }
     
     bool start_map(uint32_t num_kv_pairs) 
     {
-        str_ += "{";
+        current_size_.push_back(num_kv_pairs);
+        writer_ += "{";
         return true;
     }
     
     bool end_map_key() 
     {
-        str_ += ":";
+        writer_ += ":";
         return true;
     }
     
     bool end_map_value() 
     {
-        str_ += ",";
+        --current_size_.back();
+        if (current_size_.back() != 0)
+        {
+            writer_ += ",";
+        }
         return true;
     }
 
     bool end_map() 
-    {
-        str_.erase(str_.size() - 1, 1);
-        str_ += "}";
+    {   
+        current_size_.pop_back();
+        writer_ += "}";
         return true;
     }
 
-    std::string& str_;
+private:
+    CodeWriter& writer_;
+    std::vector<uint32_t> current_size_;
 };
 
 class JsonGenerator : public CodeGenerator {
@@ -122,21 +137,21 @@ public:
 
     bool generate() override
     {   
+        code_.clear();
         msgpack::sbuffer buffer;
         kr::core::Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer};
         model_.serialize(packer);
-
-        std::string json;
+    
         std::size_t offset = 0;
-        JsonVisitor visitor(json);
+        JsonVisitor visitor(code_);
         msgpack::parse(buffer.data(), buffer.size(), offset, visitor);
 
         const std::string file_path = jsons::generated_filename(path_, file_name_);
-        const std::string final_code = json;
+        const std::string final_code = code_.to_string();
         return kr::utility::save_file(file_path.c_str(), final_code, false);
     }
 private:
-    CodeWriter writer_;
+    CodeWriter code_;
 };
 
 bool generate_json(Model& model, const std::string& path, const std::string& file_name)
