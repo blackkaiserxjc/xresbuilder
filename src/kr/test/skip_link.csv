@@ -1,0 +1,6 @@
+ID,systemid,tab,text,
+int,int,int,int,
+链接id,系统id,子页签,文本id（skip_link.xml中读取）,
+10011,1001,1,1,英雄升星
+10012,1002,2,2,英雄突破
+10013,1003,3,3,英雄升级

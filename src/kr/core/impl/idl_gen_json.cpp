@@ -80,10 +80,10 @@ public:
 
   bool start_array(uint32_t num_elements) {
     current_size_.push_back(num_elements);
-    ++array_depth_;
-    if (array_depth_ > 1) {
+    if (array_depth_ > 0) {
       writer_ += "[";
     }
+    ++array_depth_;
     return true;
   }
 
@@ -96,11 +96,11 @@ public:
   }
 
   bool end_array() {
-    if (array_depth_ > 1) {
+    --array_depth_;
+    if (array_depth_ > 0) {
       writer_ += "]";
     }
     current_size_.pop_back();
-    --array_depth_;
     return true;
   }
 
