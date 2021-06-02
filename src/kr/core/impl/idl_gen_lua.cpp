@@ -1,5 +1,6 @@
-#include <fmt/format.h>
+#include <locale>
 #include <string>
+#include <fmt/format.h>
 
 #include <kr/core/code_generator.h>
 #include <kr/core/idl.h>
@@ -7,14 +8,6 @@
 
 namespace kr {
 namespace core {
-namespace lua {
-
-std::string generated_filename(const std::string &path,
-                               const std::string &file_name) {
-  return fmt::format("{}{}.lua", path, file_name);
-}
-
-} // namespace lua
 
 struct LuaVisitor : public msgpack::null_visitor {
   LuaVisitor(CodeWriter &writer) : writer_(writer) {}
@@ -130,6 +123,7 @@ public:
   LuaGenerator(Model &model, const std::string &path,
                const std::string &file_name)
       : CodeGenerator(model, path, file_name) {}
+  ~LuaGenerator() {}
 
   bool generate() override {
     code_.clear();
@@ -146,9 +140,15 @@ public:
     code_ += "\n";
     code_ += "return M";
 
-    const std::string file_path = lua::generated_filename(path_, file_name_);
+    const std::string file_path = generated_filename(path_, file_name_);
     const std::string final_code = code_.to_string();
     return kr::utility::save_file(file_path.c_str(), final_code, false);
+  }
+
+  std::string generated_filename(const std::string &path,
+                                 const std::string &file_name) override {
+    
+    return fmt::format("{}/{}.lua", path, file_name);
   }
 
 private:

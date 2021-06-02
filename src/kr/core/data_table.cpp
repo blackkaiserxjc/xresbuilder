@@ -188,7 +188,7 @@ void DataTable::clear() {
   columns_.clear();
 }
 
-std::shared_ptr<DataRow> DataTable::newRow() {
+std::shared_ptr<DataRow> DataTable::new_row() {
   auto row = std::make_shared<DataRow>(next_row_id_, this);
   columns_.copy(*row->columns_, 0);
   next_row_id_++;

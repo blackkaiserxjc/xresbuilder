@@ -8,13 +8,14 @@
 #include <msgpack.hpp>
 
 #include <kr/core/data_table.h>
-#include <kr/core/idl.h>
 #include <kr/core/pack.h>
 #include <kr/core/type.h>
+#include <kr/core/object_pack.h>
 
 namespace kr {
 namespace core {
 
+class Parser;
 class Model;
 class Object {
 public:
@@ -46,6 +47,8 @@ public:
 
   Type type() const { return table_def_; }
 
+  std::shared_ptr<Parser> parser() const { return parser_; };
+
 private:
   // 解析
   void parse(DataTable &table);
@@ -53,7 +56,8 @@ private:
   void parse_table_def(DataTable &table);
   // 解析数据
   void parse_table_data(DataTable &table);
-
+  // 解析器
+  std::shared_ptr<Parser> parser_;
   // 表结构
   Type table_def_;
   // 数据集

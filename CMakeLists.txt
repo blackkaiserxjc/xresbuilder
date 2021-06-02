@@ -27,6 +27,8 @@ option(CMAKE_Cxx_CREATE_STATIC_LIBRARY "Build static library" ON)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # 配置antlr4环境
+add_definitions(-DANTLR4CPP_STATIC)
+set(ANTLR4_WITH_STATIC_CRT OFF)
 include(ExternalAntlr4Cpp)
 set(ANTLR_EXECUTABLE ${PROJECT_SOURCE_DIR}/tools/antlr-4.9.1-complete.jar)
 

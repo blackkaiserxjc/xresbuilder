@@ -1,7 +1,11 @@
 #pragma once
 
 #include "CellBaseVisitor.h"
+#include "CellLexer.h"
+#include "CellParser.h"
 #include "IDLBaseVisitor.h"
+#include "IDLLexer.h"
+#include "IDLParser.h"
 #include "antlr4-runtime.h"
 #include "pack.h"
 
@@ -46,3 +50,4 @@ public:
 } // namespace core
 } // namespace kr
 
+#include "detail/ast_builder.h"

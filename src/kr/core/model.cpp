@@ -1,6 +1,7 @@
 #include <fmt/format.h>
 
 #include <kr/core/model.h>
+#include <kr/core/parser.h>
 
 namespace kr {
 namespace core {
@@ -25,11 +26,15 @@ void Object::init(DataRow &data) {
 }
 
 void Object::pack_buffer(const std::string &source) {
+  auto parser = model_.parser();
   Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer_};
-  parse_data(source, packer);
+  parser->parse_object(source, packer);
 }
 
-Model::Model(DataTable &table) : table_def_{} { parse(table); }
+Model::Model(DataTable &table)
+    : table_def_{}, parser_(std::make_shared<Parser>()) {
+  parse(table);
+}
 
 Model::~Model() {}
 
@@ -47,14 +52,14 @@ void Model::parse_table_def(DataTable &table) {
   for (auto index = 0; index < columns.count(); index++) {
     auto &column = columns[index];
     Type child_type;
-    if (!parse_field(column.value(), child_type)) {
+    if (!parser_->parse_field(column.value(), child_type)) {
       return;
     }
     auto field_def = std::make_shared<FieldDef>();
     field_def->value.type = child_type;
     field_def->index = column.index();
     field_def->name = column.name();
-    obj_def->fields.Add(column.name(), field_def);
+    obj_def->fields.add(column.name(), field_def);
   }
 }
 

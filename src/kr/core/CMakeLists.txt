@@ -11,14 +11,14 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${ANTLR_OUTPUT_DIRS})
 
 set(kr_app_core_SRCS
-    core.h
-    core.cpp
     idl.h
     idl.cpp
     ast_builder.h 
     ast_builder.cpp
     code_generator.h
     code_generator.cpp
+    compiler.h
+    compiler.cpp
     data_loader.h
     data_loader.cpp
     data_table.h
@@ -26,7 +26,9 @@ set(kr_app_core_SRCS
     model.h
     model.cpp
     object_pack.h
-    pack.h
+    pack.h  
+    parser.h
+    parser.cpp
     rapidcsv.h
     type.h
     ${ANTLR_IDLGrammarParser_CXX_OUTPUTS}
@@ -38,6 +40,7 @@ set(kr_app_core_detail_SRC
     detail/data_table.h
     detail/msgpack.h
     detail/object_pack.h
+    detail/parser.h
 )
 
 set(kr_app_core_impl_SRCS
