@@ -1,5 +1,5 @@
-#include <iostream>
 #include <fmt/format.h>
+#include <iostream>
 
 #include <kr/core/code_generator.h>
 #include <kr/core/idl.h>
@@ -32,7 +32,8 @@ static std::string pascal_case_name(const std::string &name,
 
 class JsonVisitor : public msgpack::null_visitor {
 public:
-  JsonVisitor(CodeWriter &writer) : writer_(writer), is_map_key(false) {}
+  JsonVisitor(CodeWriter &writer)
+      : writer_(writer), is_map_key(false), array_depth_(0), map_depth_(0) {}
 
   bool visit_nil() {
     writer_ += "null";
@@ -79,27 +80,34 @@ public:
 
   bool start_array(uint32_t num_elements) {
     current_size_.push_back(num_elements);
-    writer_ += "[";
+    ++array_depth_;
+    if (array_depth_ > 1) {
+      writer_ += "[";
+    }
     return true;
   }
 
   bool end_array_item() {
     --current_size_.back();
-    if (current_size_.back() != 0) {
+    if (current_size_.back() != 0 && current_size_.size() > 1) {
       writer_ += ",";
     }
     return true;
   }
 
   bool end_array() {
+    if (array_depth_ > 1) {
+      writer_ += "]";
+    }
     current_size_.pop_back();
-    writer_ += "]";
+    --array_depth_;
     return true;
   }
 
   bool start_map(uint32_t num_kv_pairs) {
     current_size_.push_back(num_kv_pairs);
     writer_ += "{";
+    ++map_depth_;
     return true;
   }
 
@@ -123,13 +131,19 @@ public:
   }
 
   bool end_map() {
+    --map_depth_;
     current_size_.pop_back();
     writer_ += "}";
+    if (map_depth_ == 0) {
+      writer_ += "\n";
+    }
     return true;
   }
 
 private:
   bool is_map_key;
+  int array_depth_;
+  int map_depth_;
   CodeWriter &writer_;
   std::vector<uint32_t> current_size_;
 };
@@ -160,7 +174,7 @@ public:
   std::string generated_filename(const std::string &path,
                                  const std::string &file_name) override {
 
-    return fmt::format("{}/{}.json", path, pascal_case_name(file_name));
+    return fmt::format("{}/{}.txt", path, pascal_case_name(file_name));
   }
 
 private:
