@@ -88,7 +88,7 @@ void DataColumnCollection::remove(std::shared_ptr<DataColumn> column) {
   assert(column != nullptr);
   if (table_ != nullptr && table_->rows_.count() > 0) {
     std::size_t count = table_->rows_.count();
-    for (auto index = 0; index < count; index++) {
+    for (std::size_t index = 0; index < count; index++) {
       remove(*(table_->rows_[index].columns_), index);
     }
   }

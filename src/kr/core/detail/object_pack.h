@@ -59,7 +59,7 @@ void pack_object(Packer &packer, const Type &type, const Reader &reader) {
       throw std::runtime_error("map type not std::uint32_t");
     }
     auto index = key.template as<std::uint32_t>();
-    if (index < 0 or index >= obj_def->fields.size()) {
+    if (index < 0 || index >= obj_def->fields.size()) {
       throw std::out_of_range("index out of range");
     }
     auto one_field = obj_def->fields.vec[index];

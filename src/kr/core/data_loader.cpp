@@ -1,4 +1,4 @@
-#include <algorithm>
+﻿#include <algorithm>
 #include <filesystem>
 
 #include <boost/algorithm/string.hpp>
@@ -105,7 +105,7 @@ bool load_from_csv(const std::string &path, DataTable &table) {
     // 生成头信息
     std::vector<int> field_indexs;
     size_t size = type_row.size();
-    for (auto i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
       if (!type_row[i].empty()) {
         field_indexs.push_back(i);
       }

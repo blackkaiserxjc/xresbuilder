@@ -15,7 +15,7 @@ Object::~Object() {}
 void Object::init(DataRow &data) {
   std::vector<std::string> fields;
   auto &columns = data.columns();
-  for (auto index = 0; index < columns.count(); index++) {
+  for (size_t index = 0; index < columns.count(); index++) {
     auto &column = columns[index];
     if (!column.value().empty()) {
       fields.emplace_back(column.value());
@@ -49,7 +49,7 @@ void Model::parse_table_def(DataTable &table) {
   table_def_.obj_def = obj_def;
 
   auto &columns = table.columns();
-  for (auto index = 0; index < columns.count(); index++) {
+  for (size_t index = 0; index < columns.count(); index++) {
     auto &column = columns[index];
     Type child_type;
     if (!parser_->parse_field(column.value(), child_type)) {
@@ -65,7 +65,7 @@ void Model::parse_table_def(DataTable &table) {
 
 void Model::parse_table_data(DataTable &table) {
   auto &collect = table.rows();
-  for (auto index = 1; index <= collect.count(); index++) {
+  for (size_t index = 1; index <= collect.count(); index++) {
     data_.emplace(index, std::make_shared<Object>(*this, collect[index]));
   }
 }

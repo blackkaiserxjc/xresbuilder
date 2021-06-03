@@ -25,7 +25,7 @@ int Compiler::run(int argc, char **argv) {
       "src", boost::program_options::value<std::string>(), "data dictory")(
       "dest", boost::program_options::value<std::string>(), "generate dictory");
 
-  for (auto index = 0; index < params_.num_generators; index++) {
+  for (size_t index = 0; index < params_.num_generators; index++) {
     auto generator = params_.generators[index];
     options = options(generator.generator_opt, generator.generator_help);
   }
@@ -52,7 +52,7 @@ int Compiler::run(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  for (auto index = 0; index < params_.num_generators; index++) {
+  for (size_t index = 0; index < params_.num_generators; index++) {
     if (vm.count(params_.generators[index].generator_opt)) {
       opts.lang_to_generate |= params_.generators[index].lang;
     }
@@ -95,7 +95,7 @@ void Compiler::generate(const Options &opts) {
 
     std::cout << fmt::format("generate start:  path ={}", src.string()) << std::endl;
     Model model(dt);
-    for (auto index = 0; index < params_.num_generators; ++index) {
+    for (size_t index = 0; index < params_.num_generators; ++index) {
       auto &generator = params_.generators[index];
       if (generator.lang & opts.lang_to_generate) {
         generator.generate(model, dest.string(), filename);

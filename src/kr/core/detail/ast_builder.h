@@ -17,7 +17,7 @@ antlrcpp::Any
 CellAstBuilder<Packer>::visitObject(CellParser::ObjectContext *context) {
   auto field_size = context->field().size();
   packer_.pack_begin_map(field_size);
-  for (auto index = 0; index < field_size; index++) {
+  for (size_t index = 0; index < field_size; index++) {
     packer_.key(static_cast<std::uint32_t>(index));
     visitField(context->field(index));
   }

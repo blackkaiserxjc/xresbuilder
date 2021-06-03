@@ -1,5 +1,7 @@
-#include <fmt/format.h>
 #include <iostream>
+#include <locale>
+
+#include <fmt/format.h>
 
 #include <kr/core/code_generator.h>
 #include <kr/core/idl.h>

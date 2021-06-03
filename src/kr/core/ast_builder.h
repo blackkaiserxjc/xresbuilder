@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CellBaseVisitor.h"
 #include "CellLexer.h"
@@ -6,7 +6,6 @@
 #include "IDLBaseVisitor.h"
 #include "IDLLexer.h"
 #include "IDLParser.h"
-#include "antlr4-runtime.h"
 #include "pack.h"
 
 namespace kr {
