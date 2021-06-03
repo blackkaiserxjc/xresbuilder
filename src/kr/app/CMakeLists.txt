@@ -1,8 +1,9 @@
 find_package(ANTLR REQUIRED)
 find_package(Boost COMPONENTS program_options system thread REQUIRED)
-find_package(Fmt CONFIG REQUIRED)
 find_package(Msgpack REQUIRED)
-find_package(Threads)
+find_package(Threads REQUIRED)
+find_package(Fmt CONFIG REQUIRED)
+find_package(Xlnt CONFIG REQUIRED)
 
 
 include_directories(${ANTLR4_INCLUDE_DIRS})
@@ -22,6 +23,7 @@ target_link_libraries(kr_app_builder
     kr_app_core
     kr_app_utility
     antlr4_static
+    xlnt::xlnt
 	${FMT_LIBRARYS}
     ${Boost_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}

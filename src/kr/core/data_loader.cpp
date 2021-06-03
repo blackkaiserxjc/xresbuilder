@@ -3,6 +3,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <fmt/format.h>
+#include <xlnt/xlnt.hpp>
 
 #include <kr/core/data_loader.h>
 #include <kr/core/data_table.h>
@@ -73,7 +74,7 @@ void build_row(DataTable &table, const std::vector<std::string> &row_data,
   table.rows().add(row);
 }
 
-void build_rows(DataTable &table, const rapidcsv::Document &doc,
+void build_csv_rows(DataTable &table, const rapidcsv::Document &doc,
                 const std::vector<HeaderField> &fields) {
   auto n_rows = doc.GetRowCount();
   auto start_index = static_cast<std::uint32_t>(HeaderRowIndex::START);
@@ -122,7 +123,78 @@ bool load_from_csv(const std::string &path, DataTable &table) {
     // 构建表头
     build_columns(table, fields);
     // 构建数据
-    build_rows(table, doc, fields);
+    build_csv_rows(table, doc, fields);
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << '\n';
+    return false;
+  }
+  return true;
+}
+
+void build_xlsx_rows(DataTable &table,
+                     std::vector<std::vector<std::string>> &whole_sheet,
+                     const std::vector<HeaderField> &fields) {
+  auto n_rows = whole_sheet.size();
+  auto start_index = static_cast<std::uint32_t>(HeaderRowIndex::START);
+  for (auto index = start_index; index < n_rows; index++) {
+    auto &row = whole_sheet[index];
+    if (!row.empty()) {
+      build_row(table, row, fields);
+    }
+  }
+}
+
+bool load_from_xlsx(const std::string &path, DataTable &table) {
+  try {
+    xlnt::workbook wb;
+    wb.load(path);
+    auto ws = wb.active_sheet();
+    std::vector<std::vector<std::string>> whole_sheet;
+    for (auto row : ws.rows(false)) {
+      std::vector<std::string> signle_row;
+      for (auto cell : row) {
+        signle_row.push_back(cell.to_string());
+      }
+      whole_sheet.push_back(signle_row);
+    }
+
+    if (whole_sheet.size() <
+        static_cast<std::uint32_t>(HeaderRowIndex::START)) {
+      std::cout << "rows less start row index." << std::endl;
+      return false;
+    }
+
+    auto &type_row =
+        whole_sheet.at(static_cast<std::uint32_t>(HeaderRowIndex::TYPE));
+    auto &value_row =
+        whole_sheet.at(static_cast<std::uint32_t>(HeaderRowIndex::VALUE));
+    if (type_row.empty() || value_row.empty() ||
+        type_row.size() != value_row.size()) {
+      std::cout << "type row or value row is empty." << std::endl;
+      return false;
+    }
+
+    // 生成头信息
+    std::vector<int> field_indexs;
+    size_t size = type_row.size();
+    for (size_t i = 0; i < size; i++) {
+      if (!type_row[i].empty()) {
+        field_indexs.push_back(i);
+      }
+    }
+    std::vector<detail::HeaderField> fields;
+    int field_index_size = field_indexs.size();
+    for (auto i = 0; i < field_index_size; i++) {
+      auto cur_index = field_indexs[i];
+      auto next_index =
+          (i == field_index_size - 1) ? size : (field_indexs[i + 1]);
+      fields.emplace_back(i, value_row[cur_index], type_row[cur_index],
+                          cur_index, next_index);
+    }
+    // 构建表头
+    build_columns(table, fields);
+    // 构建数据
+    build_xlsx_rows(table, whole_sheet, fields);
   } catch (const std::exception &e) {
     std::cerr << e.what() << '\n';
     return false;
@@ -144,7 +216,7 @@ bool DataLoader::execute(const std::string &path, DataTable &table) {
     auto extension = fpath.extension().string();
     if (extension == ".csv") {
       return load_from_csv(path, table);
-    } else if (extension == ".xlsx") {
+    } else if (extension == ".xlsx" || extension == ".xlsm") {
       return load_from_xlsx(path, table);
     }
   } catch (const std::filesystem::filesystem_error &e) {
@@ -160,6 +232,7 @@ bool DataLoader::load_from_csv(const std::string &path, DataTable &table) {
 }
 
 bool DataLoader::load_from_xlsx(const std::string &path, DataTable &table) {
+  detail::load_from_xlsx(path, table);
   return true;
 }
 
