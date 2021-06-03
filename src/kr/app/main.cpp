@@ -5,10 +5,9 @@
 int main(int argc, char **argv) {
   using namespace kr::core;
   const Compiler::Generator generators[] = {
-      {generate_json, "json", "Json", Compiler::Options::kJson,
-       "Generate Json schema"},
-      {generate_lua, "lua", "Lua", Compiler::Options::kLua,
-       "Generate Lua files"}};
+      {generate_json, "json", "Json", IDLOptions::kJson, "Generate Json schema"},
+      {generate_lua, "lua", "Lua", IDLOptions::kLua,"Generate Lua files"}
+      };
 
   Compiler::InitParams init_params;
   init_params.generators = generators;

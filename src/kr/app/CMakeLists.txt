@@ -1,7 +1,9 @@
 find_package(ANTLR REQUIRED)
 find_package(Boost COMPONENTS program_options system thread REQUIRED)
 find_package(Fmt CONFIG REQUIRED)
+find_package(Msgpack REQUIRED)
 find_package(Threads)
+
 
 include_directories(${ANTLR4_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})

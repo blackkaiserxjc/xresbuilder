@@ -26,6 +26,8 @@ set(kr_app_core_SRCS
     data_loader.cpp
     data_table.h
     data_table.cpp
+    generator_helpers.h
+    generator_helpers.cpp
     model.h
     model.cpp
     object_pack.h

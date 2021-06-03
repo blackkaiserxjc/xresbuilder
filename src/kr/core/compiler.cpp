@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <iostream>
+#include <unordered_map>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
@@ -21,11 +22,13 @@ int Compiler::run(int argc, char **argv) {
   }
 
   boost::program_options::options_description desc("Allowed options");
-  auto &options = desc.add_options()("help", "produce help message")(
-      "src", boost::program_options::value<std::string>(), "data dictory")(
-      "dest", boost::program_options::value<std::string>(), "generate dictory")(
-      "file-naming-style", boost::program_options::value<std::string>(), "file naming style")(
-      "field-naming-style", boost::program_options::value<std::string>(), "field naming style");
+  auto &options = desc.add_options()
+       ("help", "produce help message")
+       ("src", boost::program_options::value<std::string>(), "data dictory")
+       ("dest", boost::program_options::value<std::string>(), "output dictory")
+       ("filename-ext", boost::program_options::value<std::string>(),"filename extension")
+       ("field-naming-style",boost::program_options::value<std::string>(), "field naming style: camel or pascal")
+       ("filename-naming-style", boost::program_options::value<std::string>(),"filename naming style: camel or pascal");
 
   for (size_t index = 0; index < params_.num_generators; index++) {
     auto generator = params_.generators[index];
@@ -52,6 +55,27 @@ int Compiler::run(int argc, char **argv) {
   if (opts.src.empty() || opts.dest.empty()) {
     std::cout << "src or dest is empty" << std::endl;
     return EXIT_FAILURE;
+  }
+
+  if (vm.count("filename-ext")) {
+    opts.extension = vm["filename-ext"].as<std::string>();
+  }
+
+  std::unordered_map<std::string, uint32_t> naming_styles = {
+      {"camel", static_cast<uint32_t>(IDLOptions::NamingStyle::kCamelCase)},
+      {"pascal", static_cast<uint32_t>(IDLOptions::NamingStyle::kPascalCase)}};
+  if (vm.count("filename-naming-style")) {
+    auto style = vm["filename-naming-style"].as<std::string>();
+    if (naming_styles.count(style)) {
+      opts.filename_naming_style = naming_styles[style];
+    }
+  }
+
+  if (vm.count("field-naming-style")) {
+    auto style = vm["field-naming-style"].as<std::string>();
+    if (naming_styles.count(style)) {
+      opts.field_naming_style = naming_styles[style];
+    }
   }
 
   for (size_t index = 0; index < params_.num_generators; index++) {
@@ -88,7 +112,7 @@ void Compiler::generate(const IDLOptions &opts) {
   auto generate_path = [&dest_path, &src_path](auto &&cur_path) {
 	auto gen_path = dest_path;
     auto relative_path = fs::relative(cur_path, src_path);
-	gen_path /= relative_path;
+	  gen_path /= relative_path;
     return gen_path.parent_path();
   };
 
@@ -116,7 +140,7 @@ void Compiler::generate(const IDLOptions &opts) {
     if (!fs::exists(code_path)) {
       fs::create_directories(code_path);
     }
-	auto filename = cur_path.stem().string();
+	  auto filename = cur_path.stem().string();
     generate_code(cur_path, code_path, filename);
   });
 }

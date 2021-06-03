@@ -4,38 +4,17 @@
 #include <fmt/format.h>
 
 #include <kr/core/code_generator.h>
+#include <kr/core/generator_helpers.h>
 #include <kr/core/idl.h>
 #include <kr/utility/utility.h>
 
 namespace kr {
 namespace core {
 
-static std::string pascal_case_name(const std::string &name,
-                                    bool is_first_upper = true) {
-  std::string case_name;
-  if (name.front() != '_') {
-    auto ch = is_first_upper
-                  ? std::toupper(name.front(), std::locale::classic())
-                  : std::tolower(name.front(), std::locale::classic());
-    case_name.push_back(ch);
-  }
-
-  for (size_t i = 1; i < name.size(); ++i) {
-    if (name[i] != '_') {
-      if (!std::isalpha(name[i - 1], std::locale::classic())) {
-        case_name.push_back(std::toupper(name[i], std::locale::classic()));
-      } else {
-        case_name.push_back(name[i]);
-      }
-    }
-  }
-  return case_name;
-}
-
 class JsonVisitor : public msgpack::null_visitor {
 public:
-  JsonVisitor(CodeWriter &writer)
-      : writer_(writer), is_map_key(false), array_depth_(0), map_depth_(0) {}
+  JsonVisitor(CodeWriter &writer, uint32_t field_name_case)
+      : writer_(writer), field_name_case_(field_name_case), is_map_key(false), array_depth_(0), map_depth_(0) {}
 
   bool visit_nil() {
     writer_ += "null";
@@ -74,7 +53,7 @@ public:
   bool visit_str(const char *v, uint32_t size) {
     auto key = std::string(v, size);
     if (is_map_key) {
-      //key = pascal_case_name(key, false);
+      key = to_case_name(key);
     }
     writer_ += fmt::format("\"{}\"", key);
     return true;
@@ -143,18 +122,30 @@ public:
   }
 
 private:
+  std::string to_case_name(const std::string& input) {
+    if (field_name_case_ == IDLOptions::NamingStyle::kCamelCase) {
+      return generator::underscores_to_camelcase(input);
+    } else if (field_name_case_ == IDLOptions::NamingStyle::kPascalCase) {
+      return generator::underscores_to_pascalcase(input);
+    } else {
+      return input;
+    }
+  }
+
   bool is_map_key;
   int array_depth_;
   int map_depth_;
   CodeWriter &writer_;
-  std::vector<uint32_t> current_size_;
+  std::vector<uint32_t> current_size_;  
+  uint32_t field_name_case_;
+  std::string extension_;
 };
 
 class JsonGenerator : public CodeGenerator {
 public:
-  JsonGenerator(Model &model, const std::string &path,
+  JsonGenerator(Model &model, const IDLOptions& opts, const std::string & path,
                 const std::string &file_name)
-      : CodeGenerator(model, path, file_name) {}
+      : CodeGenerator(model, opts, path, file_name) {}
 
   ~JsonGenerator() {}
 
@@ -165,7 +156,7 @@ public:
     model_.serialize(packer);
 
     std::size_t offset = 0;
-    JsonVisitor visitor(code_);
+    JsonVisitor visitor(code_, opts_.field_naming_style);
     msgpack::parse(buffer.data(), buffer.size(), offset, visitor);
 
     const std::string file_path = generated_filename(path_, file_name_);
@@ -175,17 +166,29 @@ public:
 
   std::string generated_filename(const std::string &path,
                                  const std::string &file_name) override {
-
-    return fmt::format("{}/{}.txt", path, pascal_case_name(file_name));
+    std::string extension = ".txt";
+    if (!opts_.extension.empty()) {
+      extension = opts_.extension;
+    }
+    auto case_name = file_name;
+    switch (opts_.filename_naming_style) {
+    case IDLOptions::kCamelCase:
+      case_name = generator::underscores_to_camelcase(file_name);
+      break;
+    case IDLOptions::kPascalCase:
+      case_name = generator::underscores_to_pascalcase(file_name);
+      break;
+    }
+    return fmt::format("{}/{}{}", path, case_name, extension);
   }
 
 private:
   CodeWriter code_;
 };
 
-bool generate_json(Model &model, const IDLOptions& opts, const std::string &path,
-                   const std::string &file_name) {
-  JsonGenerator generator(model, path, file_name);
+bool generate_json(Model &model, const IDLOptions &opts, const std::string &path,
+                  const std::string &file_name) {
+  JsonGenerator generator(model, opts, path, file_name);
   return generator.generate();
 }
 

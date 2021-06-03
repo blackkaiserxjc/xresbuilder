@@ -16,16 +16,21 @@ struct IDLOptions {
     };
     enum NamingStyle
     {
-        kDefault = 0,
         kCamelCase = 1 << 0,
         kPascalCase = 1 << 1,
         kMaxRules,
     };
+
+    IDLOptions()
+        : src{}, dest{}, extension{}, filename_naming_style{},
+          field_naming_style{} {}
+
     std::string src;
     std::string dest;
+    std::string extension;
     std::uint32_t lang_to_generate;
-    NamingStyle file_naming_style;
-    NamingStyle field_naming_style;
+    std::uint32_t filename_naming_style;
+    std::uint32_t field_naming_style;
 };
 
 extern bool generate_json(Model& model, const IDLOptions& opts, const std::string& path, const std::string& file_name);

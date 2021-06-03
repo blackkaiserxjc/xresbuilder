@@ -3,6 +3,7 @@
 #include <fmt/format.h>
 
 #include <kr/core/code_generator.h>
+#include <kr/core/generator_helpers.h>
 #include <kr/core/idl.h>
 #include <kr/utility/utility.h>
 
@@ -10,7 +11,7 @@ namespace kr {
 namespace core {
 
 struct LuaVisitor : public msgpack::null_visitor {
-  LuaVisitor(CodeWriter &writer) : writer_(writer) {}
+  LuaVisitor(CodeWriter &writer, uint32_t field_name_case) : writer_(writer), field_name_case_(field_name_case) {}
 
   bool visit_null() {
     writer_ += "nil";
@@ -47,7 +48,11 @@ struct LuaVisitor : public msgpack::null_visitor {
   }
 
   bool visit_str(const char *v, uint32_t size) {
-    writer_ += '"' + std::string(v, size) + '"';
+    auto key = std::string(v, size);
+    if (is_map_key) {
+      key = to_case_name(key);
+    }
+    writer_ += fmt::format("\"{}\"", key);
     return true;
   }
 
@@ -89,11 +94,13 @@ struct LuaVisitor : public msgpack::null_visitor {
   bool start_map_key() {
     writer_.write_indent();
     writer_ += "[";
+    is_map_key = true;
     return true;
   }
 
   bool end_map_key() {
     writer_ += "] = ";
+    is_map_key = false;
     return true;
   }
 
@@ -113,16 +120,28 @@ struct LuaVisitor : public msgpack::null_visitor {
   }
 
 private:
+    std::string to_case_name(const std::string& input) {
+    if (field_name_case_ == IDLOptions::NamingStyle::kCamelCase) {
+      return generator::underscores_to_camelcase(input);
+    } else if (field_name_case_ == IDLOptions::NamingStyle::kPascalCase) {
+      return generator::underscores_to_pascalcase(input);
+    } else {
+      return input;
+    }
+  }
+
   CodeWriter &writer_;
   uint32_t depath_;
   std::vector<std::tuple<uint32_t, uint32_t>> current_size_;
+  uint32_t field_name_case_;
+  bool is_map_key;
 };
 
 class LuaGenerator : public CodeGenerator {
 public:
-  LuaGenerator(Model &model, const std::string &path,
+  LuaGenerator(Model &model, const IDLOptions& opts, const std::string &path,
                const std::string &file_name)
-      : CodeGenerator(model, path, file_name) {}
+      : CodeGenerator(model, opts, path, file_name) {}
   ~LuaGenerator() {}
 
   bool generate() override {
@@ -134,7 +153,7 @@ public:
     code_ += "local M = ";
 
     std::size_t offset = 0;
-    LuaVisitor visitor(code_);
+    LuaVisitor visitor(code_, opts_.field_naming_style);
     msgpack::parse(buffer.data(), buffer.size(), offset, visitor);
 
     code_ += "\n";
@@ -147,8 +166,21 @@ public:
 
   std::string generated_filename(const std::string &path,
                                  const std::string &file_name) override {
-    
-    return fmt::format("{}/{}.lua", path, file_name);
+
+    std::string extension = ".lua";
+    if (!opts_.extension.empty()) {
+      extension = opts_.extension;
+    }
+    auto case_name = file_name;
+    switch (opts_.filename_naming_style) {
+    case IDLOptions::kCamelCase:
+      case_name = generator::underscores_to_camelcase(file_name);
+      break;
+    case IDLOptions::kPascalCase:
+      case_name = generator::underscores_to_pascalcase(file_name);
+      break;
+    }
+    return fmt::format("{}/{}{}", path, case_name, extension);
   }
 
 private:
@@ -157,7 +189,7 @@ private:
 
 bool generate_lua(Model &model, const IDLOptions& opts, const std::string &path,
                   const std::string &file_name) {
-  LuaGenerator generator(model, path, file_name);
+  LuaGenerator generator(model, opts, path, file_name);
   return generator.generate();
 }
 
