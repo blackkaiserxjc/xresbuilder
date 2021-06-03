@@ -74,7 +74,8 @@
         "cfenv": "cpp",
         "typeindex": "cpp",
         "hash_map": "cpp",
-        "*.def": "cpp"
+        "*.def": "cpp",
+        "shared_mutex": "cpp"
     },
     "cmake.configureOnOpen": true
 }

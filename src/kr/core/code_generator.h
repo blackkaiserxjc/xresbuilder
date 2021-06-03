@@ -44,11 +44,11 @@ private:
 };
 
 class Model;
+class IDLOptions;
 class CodeGenerator : private boost::noncopyable {
 public:
-  CodeGenerator(Model &model, const std::string &path,
-                const std::string &file_name)
-      : path_{path}, file_name_{file_name}, model_{model} {}
+  CodeGenerator(Model &model, const IDLOptions& opts)
+      : model_{model}, opts_{opts} {}
 
   virtual ~CodeGenerator(){}
 
@@ -58,8 +58,7 @@ public:
 
 protected:
   Model &model_;
-  const std::string &path_;
-  const std::string &file_name_;
+  const IDLOptions& opts_;
 };
 
 } // namespace core

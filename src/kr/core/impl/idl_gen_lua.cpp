@@ -155,7 +155,7 @@ private:
   CodeWriter code_;
 };
 
-bool generate_lua(Model &model, const std::string &path,
+bool generate_lua(Model &model, const IDLOptions& opts, const std::string &path,
                   const std::string &file_name) {
   LuaGenerator generator(model, path, file_name);
   return generator.generate();

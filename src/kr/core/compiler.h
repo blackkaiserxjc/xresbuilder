@@ -10,20 +10,14 @@ namespace core {
 class Model;
 class Compiler {
 public:
-  struct Options {
-    enum Language { kLua = 1 << 0, kJson = 1 << 1, kMax };
-    std::string src;
-    std::string dest;
-    std::uint32_t lang_to_generate;
-  };
 
   struct Generator {
-    using GeneratedFn = std::function<bool(Model &model, const std::string &,
+    using GeneratedFn = std::function<bool(Model &model, const IDLOptions&, const std::string &,
                                            const std::string &)>;
     GeneratedFn generate;
     const char *generator_opt;
     const char *language;
-    Options::Language lang;
+    IDLOptions::Language lang;
     const char *generator_help;
   };
 
@@ -38,7 +32,7 @@ public:
   int run(int argc, char **argv);
 
 private:
-  void generate(const Options &options);
+  void generate(const IDLOptions &options);
   
   InitParams params_;
 };

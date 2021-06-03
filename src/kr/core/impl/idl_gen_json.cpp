@@ -74,7 +74,7 @@ public:
   bool visit_str(const char *v, uint32_t size) {
     auto key = std::string(v, size);
     if (is_map_key) {
-      key = pascal_case_name(key, false);
+      //key = pascal_case_name(key, false);
     }
     writer_ += fmt::format("\"{}\"", key);
     return true;
@@ -183,7 +183,7 @@ private:
   CodeWriter code_;
 };
 
-bool generate_json(Model &model, const std::string &path,
+bool generate_json(Model &model, const IDLOptions& opts, const std::string &path,
                    const std::string &file_name) {
   JsonGenerator generator(model, path, file_name);
   return generator.generate();

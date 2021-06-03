@@ -23,7 +23,9 @@ int Compiler::run(int argc, char **argv) {
   boost::program_options::options_description desc("Allowed options");
   auto &options = desc.add_options()("help", "produce help message")(
       "src", boost::program_options::value<std::string>(), "data dictory")(
-      "dest", boost::program_options::value<std::string>(), "generate dictory");
+      "dest", boost::program_options::value<std::string>(), "generate dictory")(
+      "file-naming-style", boost::program_options::value<std::string>(), "file naming style")(
+      "field-naming-style", boost::program_options::value<std::string>(), "field naming style");
 
   for (size_t index = 0; index < params_.num_generators; index++) {
     auto generator = params_.generators[index];
@@ -40,7 +42,7 @@ int Compiler::run(int argc, char **argv) {
     return EXIT_SUCCESS;
   }
 
-  Options opts;
+  IDLOptions opts;
   if (vm.count("src")) {
     opts.src = vm["src"].as<std::string>();
   }
@@ -62,7 +64,7 @@ int Compiler::run(int argc, char **argv) {
   return EXIT_SUCCESS;
 }
 
-void Compiler::generate(const Options &opts) {
+void Compiler::generate(const IDLOptions &opts) {
   if (!opts.lang_to_generate) {
     std::cout << "lange opt is null" << std::endl;
     return;
@@ -76,14 +78,18 @@ void Compiler::generate(const Options &opts) {
   }
 
   std::vector<std::string> full_paths;
-  for (auto &p : fs::recursive_directory_iterator(opts.src)) {
-    full_paths.emplace_back(p.path().string());
+  for (auto &entry : fs::recursive_directory_iterator(opts.src)) {
+	  if (entry.is_regular_file())
+	  {
+		  full_paths.emplace_back(entry.path().string());
+	 }
   }
 
-  auto generate_path = [dest_path, &src_path](auto &&cur_path) {
+  auto generate_path = [&dest_path, &src_path](auto &&cur_path) {
+	auto gen_path = dest_path;
     auto relative_path = fs::relative(cur_path, src_path);
-    dest_path / relative_path;
-    return dest_path;
+	gen_path /= relative_path;
+    return gen_path.parent_path();
   };
 
   auto generate_code = [&](auto &&src, auto &&dest, auto &&filename) {
@@ -98,7 +104,7 @@ void Compiler::generate(const Options &opts) {
     for (size_t index = 0; index < params_.num_generators; ++index) {
       auto &generator = params_.generators[index];
       if (generator.lang & opts.lang_to_generate) {
-        generator.generate(model, dest.string(), filename);
+        generator.generate(model, opts, dest.string(), filename);
       }
     }
     std::cout << fmt::format("generate finish: path ={}", src.string()) << std::endl;
@@ -106,12 +112,12 @@ void Compiler::generate(const Options &opts) {
 
   std::for_each(full_paths.begin(), full_paths.end(), [&](auto &&value) {
     fs::path cur_path(value);
-    auto file_name = cur_path.stem().string();
-    auto dest_path = generate_path(cur_path);
-    if (!fs::exists(dest_path)) {
-      fs::create_directories(dest_path);
+    auto code_path = generate_path(cur_path);
+    if (!fs::exists(code_path)) {
+      fs::create_directories(code_path);
     }
-    generate_code(cur_path, dest_path, file_name);
+	auto filename = cur_path.stem().string();
+    generate_code(cur_path, code_path, filename);
   });
 }
 } // namespace core
