@@ -19,6 +19,12 @@ add_executable(kr_app_builder
     ${kr_app_builder_SRCS}
 )
 
+set_target_properties(kr_app_builder
+    PROPERTIES
+    OUTPUT_NAME xresbuilder
+    FOLDER App
+)
+
 target_link_libraries(kr_app_builder
     kr_app_core
     kr_app_utility

@@ -28,7 +28,7 @@ pod:
     ;
 
 array
-    : LeftBracket statement (Semi statement)* RightBracket
+    : LeftBracket (statement)* (Semi statement)* RightBracket
     ;
 
 /* lexer */

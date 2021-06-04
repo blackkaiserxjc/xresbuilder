@@ -119,9 +119,9 @@ public:
     ArrayContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *LeftBracket();
+    antlr4::tree::TerminalNode *RightBracket();
     std::vector<StatementContext *> statement();
     StatementContext* statement(size_t i);
-    antlr4::tree::TerminalNode *RightBracket();
     std::vector<antlr4::tree::TerminalNode *> Semi();
     antlr4::tree::TerminalNode* Semi(size_t i);
 

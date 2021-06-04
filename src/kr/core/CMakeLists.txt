@@ -13,6 +13,12 @@ include_directories(${FMT_INCLUDE_DIRS})
 include_directories(${MSGPACK_INCLUDE_DIRS})
 include_directories(${ANTLR_OUTPUT_DIRS})
 
+set(kr_app_core_antlr_output_FILES
+    ${ANTLR_IDLGrammarParser_CXX_OUTPUTS}
+    ${ANTLR_CellGrammarParser_CXX_OUTPUTS}
+)
+source_group("Output Files" FILES ${kr_app_core_antlr_output_FILES})
+
 set(kr_app_core_SRCS
     idl.h
     idl.cpp
@@ -36,8 +42,6 @@ set(kr_app_core_SRCS
     parser.cpp
     rapidcsv.h
     type.h
-    ${ANTLR_IDLGrammarParser_CXX_OUTPUTS}
-    ${ANTLR_CellGrammarParser_CXX_OUTPUTS}
 )
 
 set(kr_app_core_detail_SRC
@@ -53,10 +57,13 @@ set(kr_app_core_impl_SRCS
     impl/idl_gen_lua.cpp
 )
 
+source_group("Impl Files" FILES ${kr_app_core_detail_SRC} ${kr_app_core_impl_SRCS})
+
 add_library(kr_app_core
     ${kr_app_core_SRCS}
     ${kr_app_core_detail_SRCS}
     ${kr_app_core_impl_SRCS}
+    ${kr_app_core_antlr_output_FILES}
 )
 
 add_dependencies(kr_app_core
@@ -64,4 +71,5 @@ add_dependencies(kr_app_core
     kr_app_utility
 )
 
+set_target_properties(kr_app_core PROPERTIES FOLDER App)
 

@@ -53,7 +53,7 @@ void build_row(DataTable &table, const std::vector<std::string> &row_data,
     if (boost::starts_with(field.type, "[")) {
       std::vector<std::string> results;
       for (auto index = begin_index; index != end_index; ++index) {
-        if (!row_data[index].empty()) {
+        if (!row_data[index].empty() && row_data[index] != "0") {
           results.emplace_back(row_data[index]);
         }
       }
