@@ -66,7 +66,7 @@ struct LuaVisitor : public msgpack::null_visitor {
   bool start_array_item() {
     auto &&[index, size] = current_size_.back();
     index++;
-    writer_.write_indent();
+    //writer_.write_indent();
     writer_ += fmt::format("[{}] = ", index);
     return true;
   }
@@ -78,8 +78,8 @@ struct LuaVisitor : public msgpack::null_visitor {
 
   bool end_array() {
     current_size_.pop_back();
-    writer_.unindent();
-    writer_.write_indent();
+    writer_.outdent();
+    //writer_.write_indent();
     writer_ += "}";
     return true;
   }
@@ -92,7 +92,7 @@ struct LuaVisitor : public msgpack::null_visitor {
   }
 
   bool start_map_key() {
-    writer_.write_indent();
+    //writer_.write_indent();
     writer_ += "[";
     is_map_key = true;
     return true;
@@ -113,8 +113,8 @@ struct LuaVisitor : public msgpack::null_visitor {
 
   bool end_map() {
     current_size_.pop_back();
-    writer_.unindent();
-    writer_.write_indent();
+    writer_.outdent();
+    //writer_.write_indent();
     writer_ += "}";
     return true;
   }

@@ -13,7 +13,7 @@ namespace core {
 
 class CodeWriter {
 public:
-  CodeWriter(const std::string &indent = "\t") : indent_(indent) {}
+  CodeWriter(const std::string &pad = "\t") : pad_(pad), cur_ident_lvl_(0), ignore_ident_(false) {}
 
   void clear() {
     value_map_.clear();
@@ -30,17 +30,18 @@ public:
   }
 
   void indent();
-  void unindent();
-  void write_indent();
-
+  void outdent();
   void operator+=(std::string text);
   std::string to_string() const { return stream_.str(); };
 
 private:
+  void append_ident(std::stringstream& stream);
+
   std::unordered_map<std::string, std::string> value_map_;
   std::stringstream stream_;
-  std::string indent_;
-  std::string indent_string_;
+  bool ignore_ident_;
+  int cur_ident_lvl_;
+  std::string pad_;
 };
 
 class Model;

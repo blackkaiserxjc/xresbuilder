@@ -52,7 +52,8 @@ set(kr_app_core_detail_SRC
     detail/parser.h
 )
 
-set(kr_app_core_impl_SRCS
+set(kr_app_core_impl_SRCS   
+    impl/idl_gen_csharp.cpp
     impl/idl_gen_json.cpp
     impl/idl_gen_lua.cpp
 )
