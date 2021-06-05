@@ -12,6 +12,7 @@ struct IDLOptions {
     {
         kLua = 1 << 0,
         kJson = 1 << 1,
+        kCSharp = 1 << 2,
         kMax
     };
     enum NamingStyle
@@ -36,6 +37,8 @@ struct IDLOptions {
 extern bool generate_json(Model& model, const IDLOptions& opts, const std::string& path, const std::string& file_name);
 
 extern bool generate_lua(Model& model,  const IDLOptions& opts, const std::string& path, const std::string& file_name);
+
+extern bool generate_csharp(Model& model, const IDLOptions& opts, const std::string& path, const std::string& file_name);
 
 } // namespace core
 } // namespace kr

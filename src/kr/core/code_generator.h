@@ -55,7 +55,7 @@ public:
   virtual bool generate() = 0;
   virtual std::string generated_filename(const std::string &path,
                                          const std::string &file_name) = 0;
-
+  const char* generated_warning();
 protected:
   Model &model_;
   const IDLOptions& opts_;
