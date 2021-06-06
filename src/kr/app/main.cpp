@@ -14,8 +14,5 @@ int main(int argc, char **argv) {
   init_params.generators = generators;
   init_params.num_generators = sizeof(generators) / sizeof(generators[0]);
   Compiler compiler(init_params);
-
-  char *argv1[] = {"xresloader","--src=/home/kaiser/Documents/test/src", "--dest=/home/kaiser/Documents/test/dest", "--csharp"};
-  int argc1 = sizeof(argv1) / sizeof(argv1[0]);
-  return compiler.run(argc1, argv1);
+  return compiler.run(argc, argv);
 }

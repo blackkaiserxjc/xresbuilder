@@ -13,8 +13,10 @@ namespace core {
 
 class JsonVisitor : public msgpack::null_visitor {
 public:
-  JsonVisitor(CodeWriter &writer, uint32_t field_name_case)
-      : writer_(writer), field_name_case_(field_name_case), is_map_key(false), array_depth_(0), map_depth_(0) {}
+  JsonVisitor(std::string &writer, uint32_t field_name_case,
+              uint32_t indent_step)
+      : writer_{writer}, field_name_case_{field_name_case},
+        indent_step_{indent_step}, indent_string_{}, is_map_key(false) {}
 
   bool visit_nil() {
     writer_ += "null";
@@ -61,39 +63,43 @@ public:
 
   bool start_array(uint32_t num_elements) {
     current_size_.push_back(num_elements);
-    if (array_depth_ > 0) {
-      writer_ += "[";
-    }
-    ++array_depth_;
+    writer_ += "[\n";
+    indent();
+    return true;
+  }
+
+  bool start_array_item() {
+    write_indent();
     return true;
   }
 
   bool end_array_item() {
     --current_size_.back();
-    if (current_size_.back() != 0 && current_size_.size() > 1) {
-      writer_ += ",";
+    if (current_size_.back() != 0) {
+      writer_ += ",\n";
     }
     return true;
   }
 
   bool end_array() {
-    --array_depth_;
-    if (array_depth_ > 0) {
-      writer_ += "]";
-    }
+    writer_ += "\n";
+    outdent();
+    write_indent();
+    writer_ += "]";
     current_size_.pop_back();
     return true;
   }
 
   bool start_map(uint32_t num_kv_pairs) {
     current_size_.push_back(num_kv_pairs);
-    writer_ += "{";
-    ++map_depth_;
+    writer_ += "{\n";
+    indent();
     return true;
   }
 
   bool start_map_key() {
     is_map_key = true;
+    write_indent();
     return true;
   }
 
@@ -106,23 +112,21 @@ public:
   bool end_map_value() {
     --current_size_.back();
     if (current_size_.back() != 0) {
-      writer_ += ",";
+      writer_ += ",\n";
     }
     return true;
   }
 
   bool end_map() {
-    --map_depth_;
+    outdent();
+    write_indent();
     current_size_.pop_back();
     writer_ += "}";
-    if (map_depth_ == 0) {
-      writer_ += "\n";
-    }
     return true;
   }
 
 private:
-  std::string to_case_name(const std::string& input) {
+  std::string to_case_name(const std::string &input) {
     if (field_name_case_ == IDLOptions::NamingStyle::kCamelCase) {
       return generator::underscores_to_camelcase(input);
     } else if (field_name_case_ == IDLOptions::NamingStyle::kPascalCase) {
@@ -132,41 +136,49 @@ private:
     }
   }
 
+  void indent() { indent_string_ += std::string(indent_step_, ' '); }
+
+  void outdent() {
+    assert(indent_string_.size() >= indent_step_);
+    indent_string_.resize(indent_string_.size() - indent_step_);
+  }
+
+  void write_indent() { writer_ += fmt::format("\n{}", indent_string_); }
+
   bool is_map_key;
-  int array_depth_;
-  int map_depth_;
-  CodeWriter &writer_;
-  std::vector<uint32_t> current_size_;  
+  std::string &writer_;
+  std::vector<uint32_t> current_size_;
   uint32_t field_name_case_;
-  std::string extension_;
+  uint32_t indent_step_;
+  std::string indent_string_;
 };
 
 class JsonGenerator : public CodeGenerator {
 public:
-  JsonGenerator(Model &model, const IDLOptions& opts, const std::string & path,
+  JsonGenerator(Model &model, const IDLOptions &opts, const std::string &path,
                 const std::string &file_name)
       : CodeGenerator(model, opts, path, file_name) {}
 
   ~JsonGenerator() {}
 
   bool generate() override {
-    code_.clear();
     msgpack::sbuffer buffer;
     Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer};
     model_.serialize(packer);
 
     std::size_t offset = 0;
-    JsonVisitor visitor(code_, opts_.field_naming_style);
+    std::string final_code;
+    JsonVisitor visitor(final_code, opts_.field_naming_style,
+                        opts_.indent_step);
     msgpack::parse(buffer.data(), buffer.size(), offset, visitor);
 
     const std::string file_path = generated_filename(path_, file_name_);
-    const std::string final_code = code_.to_string();
     return kr::utility::save_file(file_path.c_str(), final_code, false);
   }
 
   std::string generated_filename(const std::string &path,
                                  const std::string &file_name) override {
-    std::string extension = ".txt";
+    std::string extension = ".json";
     if (!opts_.extension.empty()) {
       extension = opts_.extension;
     }
@@ -186,8 +198,8 @@ private:
   CodeWriter code_;
 };
 
-bool generate_json(Model &model, const IDLOptions &opts, const std::string &path,
-                  const std::string &file_name) {
+bool generate_json(Model &model, const IDLOptions &opts,
+                   const std::string &path, const std::string &file_name) {
   JsonGenerator generator(model, opts, path, file_name);
   return generator.generate();
 }

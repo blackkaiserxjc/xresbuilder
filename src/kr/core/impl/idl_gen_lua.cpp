@@ -1,6 +1,6 @@
+#include <fmt/format.h>
 #include <locale>
 #include <string>
-#include <fmt/format.h>
 
 #include <kr/core/code_generator.h>
 #include <kr/core/generator_helpers.h>
@@ -11,7 +11,10 @@ namespace kr {
 namespace core {
 
 struct LuaVisitor : public msgpack::null_visitor {
-  LuaVisitor(CodeWriter &writer, uint32_t field_name_case) : writer_(writer), field_name_case_(field_name_case) {}
+  LuaVisitor(std::string &writer, uint32_t field_name_case,
+             uint32_t indent_step)
+      : writer_{writer}, field_name_case_{field_name_case}, indent_step_{
+                                                                indent_step} {}
 
   bool visit_null() {
     writer_ += "nil";
@@ -58,7 +61,7 @@ struct LuaVisitor : public msgpack::null_visitor {
 
   bool start_array(uint32_t num_elements) {
     current_size_.emplace_back(0, num_elements);
-    writer_.indent();
+    indent();
     writer_ += "{";
     return true;
   }
@@ -66,7 +69,7 @@ struct LuaVisitor : public msgpack::null_visitor {
   bool start_array_item() {
     auto &&[index, size] = current_size_.back();
     index++;
-    //writer_.write_indent();
+    write_indent();
     writer_ += fmt::format("[{}] = ", index);
     return true;
   }
@@ -78,21 +81,21 @@ struct LuaVisitor : public msgpack::null_visitor {
 
   bool end_array() {
     current_size_.pop_back();
-    writer_.outdent();
-    //writer_.write_indent();
+    outdent();
+    write_indent();
     writer_ += "}";
     return true;
   }
 
   bool start_map(uint32_t num_kv_pairs) {
     current_size_.emplace_back(0, num_kv_pairs);
-    writer_.indent();
+    indent();
     writer_ += "{";
     return true;
   }
 
   bool start_map_key() {
-    //writer_.write_indent();
+    write_indent();
     writer_ += "[";
     is_map_key = true;
     return true;
@@ -113,14 +116,14 @@ struct LuaVisitor : public msgpack::null_visitor {
 
   bool end_map() {
     current_size_.pop_back();
-    writer_.outdent();
-    //writer_.write_indent();
+    outdent();
+    write_indent();
     writer_ += "}";
     return true;
   }
 
 private:
-    std::string to_case_name(const std::string& input) {
+  std::string to_case_name(const std::string &input) {
     if (field_name_case_ == IDLOptions::NamingStyle::kCamelCase) {
       return generator::underscores_to_camelcase(input);
     } else if (field_name_case_ == IDLOptions::NamingStyle::kPascalCase) {
@@ -130,16 +133,27 @@ private:
     }
   }
 
-  CodeWriter &writer_;
+  void indent() { indent_string_ += std::string(indent_step_, ' '); }
+
+  void outdent() {
+    assert(indent_string_.size() >= indent_step_);
+    indent_string_.resize(indent_string_.size() - indent_step_);
+  }
+
+  void write_indent() { writer_ += fmt::format("\n{}", indent_string_); }
+
+  std::string &writer_;
   uint32_t depath_;
   std::vector<std::tuple<uint32_t, uint32_t>> current_size_;
   uint32_t field_name_case_;
   bool is_map_key;
+  uint32_t indent_step_;
+  std::string indent_string_;
 };
 
 class LuaGenerator : public CodeGenerator {
 public:
-  LuaGenerator(Model &model, const IDLOptions& opts, const std::string &path,
+  LuaGenerator(Model &model, const IDLOptions &opts, const std::string &path,
                const std::string &file_name)
       : CodeGenerator(model, opts, path, file_name) {}
   ~LuaGenerator() {}
@@ -153,9 +167,11 @@ public:
     code_ += "local M = ";
 
     std::size_t offset = 0;
-    LuaVisitor visitor(code_, opts_.field_naming_style);
+    std::string table;
+    LuaVisitor visitor(table, opts_.field_naming_style, opts_.indent_step);
     msgpack::parse(buffer.data(), buffer.size(), offset, visitor);
 
+    code_ += table;
     code_ += "\n";
     code_ += "return M";
 
@@ -187,7 +203,7 @@ private:
   CodeWriter code_;
 };
 
-bool generate_lua(Model &model, const IDLOptions& opts, const std::string &path,
+bool generate_lua(Model &model, const IDLOptions &opts, const std::string &path,
                   const std::string &file_name) {
   LuaGenerator generator(model, opts, path, file_name);
   return generator.generate();

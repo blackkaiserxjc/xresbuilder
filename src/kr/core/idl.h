@@ -24,7 +24,7 @@ struct IDLOptions {
 
     IDLOptions()
         : src{}, dest{}, extension{}, filename_naming_style{},
-          field_naming_style{} {}
+          field_naming_style{}, indent_step{2} {}
 
     std::string src;
     std::string dest;
@@ -32,6 +32,7 @@ struct IDLOptions {
     std::uint32_t lang_to_generate;
     std::uint32_t filename_naming_style;
     std::uint32_t field_naming_style;
+    std::uint32_t indent_step;
 };
 
 extern bool generate_json(Model& model, const IDLOptions& opts, const std::string& path, const std::string& file_name);
