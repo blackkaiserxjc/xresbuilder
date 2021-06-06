@@ -20,6 +20,12 @@ else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -DNDEBUG")
 endif()
 
+# qt相关
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
 # 静态库
 option(CMAKE_Cxx_CREATE_STATIC_LIBRARY "Build static library" ON)
 
