@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include "filesystem_model.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -16,4 +17,5 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    FileSystemModel *model;
 };
