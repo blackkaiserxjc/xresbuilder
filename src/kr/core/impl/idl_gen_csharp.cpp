@@ -17,7 +17,7 @@ public:
     code_.indent();
   }
 
-  virtual ~CSharpGenerator() { code_.outdent(); }
+  ~CSharpGenerator() { code_.outdent(); }
 
   bool generate() override {
     code_.clear();
@@ -84,7 +84,7 @@ private:
       }
     }
     code_.outdent();
-    code_ += "};";
+    code_ += "}";
   }
 
   void gen_pod(const Type &type, const std::string &name) {

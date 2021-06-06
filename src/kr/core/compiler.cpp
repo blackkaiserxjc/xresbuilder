@@ -26,6 +26,7 @@ int Compiler::run(int argc, char **argv) {
        ("help", "produce help message")
        ("src", boost::program_options::value<std::string>(), "data dictory")
        ("dest", boost::program_options::value<std::string>(), "output dictory")
+       ("indent-step", boost::program_options::value<int>(), "code generator indent step")
        ("filename-ext", boost::program_options::value<std::string>(),"filename extension")
        ("field-naming-style",boost::program_options::value<std::string>(), "field naming style: camel or pascal")
        ("filename-naming-style", boost::program_options::value<std::string>(),"filename naming style: camel or pascal");
@@ -55,6 +56,10 @@ int Compiler::run(int argc, char **argv) {
   if (opts.src.empty() || opts.dest.empty()) {
     std::cout << "src or dest is empty" << std::endl;
     return EXIT_FAILURE;
+  }
+
+  if (vm.count("indent-step")) {
+    opts.indent_step = vm["indent-step"].as<int>();
   }
 
   if (vm.count("filename-ext")) {

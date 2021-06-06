@@ -3,7 +3,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <fmt/format.h>
-//#include <xlnt/xlnt.hpp>
+#include <xlnt/xlnt.hpp>
 
 #include <kr/core/data_loader.h>
 #include <kr/core/data_table.h>
@@ -131,7 +131,7 @@ bool load_from_csv(const std::string &path, DataTable &table) {
   return true;
 }
 
-/*
+
 void build_xlsx_rows(DataTable &table,
                      std::vector<std::vector<std::string>> &whole_sheet,
                      const std::vector<HeaderField> &fields) {
@@ -201,7 +201,7 @@ bool load_from_xlsx(const std::string &path, DataTable &table) {
     return false;
   }
   return true;
-}*/
+}
 
 } // namespace detail
 
@@ -233,7 +233,7 @@ bool DataLoader::load_from_csv(const std::string &path, DataTable &table) {
 }
 
 bool DataLoader::load_from_xlsx(const std::string &path, DataTable &table) {
-  //detail::load_from_xlsx(path, table);
+  detail::load_from_xlsx(path, table);
   return true;
 }
 

@@ -14,7 +14,7 @@ namespace core {
 class CodeWriter {
 public:
   CodeWriter(const std::string &pad = "\t") : pad_(pad), cur_ident_lvl_(0), ignore_ident_(false) {}
-
+  
   void clear() {
     value_map_.clear();
     stream_.str("");

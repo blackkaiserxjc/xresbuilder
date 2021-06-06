@@ -118,6 +118,7 @@ public:
   }
 
   bool end_map() {
+    writer_ += "\n";
     outdent();
     write_indent();
     current_size_.pop_back();
@@ -143,7 +144,7 @@ private:
     indent_string_.resize(indent_string_.size() - indent_step_);
   }
 
-  void write_indent() { writer_ += fmt::format("\n{}", indent_string_); }
+  void write_indent() { writer_ += fmt::format("{}", indent_string_); }
 
   bool is_map_key;
   std::string &writer_;
