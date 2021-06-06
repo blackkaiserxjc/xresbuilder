@@ -15,4 +15,4 @@ set_target_properties(kr_app_builder_gui
     FOLDER App
 )
 
-target_link_libraries(kr_app_builder_gui Qt5::Widgets)
+target_link_libraries(kr_app_builder_gui Qt5::Widgets Qt5::Core)

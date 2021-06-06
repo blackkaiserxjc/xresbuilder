@@ -2,7 +2,8 @@
 #include "ui_mainwindow.h"
 
 #include <QVBoxLayout>
-
+#include <QDebug>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -10,7 +11,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     model = new FileSystemModel();
-    //model->setRootPath("/home/kaiser");
     model->setSorting(QDir::DirsFirst | QDir::IgnoreCase | QDir::Name);
     
     ui->treeView->setModel(model);
@@ -28,11 +28,19 @@ MainWindow::MainWindow(QWidget *parent)
     //ui->treeView->expand(index);
     //ui->treeView->scrollTo(index);
     ui->treeView->resizeColumnToContents(0);
-
+    QObject::connect(ui->pushButton ,SIGNAL(clicked()),this,SLOT(PushButtonCallBack()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::PushButtonCallBack()
+{
+    qDebug() << "PushButtonCallBack";
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "/", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QModelIndex index = model->index(dir);
+    ui->treeView->setRootIndex(index);
 }
 
