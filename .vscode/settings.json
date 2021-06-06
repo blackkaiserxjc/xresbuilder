@@ -77,5 +77,11 @@
         "*.def": "cpp",
         "shared_mutex": "cpp"
     },
-    "cmake.configureOnOpen": true
+    "cmake.configureOnOpen": true,
+    "cmake.buildArgs": [
+        "-DCMAKE_TOOLCHAIN_FILE=/home/kaiser/Desktop/code/cpp/package/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "-DVCPKG_TARGET_TRIPLET=x64-linux",
+        "-DCMAKE_BUILD_TYPE=Debug"
+    ],
+    "cmake.buildDirectory": "${workspaceFolder}/build/debug"
 }
