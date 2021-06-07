@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "filesystem_model.h"
+#include "fsmodel.h"
 
 #include <QDebug>
 #include <QSettings>
@@ -9,7 +9,7 @@
 #include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), settings_("config.ini", QSettings::IniFormat), model_(new CustomFileSystemModel())
+    : QMainWindow(parent), ui(new Ui::MainWindow), settings_("config.ini", QSettings::IniFormat), model_(new FSModel())
 {
   ui->setupUi(this);
   loadConfig();

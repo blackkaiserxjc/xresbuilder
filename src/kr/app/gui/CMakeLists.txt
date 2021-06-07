@@ -4,11 +4,29 @@ find_package(Toml REQUIRED)
 include_directories(${TOML_INCLUDE_DIRS})
 include_directories(framelesswindow)
 
+
+set(kr_app_builder_gui_CONFIGS
+    config.ini
+)
+set(kr_app_builder_gui_OUTPUT_CONFIGS)
+foreach(cfgFile ${kr_app_builder_gui_CONFIGS})
+    list(APPEND kr_app_builder_gui_OUTPUT_CONFIGS "${CMAKE_CURRENT_BINARY_DIR}/${cfgFile}")
+    add_custom_command(
+        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${cfgFile}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${cfgFile}" "${CMAKE_CURRENT_BINARY_DIR}/${cfgFile}"
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${cfgFile}
+        COMMENT "Generaton Config ${cfgFile}"
+    )
+endforeach() 
+source_group("Output Files" FILES ${kr_app_builder_gui_OUTPUT_CONFIGS})
+source_group("Config Files" FILES ${kr_app_builder_gui_CONFIGS})
+
+
 set(kr_app_builder_gui_SRCS
     dark_style.h
     dark_style.cpp
-    filesystem_model.h
-    filesystem_model.cpp
+    fsmodel.h
+    fsmodel.cpp
     main.cpp
     mainwindow.h
     mainwindow.cpp
@@ -40,6 +58,8 @@ add_executable(kr_app_builder_gui
     ${kr_app_builder_gui_SRCS}
 	${kr_app_builder_gui_detail_SRCS}
 	${kr_app_builder_gui_forms_SRCS}
+    ${kr_app_builder_gui_CONFIGS}
+    ${kr_app_builder_gui_OUTPUT_CONFIGS}
 )
 
 set_target_properties(kr_app_builder_gui

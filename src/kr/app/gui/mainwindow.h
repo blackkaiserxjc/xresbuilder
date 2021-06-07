@@ -12,7 +12,7 @@ class MainWindow;
 QT_END_NAMESPACE
 
 
-class CustomFileSystemModel;
+class FSModel;
 class MainWindow : public QMainWindow {
   Q_OBJECT
 
@@ -38,7 +38,7 @@ protected:
 
 private:
   Ui::MainWindow *ui;
-  CustomFileSystemModel *model_;
+  FSModel *model_;
   QSettings settings_;
   ConfigOptions options_;
 };

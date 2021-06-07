@@ -1,5 +1,4 @@
-#include "filesystem_model.h"
-
+#include "fsmodel.h"
 
 #include <QFlags>
 #include <QModelIndex>
@@ -8,21 +7,21 @@
 #include <QVector>
 
 
-CustomFileSystemModel::CustomFileSystemModel()
+FSModel::FSModel()
 {
 }
 
-QList<QPersistentModelIndex> CustomFileSystemModel::checkedIndexes()
+QList<QPersistentModelIndex> FSModel::checkedIndexes()
 {
     return _checklist.values();
 }
 
-Qt::ItemFlags CustomFileSystemModel::flags(const QModelIndex &idx) const
+Qt::ItemFlags FSModel::flags(const QModelIndex &idx) const
 {
     return QFileSystemModel::flags(idx) | Qt::ItemIsUserCheckable;
 }
 
-QVariant CustomFileSystemModel::data(const QModelIndex &idx, int role) const
+QVariant FSModel::data(const QModelIndex &idx, int role) const
 {
     if(role == Qt::CheckStateRole && idx.column() == 0)
     {
@@ -50,7 +49,7 @@ QVariant CustomFileSystemModel::data(const QModelIndex &idx, int role) const
     return QFileSystemModel::data(idx, role);
 }
 
-QVariant CustomFileSystemModel::dataInternal(const QModelIndex &idx) const
+QVariant FSModel::dataInternal(const QModelIndex &idx) const
 {
     if(_checklist.contains(idx))
         return Qt::Checked;
@@ -60,14 +59,14 @@ QVariant CustomFileSystemModel::dataInternal(const QModelIndex &idx) const
         return Qt::Unchecked;
 }
 
-void CustomFileSystemModel::setIndexCheckState(const QModelIndex &  idx,
+void FSModel::setIndexCheckState(const QModelIndex &  idx,
                                                const Qt::CheckState state)
 {
     if(dataInternal(idx) != state)
         setDataInternal(idx, state);
 }
 
-bool CustomFileSystemModel::hasAllSiblingsUnchecked(const QModelIndex &idx)
+bool FSModel::hasAllSiblingsUnchecked(const QModelIndex &idx)
 {
     for(int i = 0; i < rowCount(idx.parent()); i++)
     {
@@ -83,7 +82,7 @@ bool CustomFileSystemModel::hasAllSiblingsUnchecked(const QModelIndex &idx)
     return true;
 }
 
-bool CustomFileSystemModel::hasCheckedAncestor(const QModelIndex &idx)
+bool FSModel::hasCheckedAncestor(const QModelIndex &idx)
 {
     QModelIndex ancestor = idx.parent();
     while(ancestor.isValid())
@@ -95,7 +94,7 @@ bool CustomFileSystemModel::hasCheckedAncestor(const QModelIndex &idx)
     return false;
 }
 
-void CustomFileSystemModel::setUncheckedRecursive(const QModelIndex &idx)
+void FSModel::setUncheckedRecursive(const QModelIndex &idx)
 {
     if(isDir(idx))
     {
@@ -117,7 +116,7 @@ void CustomFileSystemModel::setUncheckedRecursive(const QModelIndex &idx)
     }
 }
 
-bool CustomFileSystemModel::setData(const QModelIndex &idx,
+bool FSModel::setData(const QModelIndex &idx,
                                     const QVariant &value, int role)
 {
     if(role == Qt::CheckStateRole)
@@ -132,7 +131,7 @@ bool CustomFileSystemModel::setData(const QModelIndex &idx,
     return QFileSystemModel::setData(idx, value, role);
 }
 
-void CustomFileSystemModel::setDataInternal(const QModelIndex &idx,
+void FSModel::setDataInternal(const QModelIndex &idx,
                                             const QVariant &   value)
 {
     if(value == Qt::Checked)
@@ -195,28 +194,16 @@ void CustomFileSystemModel::setDataInternal(const QModelIndex &idx,
     }
 }
 
-void CustomFileSystemModel::reset()
+void FSModel::reset()
 {
     _checklist.clear();
     _partialChecklist.clear();
 }
 
-bool CustomFileSystemModel::needToReadSubdirs(const QString &dirname)
+bool FSModel::needToReadSubdirs(const QString &dirname)
 {
     bool        loadingMore = false;
     QModelIndex dir         = index(dirname);
-    // QFileSystemModel::canFetchMore(dir) can apparently lie about whether
-    // its has finished loading a directory.  Alternatively, it might be
-    // designed to merely report that a directory has been *queued* to be
-    // read, but not actually read yet, and the Qt docs were simply written
-    // badly.
-    //
-    // Either way, we must treat every directory which contains 0 items
-    // has not finished being read from disk.  This is suggested by the
-    // API docs:
-    //     "Calls to rowCount() will return 0 until the model populates a
-    //     directory."
-    //     https://doc.qt.io/qt-5/qfilesystemmodel.html#caching-and-performance
     if(isDir(dir) && rowCount(dir) == 0)
     {
         fetchMore(dir);
