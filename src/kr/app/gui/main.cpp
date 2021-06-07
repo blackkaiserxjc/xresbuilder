@@ -1,11 +1,15 @@
-#include "dark_style.h"
-#include "framelesswindow/framelesswindow.h"
-#include "mainwindow.h"
+
+#include <kr/core/compiler.h>
 
 #include <QApplication>
 
+#include "dark_style.h"
+#include "framelesswindow.h"
+#include "mainwindow.h"
+
 int main(int argc, char *argv[])
 {
+
   QApplication app(argc, argv);
   app.setApplicationName("XResBuilder");
   QApplication::setStyle(new DarkStyle);

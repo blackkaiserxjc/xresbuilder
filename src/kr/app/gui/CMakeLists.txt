@@ -1,5 +1,10 @@
+find_package(ANTLR REQUIRED)
+find_package(Boost COMPONENTS program_options system thread REQUIRED)
+find_package(Msgpack REQUIRED)
+find_package(Threads REQUIRED)
+find_package(fmt REQUIRED)
+find_package(Xlnt REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
-find_package(Toml REQUIRED)
 
 include_directories(${TOML_INCLUDE_DIRS})
 include_directories(framelesswindow)
@@ -68,4 +73,15 @@ set_target_properties(kr_app_builder_gui
     FOLDER App
 )
 
-target_link_libraries(kr_app_builder_gui Qt5::Widgets Qt5::Core)
+target_link_libraries(kr_app_builder_gui
+    kr_app_core
+    kr_app_utility
+    antlr4_static
+    fmt::fmt
+    Qt5::Core
+    Qt5::Widgets
+    xlnt::xlnt
+    ${Boost_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${CMAKE_DL_LIBS}
+)
