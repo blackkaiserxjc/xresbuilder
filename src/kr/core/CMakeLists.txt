@@ -53,6 +53,7 @@ set(kr_app_core_detail_SRC
     detail/object_pack.h
     detail/parser.h
 )
+source_group("Detail Files" FILES ${kr_app_core_detail_SRC})
 
 set(kr_app_core_impl_SRCS   
     impl/idl_gen_csharp.cpp
@@ -60,7 +61,7 @@ set(kr_app_core_impl_SRCS
     impl/idl_gen_lua.cpp
 )
 
-source_group("Impl Files" FILES ${kr_app_core_detail_SRC} ${kr_app_core_impl_SRCS})
+source_group("Impl Files" FILES ${kr_app_core_impl_SRCS})
 
 add_library(kr_app_core
     ${kr_app_core_SRCS}

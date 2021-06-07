@@ -1,5 +1,8 @@
-#include <fmt/format.h>
+#include <algorithm>
+#include <filesystem>
 #include <unordered_map>
+
+#include <fmt/format.h>
 
 #include <kr/core/code_generator.h>
 #include <kr/core/generator_helpers.h>
@@ -13,7 +16,7 @@ class CSharpGenerator : public CodeGenerator {
 public:
   CSharpGenerator(Model &model, const IDLOptions &opts, const std::string &path,
                   const std::string &file_name)
-      : CodeGenerator(model, opts, path, file_name) {
+      : CodeGenerator(model, opts, path, file_name), root_ns_("ETModel") {
     code_.indent();
   }
 
@@ -24,10 +27,10 @@ public:
     auto table_def = model_.type();
     assert(table_def.base_type == BASE_TYPE_OBJECT);
     auto class_name = generator::underscores_to_pascalcase(file_name_);
-
+    auto name_space = gen_namespace();
     gen_categories(class_name);
     gen_object(table_def, class_name);
-    return save_type("ETModel", code_.to_string());
+    return save_type(name_space, code_.to_string());
   }
 
   std::string generated_filename(const std::string &path,
@@ -105,6 +108,21 @@ private:
     }
   }
 
+  std::string gen_namespace() {
+    std::vector<std::string> results{root_ns_};
+    auto relative_path = std::filesystem::relative(path_, opts_.dest);
+    for (auto &e : relative_path) {
+      auto value = generator::underscores_to_pascalcase(e.string());
+      if (!value.empty() &&
+          std::all_of(value.begin(), value.end(), [](auto &&ch) {
+            return std::isalpha(ch, std::locale::classic());
+          })) {
+        results.emplace_back(value);
+      }
+    }
+    return fmt::format("{}", fmt::join(results, "."));
+  }
+
   bool save_type(const std::string &namespace_name,
                  const std::string &class_code) {
     if (!class_code.length()) {
@@ -131,6 +149,7 @@ private:
     return kr::utility::save_file(file_path.c_str(), code, false);
   }
 
+  std::string root_ns_;
   CodeWriter code_;
 };
 

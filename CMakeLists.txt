@@ -26,6 +26,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+
 # 静态库
 option(CMAKE_Cxx_CREATE_STATIC_LIBRARY "Build static library" ON)
 

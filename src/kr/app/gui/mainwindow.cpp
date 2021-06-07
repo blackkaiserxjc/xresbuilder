@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->treeView->setAlternatingRowColors(true);           
     ui->treeView->setFocusPolicy(Qt::NoFocus);
 
-    QModelIndex index = model->index(QString("/home/kaiser/Documents/test"));
+    QModelIndex index = model->index(QString("./"));
     ui->treeView->setRootIndex(index);
     //ui->treeView->expand(index);
     //ui->treeView->scrollTo(index);
