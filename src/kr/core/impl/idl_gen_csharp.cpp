@@ -16,7 +16,8 @@ class CSharpGenerator : public CodeGenerator {
 public:
   CSharpGenerator(Model &model, const IDLOptions &opts, const std::string &path,
                   const std::string &file_name)
-      : CodeGenerator(model, opts, path, file_name), root_ns_("ETModel") {
+      : CodeGenerator(model, opts, path, file_name), root_ns_("ETModel"),
+        pod_depth_(0), obj_depth_(0) {
     code_.indent();
   }
 
@@ -24,6 +25,8 @@ public:
 
   bool generate() override {
     code_.clear();
+    pod_depth_ = 0;
+    obj_depth_ = 0;
     auto table_def = model_.type();
     assert(table_def.base_type == BASE_TYPE_OBJECT);
     auto class_name = generator::underscores_to_pascalcase(file_name_);
@@ -72,14 +75,19 @@ private:
   };
 
   void gen_object(const Type &type, const std::string &name) {
-    code_ += fmt::format("public class {}", name);
+    if (!obj_depth_) {
+      code_ += fmt::format("public class {}: IConfig", name);
+    } else {
+      code_ += fmt::format("public class {}", name);
+    }
     code_ += "{";
     code_.indent();
     for (auto &&field : type.obj_def->fields.vec) {
       auto field_type = field->value.type;
       auto field_name = field->name;
+      auto field_index = field->index;
       if (IsPod(field_type.base_type)) {
-        gen_pod(field_type, field_name);
+        gen_pod(field_type, field_name, field_index);
       } else if (IsObject(field_type.base_type)) {
         gen_object(field_type, field_name);
       } else if (IsArray(field_type.base_type)) {
@@ -88,10 +96,17 @@ private:
     }
     code_.outdent();
     code_ += "}";
+    obj_depth_++;
   }
 
-  void gen_pod(const Type &type, const std::string &name) {
-    code_ += fmt::format("public {} {};", get_type_basic(type), name);
+  void gen_pod(const Type &type, const std::string &name,
+               uint32_t field_index) {
+    if (!pod_depth_ && !field_index) {
+      code_ += fmt::format("public {} {} {{get; set;}}", get_type_basic(type), name);
+    } else {
+      code_ += fmt::format("public {} {};", get_type_basic(type), name);
+    }
+    pod_depth_++;
   }
 
   void gen_array(const Type &type, const std::string &name) {
@@ -149,6 +164,8 @@ private:
     return kr::utility::save_file(file_path.c_str(), code, false);
   }
 
+  int pod_depth_;
+  int obj_depth_;
   std::string root_ns_;
   CodeWriter code_;
 };

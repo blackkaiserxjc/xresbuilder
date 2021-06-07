@@ -1,6 +1,6 @@
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 
-add_executable(kr_app_builder_gui
+add_executable(kr_app_builder_gui WIN32
     filesystem_model.h
     filesystem_model.cpp
     main.cpp

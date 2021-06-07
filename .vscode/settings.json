@@ -75,7 +75,8 @@
         "typeindex": "cpp",
         "hash_map": "cpp",
         "*.def": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "xstring": "cpp"
     },
     "editor.formatOnSave": true,
     "clang-format.executable": "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
