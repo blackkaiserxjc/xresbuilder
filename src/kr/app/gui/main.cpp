@@ -4,17 +4,19 @@
 
 #include <QApplication>
 
-int main(int argc, char *argv[]) {
-  QApplication a(argc, argv);
+int main(int argc, char *argv[])
+{
+  QApplication app(argc, argv);
+  app.setApplicationName("XResBuilder");
   QApplication::setStyle(new DarkStyle);
   QApplication::setPalette(QApplication::style()->standardPalette());
 
   FramelessWindow framelessWindow;
   framelessWindow.setWindowIcon(
-      a.style()->standardIcon(QStyle::SP_DesktopIcon));
+      app.style()->standardIcon(QStyle::SP_DesktopIcon));
 
   MainWindow *mainWindow = new MainWindow;
   framelessWindow.setContent(mainWindow);
   framelessWindow.show();
-  return a.exec();
+  return app.exec();
 }

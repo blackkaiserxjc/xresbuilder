@@ -1,4 +1,8 @@
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+find_package(Toml REQUIRED)
+
+include_directories(${TOML_INCLUDE_DIRS})
+include_directories(framelesswindow)
 
 set(kr_app_builder_gui_SRCS
     dark_style.h
@@ -32,7 +36,7 @@ source_group("Resource Files" FILES ${kr_app_builder_gui_rc_SRCS})
 
 qt5_add_resources(kr_app_builder_gui_SRCS darkstyle.qrc framelesswindow.qrc)
 
-add_executable(kr_app_builder_gui WIN32
+add_executable(kr_app_builder_gui
     ${kr_app_builder_gui_SRCS}
 	${kr_app_builder_gui_detail_SRCS}
 	${kr_app_builder_gui_forms_SRCS}

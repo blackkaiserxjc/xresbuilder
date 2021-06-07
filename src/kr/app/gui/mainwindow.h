@@ -1,7 +1,9 @@
 #pragma once
 
-#include "filesystem_model.h"
 #include <QMainWindow>
+#include <QSettings>
+
+#include "config_options.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -9,11 +11,13 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
+
+class CustomFileSystemModel;
 class MainWindow : public QMainWindow {
   Q_OBJECT
 
 public:
-  MainWindow(QWidget *parent = nullptr);
+  explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
 
 public slots:
@@ -25,8 +29,16 @@ public slots:
 
 protected:
 	void initUI();
+  void initSignals();
+
+  void loadConfig();
+  void saveConfig();
+
+  void closeEvent(QCloseEvent *event);
 
 private:
   Ui::MainWindow *ui;
-  FileSystemModel *model;
+  CustomFileSystemModel *model_;
+  QSettings settings_;
+  ConfigOptions options_;
 };
