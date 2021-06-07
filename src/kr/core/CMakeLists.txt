@@ -46,14 +46,13 @@ set(kr_app_core_SRCS
     type.h
 )
 
-set(kr_app_core_detail_SRC
+set(kr_app_core_detail_SRCS
     detail/ast_builder.h
-    detail/data_table.h
     detail/msgpack.h
     detail/object_pack.h
     detail/parser.h
 )
-source_group("Detail Files" FILES ${kr_app_core_detail_SRC})
+source_group("Detail Files" FILES ${kr_app_core_detail_SRCS})
 
 set(kr_app_core_impl_SRCS   
     impl/idl_gen_csharp.cpp

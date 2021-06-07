@@ -78,7 +78,6 @@
         "shared_mutex": "cpp",
         "xstring": "cpp"
     },
-    "editor.formatOnSave": true,
     "clang-format.executable": "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
     "cmake.configureOnOpen": true,
     "cmake.buildArgs": [
