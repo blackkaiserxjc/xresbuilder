@@ -6,9 +6,8 @@ find_package(fmt REQUIRED)
 find_package(Xlnt REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 
-include_directories(${TOML_INCLUDE_DIRS})
+include_directories(QsLog)
 include_directories(framelesswindow)
-
 
 set(kr_app_builder_gui_CONFIGS
     config.ini
@@ -43,11 +42,23 @@ set(kr_app_builder_gui_forms_SRCS
 )
 source_group("Form Files" FILES ${kr_app_builder_gui_forms_SRCS})
 
-set(kr_app_builder_gui_detail_SRCS	
+set(kr_app_builder_gui_detail_SRCS
 	framelesswindow/framelesswindow.h
     framelesswindow/framelesswindow.cpp
 	framelesswindow/windowdragger.h
     framelesswindow/windowdragger.cpp
+    QsLog/QsLog.h
+    QsLog/QsLog.cpp
+    QsLog/QsLogDest.h
+    QsLog/QsLogDest.cpp
+    QsLog/QsLogDestConsole.h
+    QsLog/QsLogDestConsole.cpp
+    QsLog/QsLogDestFile.h
+    QsLog/QsLogDestFile.cpp
+    QsLog/QsLogDestFunctor.h
+    QsLog/QsLogDestFunctor.cpp
+    QsLog/QsLogDisableForThisFile.h
+    QsLog/QsLogLevel.h
 )
 source_group("Detail Files" FILES ${kr_app_builder_gui_detail_SRCS})
 	

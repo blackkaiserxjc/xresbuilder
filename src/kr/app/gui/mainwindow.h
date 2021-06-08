@@ -11,7 +11,6 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-
 class FSModel;
 class MainWindow : public QMainWindow {
   Q_OBJECT
@@ -20,21 +19,21 @@ public:
   explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
 
-public slots:
-  void OnActionOpenDataDir();
+  void closeEvent(QCloseEvent *event);
 
+public slots:
+  void Log(const QString &message, int level);
+  void OnActionOpenDataDir();
   void OnClickOpenServerDir();
   void OnClickOpenClientDir();
   void OnClickOpenLocalDir();
 
 protected:
-	void initUI();
+  void initUI();
   void initSignals();
 
   void loadConfig();
   void saveConfig();
-
-  void closeEvent(QCloseEvent *event);
 
 private:
   Ui::MainWindow *ui;

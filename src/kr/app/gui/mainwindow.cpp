@@ -1,37 +1,61 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+﻿#include "mainwindow.h"
+#include "QsLog.h"
 #include "fsmodel.h"
+#include "ui_mainwindow.h"
 
 #include <QDebug>
-#include <QSettings>
 #include <QFileDialog>
-#include <QVBoxLayout>
 #include <QMessageBox>
+#include <QSettings>
+#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), settings_("config.ini", QSettings::IniFormat), model_(new FSModel())
-{
+    : QMainWindow(parent), ui(new Ui::MainWindow),
+      settings_("config.ini", QSettings::IniFormat), model_(new FSModel()) {
   ui->setupUi(this);
   loadConfig();
   initUI();
   initSignals();
 }
 
-MainWindow::~MainWindow() 
-{ 
+MainWindow::~MainWindow() {
   delete model_;
-  delete ui; 
+  delete ui;
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-    qDebug() << "MainWindow::closeEvent";
-    saveConfig();
-    event->accept();
+void MainWindow::Log(const QString &message, int level) {
+  using namespace QsLogging;
+  switch (level) {
+  case TraceLevel:
+  case DebugLevel:
+  case InfoLevel:
+	  ui->logView->appendHtml(QLatin1String("<pre>") + message.toHtmlEscaped() +
+		                                 QLatin1String("</pre>"));
+    break;
+  case WarnLevel:
+	  ui->logView->appendHtml(QLatin1String("<pre style='color:orange'>") + message.toHtmlEscaped() + QLatin1String("</pre>"));
+    break;
+  case ErrorLevel:
+  case FatalLevel:
+	  ui->logView->appendHtml(QLatin1String("<pre style='color:red'>") + message.toHtmlEscaped() + QLatin1String("</pre>"));
+    break;
+  }
+
+  /*
+QTextCursor prev_cursor = ui->logView->textCursor();
+ui->logView->moveCursor(QTextCursor::End);
+ui->logView->insertPlainText(message + tr("\n"));
+ui->logView->setTextCursor(prev_cursor);
+*/
 }
 
-void MainWindow::initUI()
-{
+void MainWindow::closeEvent(QCloseEvent *event) {
+  qDebug() << "MainWindow::closeEvent";
+  saveConfig();
+  event->accept();
+}
+
+void MainWindow::initUI() {
   QStringList filters = options_.name_filters.split("|");
   qDebug() << filters;
   model_->setRootPath(QDir::rootPath());
@@ -47,6 +71,9 @@ void MainWindow::initUI()
   ui->treeView->setSelectionMode(QTreeView::SingleSelection);
   ui->treeView->setAlternatingRowColors(true);
   ui->treeView->setFocusPolicy(Qt::NoFocus);
+  ui->treeView->setColumnHidden(1, true);
+  ui->treeView->setColumnHidden(2, true);
+  ui->treeView->setColumnHidden(3, true);
 
   QModelIndex index = model_->index(
       options_.data_path.isEmpty() ? QDir::homePath() : options_.data_path);
@@ -70,8 +97,7 @@ void MainWindow::initUI()
   ui->local_edit->setText(options_.gen_local_path);
 }
 
-void MainWindow::initSignals()
-{
+void MainWindow::initSignals() {
   // 信号槽
   QObject::connect(ui->action, SIGNAL(triggered()), this,
                    SLOT(OnActionOpenDataDir()));
@@ -86,43 +112,41 @@ void MainWindow::initSignals()
                    SLOT(OnClickOpenLocalDir()));
 }
 
-void MainWindow::OnActionOpenDataDir()
-{
+void MainWindow::OnActionOpenDataDir() {
   qDebug() << "OnActionOpenDataDir";
+  QLOG_DEBUG() << "OnActionOpenDataDir";
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
   QModelIndex index = model_->index(dir);
   ui->treeView->setRootIndex(index);
   options_.data_path = dir;
-  saveConfig();
+  model_->reset();
 }
 
-void MainWindow::OnClickOpenServerDir()
-{
+void MainWindow::OnClickOpenServerDir() {
   qDebug() << "OnClickOpenServerDir";
+  QLOG_WARN() << "OnClickOpenServerDir";
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
   ui->server_edit->setText(dir);
   options_.gen_server_path = dir;
-  saveConfig();
 }
 
-void MainWindow::OnClickOpenClientDir()
-{
+void MainWindow::OnClickOpenClientDir() {
   qDebug() << "OnClickOpenClientDir";
+  QLOG_ERROR() << "OnClickOpenClientDir";
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
   ui->client_edit->setText(dir);
   options_.gen_client_path = dir;
-  saveConfig();
 }
 
-void MainWindow::OnClickOpenLocalDir()
-{
+void MainWindow::OnClickOpenLocalDir() {
   qDebug() << "OnClickOpenLocalDir";
+  QLOG_DEBUG() << "OnClickOpenLocalDir";
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
@@ -130,24 +154,21 @@ void MainWindow::OnClickOpenLocalDir()
   options_.gen_local_path = dir;
 
   QList<QPersistentModelIndex> indexList = model_->checkedIndexes();
-  for(const QPersistentModelIndex &index : indexList)
-      qDebug() << model_->filePath(index);
-  saveConfig();
+  for (const QPersistentModelIndex &index : indexList)
+    qDebug() << model_->filePath(index);
 }
 
-void MainWindow::loadConfig()
-{
-    options_.data_path = settings_.value("data_path").toString();
-    options_.gen_server_path = settings_.value("gen_server_path").toString();
-    options_.gen_client_path = settings_.value("gen_client_path").toString();
-    options_.gen_local_path = settings_.value("gen_local_path").toString();
-    options_.name_filters = settings_.value("name_filters").toString();
+void MainWindow::loadConfig() {
+  options_.data_path = settings_.value("data_path").toString();
+  options_.gen_server_path = settings_.value("gen_server_path").toString();
+  options_.gen_client_path = settings_.value("gen_client_path").toString();
+  options_.gen_local_path = settings_.value("gen_local_path").toString();
+  options_.name_filters = settings_.value("name_filters").toString();
 }
 
-void MainWindow::saveConfig()
-{
-    settings_.setValue("data_path",  options_.data_path);
-    settings_.setValue("gen_server_path",  options_.gen_server_path);
-    settings_.setValue("gen_client_path",  options_.gen_client_path);
-    settings_.setValue("gen_local_path",  options_.gen_local_path);
+void MainWindow::saveConfig() {
+  settings_.setValue("data_path", options_.data_path);
+  settings_.setValue("gen_server_path", options_.gen_server_path);
+  settings_.setValue("gen_client_path", options_.gen_client_path);
+  settings_.setValue("gen_local_path", options_.gen_local_path);
 }
