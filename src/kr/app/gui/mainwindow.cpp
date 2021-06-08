@@ -29,15 +29,17 @@ void MainWindow::Log(const QString &message, int level) {
   case TraceLevel:
   case DebugLevel:
   case InfoLevel:
-	  ui->logView->appendHtml(QLatin1String("<pre>") + message.toHtmlEscaped() +
-		                                 QLatin1String("</pre>"));
+    ui->logView->appendHtml(QLatin1String("<pre>") + message.toHtmlEscaped() +
+                            QLatin1String("</pre>"));
     break;
   case WarnLevel:
-	  ui->logView->appendHtml(QLatin1String("<pre style='color:orange'>") + message.toHtmlEscaped() + QLatin1String("</pre>"));
+    ui->logView->appendHtml(QLatin1String("<pre style='color:orange'>") +
+                            message.toHtmlEscaped() + QLatin1String("</pre>"));
     break;
   case ErrorLevel:
   case FatalLevel:
-	  ui->logView->appendHtml(QLatin1String("<pre style='color:red'>") + message.toHtmlEscaped() + QLatin1String("</pre>"));
+    ui->logView->appendHtml(QLatin1String("<pre style='color:red'>") +
+                            message.toHtmlEscaped() + QLatin1String("</pre>"));
     break;
   }
 
@@ -110,6 +112,9 @@ void MainWindow::initSignals() {
 
   QObject::connect(ui->local_btn, SIGNAL(clicked()), this,
                    SLOT(OnClickOpenLocalDir()));
+
+  QObject::connect(ui->export_btn, SIGNAL(clicked()), this,
+                   SLOT(OnClickExportConfig()));
 }
 
 void MainWindow::OnActionOpenDataDir() {
@@ -130,8 +135,10 @@ void MainWindow::OnClickOpenServerDir() {
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-  ui->server_edit->setText(dir);
-  options_.gen_server_path = dir;
+  if (!dir.isEmpty()) {
+    ui->server_edit->setText(dir);
+    options_.gen_server_path = dir;
+  }
 }
 
 void MainWindow::OnClickOpenClientDir() {
@@ -140,8 +147,11 @@ void MainWindow::OnClickOpenClientDir() {
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-  ui->client_edit->setText(dir);
-  options_.gen_client_path = dir;
+
+  if (!dir.isEmpty()) {
+    ui->client_edit->setText(dir);
+    options_.gen_client_path = dir;
+  }
 }
 
 void MainWindow::OnClickOpenLocalDir() {
@@ -150,12 +160,26 @@ void MainWindow::OnClickOpenLocalDir() {
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-  ui->local_edit->setText(dir);
-  options_.gen_local_path = dir;
+  if (!dir.isEmpty()) {
+    ui->local_edit->setText(dir);
+    options_.gen_local_path = dir;
+  }
 
   QList<QPersistentModelIndex> indexList = model_->checkedIndexes();
   for (const QPersistentModelIndex &index : indexList)
     qDebug() << model_->filePath(index);
+}
+
+void MainWindow::OnClickExportConfig() {
+  qDebug() << "OnClickExportConfig";
+
+  auto indexList = model_->checkedIndexes();
+  if (indexList.empty()) {
+    QMessageBox::warning(NULL, "warning", tr("no select files or dirs."),
+                         QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+    return;
+  }
 }
 
 void MainWindow::loadConfig() {

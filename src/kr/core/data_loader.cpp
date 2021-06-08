@@ -53,7 +53,8 @@ void build_row(DataTable &table, const std::vector<std::string> &row_data,
     if (boost::starts_with(field.type, "[")) {
       std::vector<std::string> results;
       for (auto index = begin_index; index != end_index; ++index) {
-        if (!row_data[index].empty() && row_data[index] != "0") {
+        auto cell_data = boost::algorithm::to_lower_copy(row_data[index]);
+        if (!cell_data.empty() && cell_data != "null") {
           results.emplace_back(row_data[index]);
         }
       }
@@ -75,7 +76,7 @@ void build_row(DataTable &table, const std::vector<std::string> &row_data,
 }
 
 void build_csv_rows(DataTable &table, const rapidcsv::Document &doc,
-                const std::vector<HeaderField> &fields) {
+                    const std::vector<HeaderField> &fields) {
   auto n_rows = doc.GetRowCount();
   auto start_index = static_cast<std::uint32_t>(HeaderRowIndex::START);
   for (auto index = start_index; index < n_rows; index++) {
@@ -130,7 +131,6 @@ bool load_from_csv(const std::string &path, DataTable &table) {
   }
   return true;
 }
-
 
 void build_xlsx_rows(DataTable &table,
                      std::vector<std::vector<std::string>> &whole_sheet,
@@ -228,13 +228,12 @@ bool DataLoader::execute(const std::string &path, DataTable &table) {
 }
 
 bool DataLoader::load_from_csv(const std::string &path, DataTable &table) {
-  detail::load_from_csv(path, table);
-  return true;
+  return detail::load_from_csv(path, table);;
 }
 
 bool DataLoader::load_from_xlsx(const std::string &path, DataTable &table) {
-  detail::load_from_xlsx(path, table);
-  return true;
+  return detail::load_from_xlsx(path, table);
+
 }
 
 } // namespace core

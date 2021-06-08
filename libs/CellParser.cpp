@@ -318,16 +318,16 @@ tree::TerminalNode* CellParser::PodContext::BooleanLiteral() {
   return getToken(CellParser::BooleanLiteral, 0);
 }
 
-tree::TerminalNode* CellParser::PodContext::StringLiteral() {
-  return getToken(CellParser::StringLiteral, 0);
-}
-
 tree::TerminalNode* CellParser::PodContext::IntegerLiteral() {
   return getToken(CellParser::IntegerLiteral, 0);
 }
 
 tree::TerminalNode* CellParser::PodContext::FloatingLiteral() {
   return getToken(CellParser::FloatingLiteral, 0);
+}
+
+tree::TerminalNode* CellParser::PodContext::StringLiteral() {
+  return getToken(CellParser::StringLiteral, 0);
 }
 
 

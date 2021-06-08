@@ -108,27 +108,30 @@ void Compiler::generate(const IDLOptions &opts) {
 
   std::vector<std::string> full_paths;
   for (auto &entry : fs::recursive_directory_iterator(opts.src)) {
-	  if (entry.is_regular_file())
-	  {
-		  full_paths.emplace_back(entry.path().string());
-	 }
+    if (entry.is_regular_file()) {
+      full_paths.emplace_back(entry.path().string());
+    }
   }
 
   auto generate_path = [&dest_path, &src_path](auto &&cur_path) {
-	auto gen_path = dest_path;
+    auto gen_path = dest_path;
     auto relative_path = fs::relative(cur_path, src_path);
-	  gen_path /= relative_path;
+    gen_path /= relative_path;
     return gen_path.parent_path();
   };
 
   auto generate_code = [&](auto &&src, auto &&dest, auto &&filename) {
+	std::cout << "===================================================" << std::endl;
+    std::cout << fmt::format("load	  start:  path = {}", src.string())
+              << std::endl;
     DataTable dt("data table");
     if (!DataLoader::execute(src.string(), dt)) {
       std::cout << "data load failed." << std::endl;
       return;
     }
 
-    std::cout << fmt::format("generate start:  path ={}", src.string()) << std::endl;
+    std::cout << fmt::format("generate start:  path = {}", src.string())
+              << std::endl;
     Model model(dt);
     for (size_t index = 0; index < params_.num_generators; ++index) {
       auto &generator = params_.generators[index];
@@ -136,7 +139,8 @@ void Compiler::generate(const IDLOptions &opts) {
         generator.generate(model, opts, dest.string(), filename);
       }
     }
-    std::cout << fmt::format("generate finish: path ={}", src.string()) << std::endl;
+    std::cout << fmt::format("generate finish: path = {}", src.string())
+              << std::endl;
   };
 
   std::for_each(full_paths.begin(), full_paths.end(), [&](auto &&value) {
@@ -145,8 +149,15 @@ void Compiler::generate(const IDLOptions &opts) {
     if (!fs::exists(code_path)) {
       fs::create_directories(code_path);
     }
-	  auto filename = cur_path.stem().string();
-    generate_code(cur_path, code_path, filename);
+    auto filename = cur_path.stem().string();
+	try
+	{
+		generate_code(cur_path, code_path, filename);
+	}
+	catch (std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
   });
 }
 } // namespace core

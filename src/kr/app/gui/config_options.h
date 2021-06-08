@@ -1,21 +1,22 @@
 #pragma once
 
-enum GenLanguageType
-{
-    LUA     = 1,
-    JSON    = 2,
-    CSHARP  = 3,
+enum GenLanguageType {
+  LUA = 1,
+  JSON = 2,
+  CSHARP = 3,
 };
 
-struct ConfigOptions
-{
-    ConfigOptions()
-        : gen_server_path{}, gen_client_path{}, gen_local_path{}
-    {}
+struct ConfigOptions {
+  ConfigOptions()
+      : gen_server_path{}, gen_client_path{}, gen_local_path{},
+        gen_server_type(LUA), gen_client_type(CSHARP), gen_local_type(JSON) {}
 
-    QString data_path;
-    QString gen_server_path;
-    QString gen_client_path;
-    QString gen_local_path;
-    QString name_filters;
+  QString data_path;
+  QString gen_server_path;
+  int gen_server_type;
+  QString gen_client_path;
+  int gen_client_type;
+  QString gen_local_path;
+  int gen_local_type;
+  QString name_filters;
 };

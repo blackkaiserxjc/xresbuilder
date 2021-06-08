@@ -27,6 +27,7 @@ public slots:
   void OnClickOpenServerDir();
   void OnClickOpenClientDir();
   void OnClickOpenLocalDir();
+  void OnClickExportConfig();
 
 protected:
   void initUI();

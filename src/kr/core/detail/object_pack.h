@@ -40,8 +40,8 @@ void pack_pod(Packer &packer, const Type &type, const Reader &reader) {
   } break;
 
   case BASE_TYPE_STRING: {
-    reader.template to<std::string>(
-        [&packer](std::string value) { packer.pack(value); },
+    reader.template to<std::string_view>(
+        [&packer](std::string_view value) { packer.pack(value); },
         [] { throw "invaild_cast"; });
   } break;
   }

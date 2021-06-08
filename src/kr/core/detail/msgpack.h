@@ -134,8 +134,8 @@ public:
       return object_.via.u64;
     } else if constexpr (std::is_same_v<T, double>) {
       return object_.via.f64;
-    } else if constexpr (std::is_same_v<T, std::string>) {
-      return std::string(object_.via.str.ptr, object_.via.str.size);
+    } else if constexpr (std::is_same_v<T, std::string_view>) {
+      return std::string_view(object_.via.str.ptr, object_.via.str.size);
     }
   }
 

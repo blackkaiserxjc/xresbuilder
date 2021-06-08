@@ -22,9 +22,9 @@ field:
 
 pod:
     BooleanLiteral
-    | StringLiteral
     | IntegerLiteral
     | FloatingLiteral
+	| StringLiteral
     ;
 
 array
@@ -77,7 +77,7 @@ fragment NONDIGIT: [a-zA-Z_];
 
 fragment DIGIT: [0-9];
 
-DecimalLiteral: NONZERODIGIT ('\''? DIGIT)*;
+DecimalLiteral: (SIGN)? NONZERODIGIT ('\''? DIGIT)*;
 
 OctalLiteral: '0' ('\''? OCTALDIGIT)*;
 
