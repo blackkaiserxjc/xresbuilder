@@ -9,6 +9,28 @@
 #include <QSettings>
 #include <QVBoxLayout>
 
+Worker::Worker(QObject *parent)
+{
+}
+
+Worker::~Worker()
+{
+}
+
+void Worker::doWork(WorkerParam param)
+{
+    qDebug() << "receive the execute signal" ;
+    qDebug() << "\tCurrent thread ID: " << QThread::currentThreadId();
+    for(int index = 0; index < 1000; index++)
+    {
+        qDebug() << "index: "<< index;
+    } 
+    qDebug() << "\tFinish the work and sent the result Ready signal\n" ;
+    qDebug() << "data_path:" << param.options.data_path;
+    qDebug() << "gen_server_path:" << param.options.gen_server_path;
+    emit resultReady(0);
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow),
       settings_("config.ini", QSettings::IniFormat), model_(new FSModel()) {
@@ -16,32 +38,14 @@ MainWindow::MainWindow(QWidget *parent)
   loadConfig();
   initUI();
   initSignals();
+  initThreads();
 }
 
 MainWindow::~MainWindow() {
+  work_thread_->quit();
+  work_thread_->wait();
   delete model_;
   delete ui;
-}
-
-void MainWindow::Log(const QString &message, int level) {
-  using namespace QsLogging;
-  switch (level) {
-  case TraceLevel:
-  case DebugLevel:
-  case InfoLevel:
-    ui->logView->appendHtml(QLatin1String("<pre style='color:lightgreen'>") + message.toHtmlEscaped() +
-                            QLatin1String("</pre>"));
-    break;
-  case WarnLevel:
-    ui->logView->appendHtml(QLatin1String("<pre style='color:orange'>") +
-                            message.toHtmlEscaped() + QLatin1String("</pre>"));
-    break;
-  case ErrorLevel:
-  case FatalLevel:
-    ui->logView->appendHtml(QLatin1String("<pre style='color:red'>") +
-                            message.toHtmlEscaped() + QLatin1String("</pre>"));
-    break;
-  }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -51,6 +55,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 void MainWindow::initUI() {
+  setWindowTitle(QLatin1String("XResBuilder"));
+  
   QStringList filters = options_.name_filters.split("|");
   qDebug() << filters;
   model_->setRootPath(QDir::rootPath());
@@ -92,7 +98,27 @@ void MainWindow::initUI() {
   ui->local_edit->setText(options_.gen_local_path);
 }
 
+void MainWindow::initThreads()
+{
+    // 注册参数类型
+	  qRegisterMetaType<WorkerParam>("WorkerParam");
+    // 线程初始化
+    work_thread_ = new QThread();
+    auto worker = new Worker();
+    worker->moveToThread(work_thread_);
+
+    // 启动工作
+    connect(this, SIGNAL(startWork(WorkerParam)), worker, SLOT(doWork(WorkerParam)));
+    // 线程销毁结束时销毁
+    connect(work_thread_, &QThread::finished, worker, &QObject::deleteLater);
+    // 线程结束，处理结果
+    connect(worker, SIGNAL(resultReady(int)), this, SLOT(HandleResult(int)));
+    // 启动线程
+    work_thread_->start();
+}  
+
 void MainWindow::initSignals() {
+
   // 信号槽
   QObject::connect(ui->action, SIGNAL(triggered()), this,
                    SLOT(OnActionOpenDataDir()));
@@ -108,6 +134,33 @@ void MainWindow::initSignals() {
 
   QObject::connect(ui->export_btn, SIGNAL(clicked()), this,
                    SLOT(OnClickExportConfig()));
+}
+
+void MainWindow::Log(const QString &message, int level) {
+  using namespace QsLogging;
+  switch (level) {
+  case TraceLevel:
+  case DebugLevel:
+  case InfoLevel:
+    ui->logView->appendHtml(QLatin1String("<pre style='color:lightgreen'>") + message.toHtmlEscaped() +
+                            QLatin1String("</pre>"));
+    break;
+  case WarnLevel:
+    ui->logView->appendHtml(QLatin1String("<pre style='color:orange'>") +
+                            message.toHtmlEscaped() + QLatin1String("</pre>"));
+    break;
+  case ErrorLevel:
+  case FatalLevel:
+    ui->logView->appendHtml(QLatin1String("<pre style='color:red'>") +
+                            message.toHtmlEscaped() + QLatin1String("</pre>"));
+    break;
+  }
+}
+
+void MainWindow::HandleResult(int result) {
+    qDebug() << "receive the resultReady signal" ;
+    qDebug() << "\tCurrent thread ID: " << QThread::currentThreadId() << '\n' ;
+    qDebug() << "\tThe last result is: " << result;
 }
 
 void MainWindow::OnActionOpenDataDir() {
@@ -173,6 +226,10 @@ void MainWindow::OnClickExportConfig() {
 
     return;
   }
+
+  WorkerParam param;
+  param.options = options_;
+  emit startWork(param);
 }
 
 void MainWindow::loadConfig() {
