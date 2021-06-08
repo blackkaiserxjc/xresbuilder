@@ -29,7 +29,7 @@ void MainWindow::Log(const QString &message, int level) {
   case TraceLevel:
   case DebugLevel:
   case InfoLevel:
-    ui->logView->appendHtml(QLatin1String("<pre>") + message.toHtmlEscaped() +
+    ui->logView->appendHtml(QLatin1String("<pre style='color:lightgreen'>") + message.toHtmlEscaped() +
                             QLatin1String("</pre>"));
     break;
   case WarnLevel:
@@ -42,13 +42,6 @@ void MainWindow::Log(const QString &message, int level) {
                             message.toHtmlEscaped() + QLatin1String("</pre>"));
     break;
   }
-
-  /*
-QTextCursor prev_cursor = ui->logView->textCursor();
-ui->logView->moveCursor(QTextCursor::End);
-ui->logView->insertPlainText(message + tr("\n"));
-ui->logView->setTextCursor(prev_cursor);
-*/
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {

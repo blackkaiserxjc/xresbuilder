@@ -36,7 +36,7 @@ antlrcpp::Any
 CellAstBuilder<Packer>::visitPod(CellParser::PodContext *context) {
   auto cvt = [](auto sv) {
     boost::algorithm::trim_if(sv, [](auto ch) { return ch == '\"'; });
-    boost::algorithm::to_lower(sv);
+    //boost::algorithm::to_lower(sv);
     return sv;
   };
   boost::cnv::cstream cnv;
