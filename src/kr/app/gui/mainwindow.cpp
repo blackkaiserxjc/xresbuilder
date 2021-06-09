@@ -1,13 +1,15 @@
-﻿#include "mainwindow.h"
-#include "QsLog.h"
-#include "fsmodel.h"
-#include "ui_mainwindow.h"
+﻿#include <memory>
 
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QProcess>
 #include <QSettings>
-#include <QVBoxLayout>
+
+#include "QsLog.h"
+#include "fsmodel.h"
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 static void CompilerDebug(const std::string &debug_msg) {
   QLOG_DEBUG() << debug_msg.c_str();
@@ -90,7 +92,8 @@ void Worker::doWork(WorkerParam param) {
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow),
-      settings_("config.ini", QSettings::IniFormat), model_(new FSModel()) {
+      settings_("config.ini", QSettings::IniFormat), model_(new FSModel()),
+      svn_model_(new SvnModel()) {
   ui->setupUi(this);
   loadConfig();
   initUI();
@@ -132,12 +135,21 @@ void MainWindow::initUI() {
   ui->treeView->setColumnHidden(1, true);
   ui->treeView->setColumnHidden(2, true);
   ui->treeView->setColumnHidden(3, true);
-
   QModelIndex index = model_->index(
       options_.data_path.isEmpty() ? QDir::homePath() : options_.data_path);
   ui->treeView->setRootIndex(index);
-
   ui->treeView->resizeColumnToContents(0);
+
+  ui->svnView->setSelectionBehavior(QAbstractItemView::SelectRows);
+  ui->svnView->horizontalHeader()->setStretchLastSection(true);
+  ui->svnView->horizontalHeader()->setSectionResizeMode(
+      QHeaderView::ResizeToContents);
+  ui->svnView->horizontalHeader()->setHighlightSections(false);
+  ui->svnView->verticalHeader()->setVisible(false);
+  ui->svnView->setShowGrid(false);
+  ui->svnView->setFrameShape(QFrame::NoFrame);
+  ui->svnView->setSelectionMode(QAbstractItemView::SingleSelection);
+  ui->svnView->setModel(svn_model_);
 
   QMap<QString, int> cbData = {{"Lua", GenLanguageType::LUA},
                                {"Json", GenLanguageType::JSON},
@@ -229,6 +241,7 @@ void MainWindow::OnActionOpenDataDir() {
   ui->treeView->setRootIndex(index);
   options_.data_path = dir;
   model_->reset();
+  loadSvnData(dir);
 }
 
 void MainWindow::OnClickOpenServerDir() {
@@ -269,7 +282,8 @@ void MainWindow::OnClickExportConfig() {
   qDebug() << "OnClickExportConfig";
 
   auto indexList = model_->checkedIndexes();
-  if (indexList.empty()) {
+  auto svnRecords = svn_model_->records();
+  if (indexList.count() == 0 && svnRecords.count() == 0) {
     QMessageBox::warning(NULL, "warning", tr("no select files or dirs."),
                          QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 
@@ -287,7 +301,14 @@ void MainWindow::OnClickExportConfig() {
   for (const QPersistentModelIndex &index : indexList) {
     param.paths.push_back(model_->filePath(index));
   }
+  for (auto &record : svnRecords) {
+    if (record.check) {
+      param.paths.push_back(record.file_path);
+	  qDebug() << record.file_path;
+    }
+  }
 
+  
   ui->export_btn->setDisabled(true);
   emit startWork(param);
 }
@@ -298,6 +319,11 @@ void MainWindow::loadConfig() {
   options_.gen_client_path = settings_.value("gen_client_path").toString();
   options_.gen_local_path = settings_.value("gen_local_path").toString();
   options_.name_filters = settings_.value("name_filters").toString();
+  options_.log_level = settings_.value("log_level").toInt();
+  auto &logger = QsLogging::Logger::instance();
+  if (options_.log_level != 0) {
+    logger.setLoggingLevel(static_cast<QsLogging::Level>(options_.log_level));
+  }
 }
 
 void MainWindow::saveConfig() {
@@ -305,4 +331,40 @@ void MainWindow::saveConfig() {
   settings_.setValue("gen_server_path", options_.gen_server_path);
   settings_.setValue("gen_client_path", options_.gen_client_path);
   settings_.setValue("gen_local_path", options_.gen_local_path);
+}
+
+void MainWindow::loadSvnData(const QString &path) {
+  auto process = std::make_shared<QProcess>();
+  process->start("svn", QStringList() << "diff" << path << "--summarize");
+  process->waitForFinished();
+  QString buffer = process->readAll();
+  QStringList svnList = buffer.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+  qDebug() << "svn diff list: " << svnList;
+
+  QList<SvnRecord> records;
+  if (svnList.count() == 0) {
+    QLOG_ERROR() << "svn diff list is zero:" << path;
+    svn_model_->updateData(records);
+    return;
+  }
+
+  if (svnList.count() & 0x01) {
+    QLOG_ERROR() << "invaild svn dir:" << path;
+    svn_model_->updateData(records);
+    return;
+  }
+  for (int index = 0; index < svnList.count(); index += 2) {
+    auto &file_status = svnList[index];
+    auto &file_path = svnList[index + 1];
+    QFileInfo file(file_path);
+    if (file.exists()) {
+      SvnRecord record;
+      record.check = false;
+      record.file_path = file_path;
+      record.file_ext = file.suffix();
+      record.status = file_status;
+      records.append(record);
+    }
+  }
+  svn_model_->updateData(records);
 }

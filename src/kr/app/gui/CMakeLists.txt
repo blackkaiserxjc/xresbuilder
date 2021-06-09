@@ -34,6 +34,8 @@ set(kr_app_builder_gui_SRCS
     main.cpp
     mainwindow.h
     mainwindow.cpp
+    svn_model.h
+    svn_model.cpp
 )
 
 set(kr_app_builder_gui_forms_SRCS	

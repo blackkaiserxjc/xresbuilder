@@ -80,6 +80,7 @@ private:
     } else {
       code_ += fmt::format("public class {}", name);
     }
+    obj_depth_++;
     code_ += "{";
     code_.indent();
     for (auto &&field : type.obj_def->fields.vec) {
@@ -96,13 +97,13 @@ private:
     }
     code_.outdent();
     code_ += "}";
-    obj_depth_++;
   }
 
   void gen_pod(const Type &type, const std::string &name,
                uint32_t field_index) {
     if (!pod_depth_ && !field_index) {
-      code_ += fmt::format("public {} {} {{get; set;}}", get_type_basic(type), name);
+      code_ +=
+          fmt::format("public {} {} {{get; set;}}", get_type_basic(type), name);
     } else {
       code_ += fmt::format("public {} {};", get_type_basic(type), name);
     }

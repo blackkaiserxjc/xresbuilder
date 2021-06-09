@@ -19,7 +19,7 @@
      <widget class="QTreeView" name="treeView"/>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <item row="1" column="2">
@@ -163,6 +163,9 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QTableView" name="svnView"/>
       </item>
       <item>
        <widget class="QPlainTextEdit" name="logView"/>

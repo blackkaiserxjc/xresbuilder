@@ -219,7 +219,8 @@ bool DataLoader::execute(const std::string &path, DataTable &table) {
       return load_from_csv(path, table);
     } else if (extension == ".xlsx" || extension == ".xlsm") {
       return load_from_xlsx(path, table);
-    }
+    } 
+	return false;
   } catch (const std::filesystem::filesystem_error &e) {
     std::cerr << e.what() << std::endl;
     return false;

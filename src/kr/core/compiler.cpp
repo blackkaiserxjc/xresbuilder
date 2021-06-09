@@ -132,8 +132,9 @@ int Compiler::run_with_gui(const IDLOptions &opts) {
   };
 
   auto generate_code = [&](auto &&src, auto &&dest, auto &&filename) {
+    auto relative_src_path = fs::relative(src, src_path);
     debug("===================================================");
-    debug(fmt::format("load	  start:  path = {}", src.string()));
+    debug(fmt::format("load start: path = {}", relative_src_path.string()));
     DataTable dt("data table");
     if (!DataLoader::execute(src.string(), dt)) {
       error("data load failed.");

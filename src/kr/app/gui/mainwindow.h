@@ -7,6 +7,7 @@
 #include <QThread>
 
 #include "config_options.h"
+#include "svn_model.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -61,9 +62,13 @@ protected:
 
   void loadConfig();
   void saveConfig();
+
+  void loadSvnData(const QString &dir);
+
 private:
   Ui::MainWindow *ui;
   FSModel *model_;
+  SvnModel *svn_model_;
   QSettings settings_;
   ConfigOptions options_;
   QThread *work_thread_;
