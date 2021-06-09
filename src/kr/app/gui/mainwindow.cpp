@@ -161,25 +161,17 @@ void MainWindow::initUI() {
     ui->local_cb->addItem(iter.key(), iter.value());
   }
 
-  qDebug() << "server_type:" << options_.gen_server_type;
   if (auto scb_index = ui->server_cb->findData(options_.gen_server_type, Qt::UserRole, Qt::MatchCaseSensitive); scb_index >= 0)
   {
       ui->server_cb->setCurrentIndex(scb_index);
-      qDebug() << "index :" << scb_index;
   }
-
-    qDebug() << "client_type:" << options_.gen_client_type;
   if (auto ccb_index = ui->client_cb->findData(options_.gen_client_type, Qt::UserRole, Qt::MatchCaseSensitive); ccb_index >= 0)
   {
       ui->client_cb->setCurrentIndex(ccb_index);
-            qDebug() << "index :" << ccb_index;
   }
-
-  qDebug() << "local_type:" << options_.gen_local_type;
   if (auto lcb_index = ui->local_cb->findData(options_.gen_local_type, Qt::UserRole, Qt::MatchCaseSensitive); lcb_index >= 0)
   {
       ui->local_cb->setCurrentIndex(lcb_index);
-      qDebug() << "index :" << lcb_index;
   }
 
   ui->server_edit->setText(options_.gen_server_path);
