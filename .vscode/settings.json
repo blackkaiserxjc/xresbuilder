@@ -98,7 +98,7 @@
         "xtree": "cpp",
         "xutility": "cpp"
     },
-    //"clang-format.executable": "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
+    "clang-format.executable": "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
     "cmake.configureOnOpen": true,
     "cmake.buildArgs": [
         //"-DCMAKE_TOOLCHAIN_FILE=D:code/cpp/opensource/vcpkg/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake",

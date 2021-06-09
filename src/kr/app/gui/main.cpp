@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
 
   auto &logger = QsLogging::Logger::instance();
   logger.setLoggingLevel(QsLogging::TraceLevel);
+  logger.setIncludeTimestamp(false);
 
   MainWindow *mainWindow = new MainWindow;
   QsLogging::DestinationPtr objectDestination(

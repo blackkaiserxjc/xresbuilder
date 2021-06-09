@@ -93,6 +93,81 @@ int Compiler::run(int argc, char **argv) {
   return EXIT_SUCCESS;
 }
 
+int Compiler::run_with_gui(const IDLOptions &opts) {
+  if (!opts.lang_to_generate) {
+    error("lange opt is null");
+    return EXIT_FAILURE;
+  }
+
+  if (opts.src_paths_.empty()) {
+    error("src paths is empty.");
+    return EXIT_FAILURE;
+  }
+
+  fs::path src_path(opts.src);
+  fs::path dest_path(opts.dest);
+  if (!fs::exists(src_path) || !fs::is_directory(src_path)) {
+    error("src path not exists or not directory");
+    return EXIT_FAILURE;
+  }
+
+  std::vector<std::string> full_paths;
+  for (auto &&p : opts.src_paths_) {
+    if (fs::is_regular_file(p)) {
+      full_paths.emplace_back(p);
+    } else if (fs::is_directory(p)) {
+      for (auto &entry : fs::recursive_directory_iterator(p)) {
+        if (entry.is_regular_file()) {
+          full_paths.emplace_back(entry.path().string());
+        }
+      }
+    }
+  }
+
+  auto generate_path = [&dest_path, &src_path](auto &&cur_path) {
+    auto gen_path = dest_path;
+    auto relative_path = fs::relative(cur_path, src_path);
+    gen_path /= relative_path;
+    return gen_path.parent_path();
+  };
+
+  auto generate_code = [&](auto &&src, auto &&dest, auto &&filename) {
+    debug("===================================================");
+    debug(fmt::format("load	  start:  path = {}", src.string()));
+    DataTable dt("data table");
+    if (!DataLoader::execute(src.string(), dt)) {
+      error("data load failed.");
+      return;
+    }
+
+    debug(fmt::format("generate start."));
+    Model model(dt);
+    for (size_t index = 0; index < params_.num_generators; ++index) {
+      auto &generator = params_.generators[index];
+      if (generator.lang & opts.lang_to_generate) {
+        generator.generate(model, opts, dest.string(), filename);
+      }
+    }
+    debug(fmt::format("generate finish.", src.string()));
+  };
+
+  std::for_each(full_paths.begin(), full_paths.end(), [&](auto &&value) {
+    fs::path cur_path(value);
+    auto code_path = generate_path(cur_path);
+    if (!fs::exists(code_path)) {
+      fs::create_directories(code_path);
+    }
+    auto filename = cur_path.stem().string();
+    try {
+      generate_code(cur_path, code_path, filename);
+    } catch (std::exception &e) {
+      error(e.what());
+    }
+  });
+
+  return EXIT_SUCCESS;
+}
+
 void Compiler::generate(const IDLOptions &opts) {
   if (!opts.lang_to_generate) {
     std::cout << "lange opt is null" << std::endl;
@@ -121,7 +196,8 @@ void Compiler::generate(const IDLOptions &opts) {
   };
 
   auto generate_code = [&](auto &&src, auto &&dest, auto &&filename) {
-	std::cout << "===================================================" << std::endl;
+    std::cout << "==================================================="
+              << std::endl;
     std::cout << fmt::format("load	  start:  path = {}", src.string())
               << std::endl;
     DataTable dt("data table");
@@ -150,15 +226,19 @@ void Compiler::generate(const IDLOptions &opts) {
       fs::create_directories(code_path);
     }
     auto filename = cur_path.stem().string();
-	try
-	{
-		generate_code(cur_path, code_path, filename);
-	}
-	catch (std::exception& e)
-	{
-		std::cout << e.what() << std::endl;
-	}
+    try {
+      generate_code(cur_path, code_path, filename);
+    } catch (std::exception &e) {
+      std::cout << e.what() << std::endl;
+    }
   });
 }
+
+void Compiler::warn(const std::string &warn) { params_.warn_fn(warn); }
+
+void Compiler::error(const std::string &error) { params_.error_fn(error); }
+
+void Compiler::debug(const std::string &debug) { params_.debug_fn(debug); };
+
 } // namespace core
 } // namespace kr

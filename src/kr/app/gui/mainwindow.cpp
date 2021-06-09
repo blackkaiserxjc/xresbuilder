@@ -9,27 +9,83 @@
 #include <QSettings>
 #include <QVBoxLayout>
 
-Worker::Worker(QObject *parent)
-{
+static void CompilerDebug(const std::string &debug_msg) {
+  QLOG_DEBUG() << debug_msg.c_str();
 }
 
-Worker::~Worker()
-{
+static void CompilerWarning(const std::string &warn_msg) {
+  QLOG_WARN() << warn_msg.c_str();
 }
 
-void Worker::doWork(WorkerParam param)
-{
-    QLOG_DEBUG() << "receive the execute signal" ;
-    QLOG_DEBUG() << "\tCurrent thread ID: " << QThread::currentThreadId();
-    QLOG_DEBUG() << "\tFinish the work and sent the result Ready signal\n" ;
-    QLOG_DEBUG() << "data_path:" << param.options.data_path;
-    QLOG_DEBUG() << "gen_server_path:" << param.options.gen_server_path;
+static void CompilerError(const std::string &error_msg) {
+  QLOG_ERROR() << error_msg.c_str();
+}
 
-    for(auto&& path: param.paths)
-    {
-      QLOG_DEBUG() << "path:" << path;
-    }
-    emit resultReady(0);
+Worker::Worker(QObject *parent) {}
+
+Worker::~Worker() {}
+
+void Worker::doWork(WorkerParam param) {
+  using namespace kr::core;
+  if (param.options.data_path.isEmpty() || !param.paths.length()) {
+    emit resultReady(1);
+    return;
+  }
+
+  const Compiler::Generator generators[] = {
+      {generate_json, "json", "Json", IDLOptions::kJson,
+       "Generate Json schema"},
+      {generate_lua, "lua", "Lua", IDLOptions::kLua, "Generate Lua files"},
+      {generate_csharp, "csharp", "C#", IDLOptions::kCSharp,
+       "Generate C# class"}};
+  Compiler::InitParams init_params;
+  init_params.generators = generators;
+  init_params.num_generators = sizeof(generators) / sizeof(generators[0]);
+  init_params.warn_fn = CompilerWarning;
+  init_params.error_fn = CompilerError;
+  init_params.debug_fn = CompilerDebug;
+  Compiler compiler(init_params);
+
+  auto is_vaild_path = [](auto &&path, auto &&type) {
+    return !path.isEmpty() && type != 0;
+  };
+
+  auto convert_gen_type = [](auto &&type) {
+    if (type == GenLanguageType::LUA)
+      return static_cast<int>(IDLOptions::kLua);
+    else if (type == GenLanguageType::JSON)
+      return static_cast<int>(IDLOptions::kJson);
+    else if (type == GenLanguageType::CSHARP)
+      return static_cast<int>(IDLOptions::kCSharp);
+    else
+      return 0;
+  };
+
+  IDLOptions options;
+  options.src = param.options.data_path.toStdString();
+  for (auto &&p : param.paths) {
+    options.src_paths_.emplace_back(p.toStdString());
+  }
+
+  if (is_vaild_path(param.options.gen_server_path,
+                    param.options.gen_server_type)) {
+    options.dest = param.options.gen_server_path.toStdString();
+    options.lang_to_generate = convert_gen_type(param.options.gen_server_type);
+    compiler.run_with_gui(options);
+  }
+  if (is_vaild_path(param.options.gen_client_path,
+                    param.options.gen_client_type)) {
+    options.dest = param.options.gen_client_path.toStdString();
+    options.lang_to_generate = convert_gen_type(param.options.gen_client_type);
+    compiler.run_with_gui(options);
+  }
+  if (is_vaild_path(param.options.gen_local_path,
+                    param.options.gen_local_type)) {
+    options.dest = param.options.gen_local_path.toStdString();
+    options.lang_to_generate = convert_gen_type(param.options.gen_local_type);
+    compiler.run_with_gui(options);
+  }
+  emit resultReady(0);
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -57,7 +113,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 void MainWindow::initUI() {
   setWindowTitle(QLatin1String("XResBuilder"));
-  
+
   QStringList filters = options_.name_filters.split("|");
   qDebug() << filters;
   model_->setRootPath(QDir::rootPath());
@@ -83,18 +139,15 @@ void MainWindow::initUI() {
 
   ui->treeView->resizeColumnToContents(0);
 
-  QMap<QString, int> cbData = {
-    {"Lua", GenLanguageType::LUA},
-    {"Json", GenLanguageType::JSON},
-    {"C#", GenLanguageType::CSHARP}
-  };
-  for (auto iter = cbData.begin(); iter != cbData.end(); iter++)
-  {
-      ui->server_cb->addItem(iter.key(), iter.value());
-      ui->client_cb->addItem(iter.key(), iter.value());
-      ui->local_cb->addItem(iter.key(), iter.value());
+  QMap<QString, int> cbData = {{"Lua", GenLanguageType::LUA},
+                               {"Json", GenLanguageType::JSON},
+                               {"C#", GenLanguageType::CSHARP}};
+  for (auto iter = cbData.begin(); iter != cbData.end(); iter++) {
+    ui->server_cb->addItem(iter.key(), iter.value());
+    ui->client_cb->addItem(iter.key(), iter.value());
+    ui->local_cb->addItem(iter.key(), iter.value());
   }
-  
+
   ui->server_edit->setText(options_.gen_server_path);
   ui->client_edit->setText(options_.gen_client_path);
   ui->local_edit->setText(options_.gen_local_path);
@@ -144,8 +197,8 @@ void MainWindow::Log(const QString &message, int level) {
   case TraceLevel:
   case DebugLevel:
   case InfoLevel:
-    ui->logView->appendHtml(QLatin1String("<pre style='color:green'>") + message.toHtmlEscaped() +
-                            QLatin1String("</pre>"));
+    ui->logView->appendHtml(QLatin1String("<pre style='color:green'>") +
+                            message.toHtmlEscaped() + QLatin1String("</pre>"));
     break;
   case WarnLevel:
     ui->logView->appendHtml(QLatin1String("<pre style='color:orange'>") +
@@ -160,14 +213,15 @@ void MainWindow::Log(const QString &message, int level) {
 }
 
 void MainWindow::HandleResult(int result) {
-    qDebug() << "receive the resultReady signal" ;
-    qDebug() << "\tCurrent thread ID: " << QThread::currentThreadId() << '\n' ;
-    qDebug() << "\tThe last result is: " << result;
+  qDebug() << "receive the resultReady signal";
+  qDebug() << "\tCurrent thread ID: " << QThread::currentThreadId() << '\n';
+  qDebug() << "\tThe last result is: " << result;
+
+  ui->export_btn->setEnabled(true);
 }
 
 void MainWindow::OnActionOpenDataDir() {
   qDebug() << "OnActionOpenDataDir";
-  QLOG_DEBUG() << "OnActionOpenDataDir";
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
@@ -179,7 +233,6 @@ void MainWindow::OnActionOpenDataDir() {
 
 void MainWindow::OnClickOpenServerDir() {
   qDebug() << "OnClickOpenServerDir";
-  QLOG_WARN() << "OnClickOpenServerDir";
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
@@ -191,7 +244,6 @@ void MainWindow::OnClickOpenServerDir() {
 
 void MainWindow::OnClickOpenClientDir() {
   qDebug() << "OnClickOpenClientDir";
-  QLOG_ERROR() << "OnClickOpenClientDir";
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
@@ -204,7 +256,6 @@ void MainWindow::OnClickOpenClientDir() {
 
 void MainWindow::OnClickOpenLocalDir() {
   qDebug() << "OnClickOpenLocalDir";
-  QLOG_DEBUG() << "OnClickOpenLocalDir";
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
@@ -212,7 +263,6 @@ void MainWindow::OnClickOpenLocalDir() {
     ui->local_edit->setText(dir);
     options_.gen_local_path = dir;
   }
-
 }
 
 void MainWindow::OnClickExportConfig() {
@@ -238,6 +288,7 @@ void MainWindow::OnClickExportConfig() {
     param.paths.push_back(model_->filePath(index));
   }
 
+  ui->export_btn->setDisabled(true);
   emit startWork(param);
 }
 

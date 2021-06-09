@@ -45,7 +45,7 @@ private:
 };
 
 class Model;
-class IDLOptions;
+struct IDLOptions;
 class CodeGenerator : private boost::noncopyable {
 public:
   CodeGenerator(Model &model, const IDLOptions& opts, const std::string& path, const std::string& file_name)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kr/core/compiler.h>
+
 #include <QMainWindow>
 #include <QSettings>
 #include <QThread>
@@ -12,27 +14,24 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-
 class FSModel;
-struct WorkerParam
-{
-  WorkerParam() : options{}, paths{}
-  {}
+
+struct WorkerParam {
+  WorkerParam() : options{}, paths{} {}
 
   ConfigOptions options;
   QVector<QString> paths;
 };
-class Worker : public QObject
-{
-    Q_OBJECT
+class Worker : public QObject {
+  Q_OBJECT
 public:
-    Worker(QObject *parent = nullptr);
-    ~Worker();
+  Worker(QObject *parent = nullptr);
+  ~Worker();
 
 public slots:
-    void doWork(WorkerParam param);
+  void doWork(WorkerParam param);
 signals:
-    void resultReady(int result);
+  void resultReady(int result);
 };
 
 class MainWindow : public QMainWindow {
