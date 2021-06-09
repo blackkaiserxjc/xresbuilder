@@ -96,7 +96,8 @@
         "xstddef": "cpp",
         "xtr1common": "cpp",
         "xtree": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "*.ipp": "cpp"
     },
     "clang-format.executable": "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
     "cmake.configureOnOpen": true,

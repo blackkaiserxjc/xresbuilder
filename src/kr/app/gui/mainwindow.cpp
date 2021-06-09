@@ -110,6 +110,7 @@ MainWindow::~MainWindow() {
 
 void MainWindow::closeEvent(QCloseEvent *event) {
   qDebug() << "MainWindow::closeEvent";
+  updateComBoxIndexs();
   saveConfig();
   event->accept();
 }
@@ -160,10 +161,70 @@ void MainWindow::initUI() {
     ui->local_cb->addItem(iter.key(), iter.value());
   }
 
+  qDebug() << "server_type:" << options_.gen_server_type;
+  if (auto scb_index = ui->server_cb->findData(options_.gen_server_type, Qt::UserRole, Qt::MatchCaseSensitive); scb_index >= 0)
+  {
+      ui->server_cb->setCurrentIndex(scb_index);
+      qDebug() << "index :" << scb_index;
+  }
+
+    qDebug() << "client_type:" << options_.gen_client_type;
+  if (auto ccb_index = ui->client_cb->findData(options_.gen_client_type, Qt::UserRole, Qt::MatchCaseSensitive); ccb_index >= 0)
+  {
+      ui->client_cb->setCurrentIndex(ccb_index);
+            qDebug() << "index :" << ccb_index;
+  }
+
+  qDebug() << "local_type:" << options_.gen_local_type;
+  if (auto lcb_index = ui->local_cb->findData(options_.gen_local_type, Qt::UserRole, Qt::MatchCaseSensitive); lcb_index >= 0)
+  {
+      ui->local_cb->setCurrentIndex(lcb_index);
+      qDebug() << "index :" << lcb_index;
+  }
+
   ui->server_edit->setText(options_.gen_server_path);
   ui->client_edit->setText(options_.gen_client_path);
   ui->local_edit->setText(options_.gen_local_path);
+
+  initSvnModel();
 }
+
+void MainWindow::initSvnModel() {
+  auto process = std::make_shared<QProcess>();
+  process->start("svn", QStringList() << "diff" << options_.data_path << "--summarize");
+  process->waitForFinished();
+  QString buffer = QString::fromLocal8Bit(process->readAllStandardOutput().data()).trimmed();
+  QStringList svnList = buffer.split(QRegExp("\\s+"));
+  qDebug() << "svn diff list: " << svnList;
+
+  QList<SvnRecord> records;
+  if (svnList.count() == 0) {
+    QLOG_ERROR() << "svn diff list is zero:" << options_.data_path;
+    svn_model_->updateData(records);
+    return;
+  }
+
+  if (svnList.count() & 0x01) {
+    QLOG_ERROR() << "invaild svn dir:" << options_.data_path;
+    svn_model_->updateData(records);
+    return;
+  }
+  for (int index = 0; index < svnList.count(); index += 2) {
+    auto &file_status = svnList[index];
+    auto &file_path = svnList[index + 1];
+    QFileInfo file(file_path);
+    if (file.exists()) {
+      SvnRecord record;
+      record.check = false;
+      record.file_path = file_path;
+      record.file_ext = file.suffix();
+      record.status = file_status;
+      records.append(record);
+    }
+  }
+  svn_model_->updateData(records);
+}
+
 
 void MainWindow::initThreads() {
   // 注册参数类型
@@ -241,7 +302,7 @@ void MainWindow::OnActionOpenDataDir() {
   ui->treeView->setRootIndex(index);
   options_.data_path = dir;
   model_->reset();
-  loadSvnData(dir);
+  initSvnModel();
 }
 
 void MainWindow::OnClickOpenServerDir() {
@@ -307,8 +368,6 @@ void MainWindow::OnClickExportConfig() {
 	  qDebug() << record.file_path;
     }
   }
-
-  
   ui->export_btn->setDisabled(true);
   emit startWork(param);
 }
@@ -316,8 +375,11 @@ void MainWindow::OnClickExportConfig() {
 void MainWindow::loadConfig() {
   options_.data_path = settings_.value("data_path").toString();
   options_.gen_server_path = settings_.value("gen_server_path").toString();
+  options_.gen_server_type = settings_.value("gen_server_type").toInt();
   options_.gen_client_path = settings_.value("gen_client_path").toString();
+  options_.gen_client_type = settings_.value("gen_client_type").toInt();
   options_.gen_local_path = settings_.value("gen_local_path").toString();
+  options_.gen_local_type = settings_.value("gen_local_type").toInt();
   options_.name_filters = settings_.value("name_filters").toString();
   options_.log_level = settings_.value("log_level").toInt();
   auto &logger = QsLogging::Logger::instance();
@@ -329,42 +391,17 @@ void MainWindow::loadConfig() {
 void MainWindow::saveConfig() {
   settings_.setValue("data_path", options_.data_path);
   settings_.setValue("gen_server_path", options_.gen_server_path);
+  settings_.setValue("gen_server_type", options_.gen_server_type);
   settings_.setValue("gen_client_path", options_.gen_client_path);
+  settings_.setValue("gen_client_type", options_.gen_client_type);
   settings_.setValue("gen_local_path", options_.gen_local_path);
+  settings_.setValue("gen_local_type", options_.gen_local_type);
 }
 
-void MainWindow::loadSvnData(const QString &path) {
-  auto process = std::make_shared<QProcess>();
-  process->start("svn", QStringList() << "diff" << path << "--summarize");
-  process->waitForFinished();
-  QString buffer = process->readAll();
-  QStringList svnList = buffer.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-  qDebug() << "svn diff list: " << svnList;
 
-  QList<SvnRecord> records;
-  if (svnList.count() == 0) {
-    QLOG_ERROR() << "svn diff list is zero:" << path;
-    svn_model_->updateData(records);
-    return;
-  }
-
-  if (svnList.count() & 0x01) {
-    QLOG_ERROR() << "invaild svn dir:" << path;
-    svn_model_->updateData(records);
-    return;
-  }
-  for (int index = 0; index < svnList.count(); index += 2) {
-    auto &file_status = svnList[index];
-    auto &file_path = svnList[index + 1];
-    QFileInfo file(file_path);
-    if (file.exists()) {
-      SvnRecord record;
-      record.check = false;
-      record.file_path = file_path;
-      record.file_ext = file.suffix();
-      record.status = file_status;
-      records.append(record);
-    }
-  }
-  svn_model_->updateData(records);
+void MainWindow::updateComBoxIndexs()
+{
+  options_.gen_server_type = ui->server_cb->itemData(ui->server_cb->currentIndex()).toInt();
+  options_.gen_client_type = ui->client_cb->itemData(ui->client_cb->currentIndex()).toInt();
+  options_.gen_local_type = ui->local_cb->itemData(ui->local_cb->currentIndex()).toInt();
 }

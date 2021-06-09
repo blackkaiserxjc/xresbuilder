@@ -59,12 +59,12 @@ protected:
   void initUI();
   void initThreads();
   void initSignals();
+  void initSvnModel();
 
   void loadConfig();
   void saveConfig();
 
-  void loadSvnData(const QString &dir);
-
+  void updateComBoxIndexs();
 private:
   Ui::MainWindow *ui;
   FSModel *model_;
