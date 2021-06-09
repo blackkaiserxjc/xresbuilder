@@ -19,15 +19,16 @@ Worker::~Worker()
 
 void Worker::doWork(WorkerParam param)
 {
-    qDebug() << "receive the execute signal" ;
-    qDebug() << "\tCurrent thread ID: " << QThread::currentThreadId();
-    for(int index = 0; index < 1000; index++)
+    QLOG_DEBUG() << "receive the execute signal" ;
+    QLOG_DEBUG() << "\tCurrent thread ID: " << QThread::currentThreadId();
+    QLOG_DEBUG() << "\tFinish the work and sent the result Ready signal\n" ;
+    QLOG_DEBUG() << "data_path:" << param.options.data_path;
+    QLOG_DEBUG() << "gen_server_path:" << param.options.gen_server_path;
+
+    for(auto&& path: param.paths)
     {
-        qDebug() << "index: "<< index;
-    } 
-    qDebug() << "\tFinish the work and sent the result Ready signal\n" ;
-    qDebug() << "data_path:" << param.options.data_path;
-    qDebug() << "gen_server_path:" << param.options.gen_server_path;
+      QLOG_DEBUG() << "path:" << path;
+    }
     emit resultReady(0);
 }
 
@@ -82,40 +83,41 @@ void MainWindow::initUI() {
 
   ui->treeView->resizeColumnToContents(0);
 
-  QMap<QString, int> cbData;
-  cbData.insert("Lua", 1);
-  cbData.insert("Json", 2);
-  cbData.insert("C#", 3);
-  foreach (const QString &text, cbData.keys())
-    ui->server_cb->addItem(text, cbData.value(text));
-  foreach (const QString &text, cbData.keys())
-    ui->client_cb->addItem(text, cbData.value(text));
-  foreach (const QString &text, cbData.keys())
-    ui->local_cb->addItem(text, cbData.value(text));
-
+  QMap<QString, int> cbData = {
+    {"Lua", GenLanguageType::LUA},
+    {"Json", GenLanguageType::JSON},
+    {"C#", GenLanguageType::CSHARP}
+  };
+  for (auto iter = cbData.begin(); iter != cbData.end(); iter++)
+  {
+      ui->server_cb->addItem(iter.key(), iter.value());
+      ui->client_cb->addItem(iter.key(), iter.value());
+      ui->local_cb->addItem(iter.key(), iter.value());
+  }
+  
   ui->server_edit->setText(options_.gen_server_path);
   ui->client_edit->setText(options_.gen_client_path);
   ui->local_edit->setText(options_.gen_local_path);
 }
 
-void MainWindow::initThreads()
-{
-    // 注册参数类型
-	  qRegisterMetaType<WorkerParam>("WorkerParam");
-    // 线程初始化
-    work_thread_ = new QThread();
-    auto worker = new Worker();
-    worker->moveToThread(work_thread_);
+void MainWindow::initThreads() {
+  // 注册参数类型
+  qRegisterMetaType<WorkerParam>("WorkerParam");
+  // 线程初始化
+  work_thread_ = new QThread();
+  auto worker = new Worker();
+  worker->moveToThread(work_thread_);
 
-    // 启动工作
-    connect(this, SIGNAL(startWork(WorkerParam)), worker, SLOT(doWork(WorkerParam)));
-    // 线程销毁结束时销毁
-    connect(work_thread_, &QThread::finished, worker, &QObject::deleteLater);
-    // 线程结束，处理结果
-    connect(worker, SIGNAL(resultReady(int)), this, SLOT(HandleResult(int)));
-    // 启动线程
-    work_thread_->start();
-}  
+  // 启动工作
+  connect(this, SIGNAL(startWork(WorkerParam)), worker,
+          SLOT(doWork(WorkerParam)));
+  // 线程销毁结束时销毁
+  connect(work_thread_, &QThread::finished, worker, &QObject::deleteLater);
+  // 线程结束，处理结果
+  connect(worker, SIGNAL(resultReady(int)), this, SLOT(HandleResult(int)));
+  // 启动线程
+  work_thread_->start();
+}
 
 void MainWindow::initSignals() {
 
@@ -142,7 +144,7 @@ void MainWindow::Log(const QString &message, int level) {
   case TraceLevel:
   case DebugLevel:
   case InfoLevel:
-    ui->logView->appendHtml(QLatin1String("<pre style='color:lightgreen'>") + message.toHtmlEscaped() +
+    ui->logView->appendHtml(QLatin1String("<pre style='color:green'>") + message.toHtmlEscaped() +
                             QLatin1String("</pre>"));
     break;
   case WarnLevel:
@@ -211,9 +213,6 @@ void MainWindow::OnClickOpenLocalDir() {
     options_.gen_local_path = dir;
   }
 
-  QList<QPersistentModelIndex> indexList = model_->checkedIndexes();
-  for (const QPersistentModelIndex &index : indexList)
-    qDebug() << model_->filePath(index);
 }
 
 void MainWindow::OnClickExportConfig() {
@@ -228,7 +227,17 @@ void MainWindow::OnClickExportConfig() {
   }
 
   WorkerParam param;
+  options_.gen_server_type =
+      ui->server_cb->itemData(ui->server_cb->currentIndex()).toInt();
+  options_.gen_client_type =
+      ui->client_cb->itemData(ui->client_cb->currentIndex()).toInt();
+  options_.gen_local_type =
+      ui->local_cb->itemData(ui->local_cb->currentIndex()).toInt();
   param.options = options_;
+  for (const QPersistentModelIndex &index : indexList) {
+    param.paths.push_back(model_->filePath(index));
+  }
+
   emit startWork(param);
 }
 

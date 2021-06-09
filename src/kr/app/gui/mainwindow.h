@@ -62,7 +62,6 @@ protected:
 
   void loadConfig();
   void saveConfig();
-
 private:
   Ui::MainWindow *ui;
   FSModel *model_;
