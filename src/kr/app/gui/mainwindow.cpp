@@ -310,14 +310,14 @@ void MainWindow::OnActionOpenDataDir() {
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-  if (dir == options_.data_path) {
-     return ;
+      
+  if (!dir.isEmpty()) {
+    QModelIndex index = model_->index(dir);
+    ui->treeView->setRootIndex(index);
+    options_.data_path = dir;
+    model_->reset();
+    refreshSvnModel();
   }
-  QModelIndex index = model_->index(dir);
-  ui->treeView->setRootIndex(index);
-  options_.data_path = dir;
-  model_->reset();
-  refreshSvnModel();
 }
 
 void MainWindow::OnClickOpenServerDir() {
