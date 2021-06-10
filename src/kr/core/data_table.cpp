@@ -170,7 +170,7 @@ DataRow &DataRowCollection::operator[](size_t index) {
   if (auto iter = rows_.find(index); iter != rows_.end()) {
     return *(iter->second);
   } else {
-    throw "index not found";
+    throw "data table index not found";
   }
 }
 

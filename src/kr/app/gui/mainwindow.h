@@ -2,6 +2,7 @@
 
 #include <kr/core/compiler.h>
 
+#include <QFileSystemWatcher>
 #include <QMainWindow>
 #include <QSettings>
 #include <QThread>
@@ -52,6 +53,7 @@ public slots:
   void OnClickOpenClientDir();
   void OnClickOpenLocalDir();
   void OnClickExportConfig();
+  void OnClickRefreshSVN();
 signals:
   void startWork(WorkerParam param);
 
@@ -59,7 +61,7 @@ protected:
   void initUI();
   void initThreads();
   void initSignals();
-  void initSvnModel();
+  void refreshSvnModel();
 
   void loadConfig();
   void saveConfig();

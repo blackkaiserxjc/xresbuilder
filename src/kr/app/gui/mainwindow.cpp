@@ -1,4 +1,5 @@
 ﻿#include <memory>
+#include <filesystem>
 
 #include <QDebug>
 #include <QFileDialog>
@@ -12,15 +13,15 @@
 #include "ui_mainwindow.h"
 
 static void CompilerDebug(const std::string &debug_msg) {
-  QLOG_DEBUG() << debug_msg.c_str();
+  QLOG_DEBUG() << QString::fromLocal8Bit(debug_msg.c_str());
 }
 
 static void CompilerWarning(const std::string &warn_msg) {
-  QLOG_WARN() << warn_msg.c_str();
+  QLOG_WARN() << QString::fromLocal8Bit(warn_msg.c_str());
 }
 
 static void CompilerError(const std::string &error_msg) {
-  QLOG_ERROR() << error_msg.c_str();
+  QLOG_ERROR() << QString::fromLocal8Bit(error_msg.c_str());
 }
 
 Worker::Worker(QObject *parent) {}
@@ -64,28 +65,37 @@ void Worker::doWork(WorkerParam param) {
   };
 
   IDLOptions options;
-  options.src = param.options.data_path.toStdString();
+  options.src = param.options.data_path.toLocal8Bit().data();
   for (auto &&p : param.paths) {
-    options.src_paths_.emplace_back(p.toStdString());
+    options.src_paths_.emplace_back(p.toLocal8Bit().data());
   }
 
   if (is_vaild_path(param.options.gen_server_path,
                     param.options.gen_server_type)) {
-    options.dest = param.options.gen_server_path.toStdString();
+    options.filename_naming_style = 0;
+    options.dest = param.options.gen_server_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_server_type);
+    QLOG_INFO() << "======================ServerConfig===============================";
     compiler.run_with_gui(options);
+    QLOG_INFO() << "=================================================================\n";
   }
   if (is_vaild_path(param.options.gen_client_path,
                     param.options.gen_client_type)) {
-    options.dest = param.options.gen_client_path.toStdString();
+    options.filename_naming_style = IDLOptions::kPascalCase;
+    options.dest = param.options.gen_client_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_client_type);
+    QLOG_INFO() << "======================ClientConfig===============================";
     compiler.run_with_gui(options);
+    QLOG_INFO() << "=================================================================\n";
   }
   if (is_vaild_path(param.options.gen_local_path,
                     param.options.gen_local_type)) {
-    options.dest = param.options.gen_local_path.toStdString();
+    options.filename_naming_style = IDLOptions::kPascalCase;
+    options.dest = param.options.gen_local_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_local_type);
+    QLOG_INFO() << "======================LocalConfig===============================";
     compiler.run_with_gui(options);
+    QLOG_INFO() << "=================================================================\n";
   }
   emit resultReady(0);
 }
@@ -104,6 +114,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow() {
   work_thread_->quit();
   work_thread_->wait();
+  delete svn_model_;
   delete model_;
   delete ui;
 }
@@ -161,31 +172,36 @@ void MainWindow::initUI() {
     ui->local_cb->addItem(iter.key(), iter.value());
   }
 
-  if (auto scb_index = ui->server_cb->findData(options_.gen_server_type, Qt::UserRole, Qt::MatchCaseSensitive); scb_index >= 0)
-  {
-      ui->server_cb->setCurrentIndex(scb_index);
+  if (auto scb_index = ui->server_cb->findData(
+          options_.gen_server_type, Qt::UserRole, Qt::MatchCaseSensitive);
+      scb_index >= 0) {
+    ui->server_cb->setCurrentIndex(scb_index);
   }
-  if (auto ccb_index = ui->client_cb->findData(options_.gen_client_type, Qt::UserRole, Qt::MatchCaseSensitive); ccb_index >= 0)
-  {
-      ui->client_cb->setCurrentIndex(ccb_index);
+  if (auto ccb_index = ui->client_cb->findData(
+          options_.gen_client_type, Qt::UserRole, Qt::MatchCaseSensitive);
+      ccb_index >= 0) {
+    ui->client_cb->setCurrentIndex(ccb_index);
   }
-  if (auto lcb_index = ui->local_cb->findData(options_.gen_local_type, Qt::UserRole, Qt::MatchCaseSensitive); lcb_index >= 0)
-  {
-      ui->local_cb->setCurrentIndex(lcb_index);
+  if (auto lcb_index = ui->local_cb->findData(
+          options_.gen_local_type, Qt::UserRole, Qt::MatchCaseSensitive);
+      lcb_index >= 0) {
+    ui->local_cb->setCurrentIndex(lcb_index);
   }
 
   ui->server_edit->setText(options_.gen_server_path);
   ui->client_edit->setText(options_.gen_client_path);
   ui->local_edit->setText(options_.gen_local_path);
 
-  initSvnModel();
+  refreshSvnModel();
 }
 
-void MainWindow::initSvnModel() {
+void MainWindow::refreshSvnModel() {
   auto process = std::make_shared<QProcess>();
-  process->start("svn", QStringList() << "diff" << options_.data_path << "--summarize");
+  process->start("svn", QStringList()
+                            << "diff" << options_.data_path << "--summarize");
   process->waitForFinished();
-  QString buffer = QString::fromLocal8Bit(process->readAllStandardOutput().data()).trimmed();
+  QString buffer =
+      QString::fromLocal8Bit(process->readAllStandardOutput().data()).trimmed();
   QStringList svnList = buffer.split(QRegExp("\\s+"));
   qDebug() << "svn diff list: " << svnList;
 
@@ -203,11 +219,11 @@ void MainWindow::initSvnModel() {
   }
   for (int index = 0; index < svnList.count(); index += 2) {
     auto &file_status = svnList[index];
-    auto &file_path = svnList[index + 1];
+    auto file_path = QDir::fromNativeSeparators(svnList[index + 1]);
     QFileInfo file(file_path);
     if (file.exists()) {
       SvnRecord record;
-      record.check = false;
+      record.check = true;
       record.file_path = file_path;
       record.file_ext = file.suffix();
       record.status = file_status;
@@ -216,7 +232,6 @@ void MainWindow::initSvnModel() {
   }
   svn_model_->updateData(records);
 }
-
 
 void MainWindow::initThreads() {
   // 注册参数类型
@@ -254,6 +269,8 @@ void MainWindow::initSignals() {
 
   QObject::connect(ui->export_btn, SIGNAL(clicked()), this,
                    SLOT(OnClickExportConfig()));
+  QObject::connect(ui->refresh_svn_btn, SIGNAL(clicked()), this,
+                   SLOT(OnClickRefreshSVN()));
 }
 
 void MainWindow::Log(const QString &message, int level) {
@@ -261,8 +278,11 @@ void MainWindow::Log(const QString &message, int level) {
   switch (level) {
   case TraceLevel:
   case DebugLevel:
+    ui->logView->appendHtml(QLatin1String("<pre style='color:lightgray'>") +
+                            message.toHtmlEscaped() + QLatin1String("</pre>"));
+    break;
   case InfoLevel:
-    ui->logView->appendHtml(QLatin1String("<pre style='color:green'>") +
+    ui->logView->appendHtml(QLatin1String("<pre style='color:#22DDDD'>") +
                             message.toHtmlEscaped() + QLatin1String("</pre>"));
     break;
   case WarnLevel:
@@ -290,11 +310,14 @@ void MainWindow::OnActionOpenDataDir() {
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+  if (dir == options_.data_path) {
+     return ;
+  }
   QModelIndex index = model_->index(dir);
   ui->treeView->setRootIndex(index);
   options_.data_path = dir;
   model_->reset();
-  initSvnModel();
+  refreshSvnModel();
 }
 
 void MainWindow::OnClickOpenServerDir() {
@@ -325,10 +348,8 @@ void MainWindow::OnClickOpenLocalDir() {
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-  if (!dir.isEmpty()) {
-    ui->local_edit->setText(dir);
-    options_.gen_local_path = dir;
-  }
+  ui->local_edit->setText(dir);
+  options_.gen_local_path = dir;
 }
 
 void MainWindow::OnClickExportConfig() {
@@ -357,14 +378,19 @@ void MainWindow::OnClickExportConfig() {
   for (auto &record : svnRecords) {
     if (record.check) {
       param.paths.push_back(record.file_path);
-	  qDebug() << record.file_path;
+      qDebug() << record.file_path;
     }
   }
   ui->export_btn->setDisabled(true);
   emit startWork(param);
 }
 
+void MainWindow::OnClickRefreshSVN() {
+  refreshSvnModel();
+}
+
 void MainWindow::loadConfig() {
+  settings_.setIniCodec("UTF8");
   options_.data_path = settings_.value("data_path").toString();
   options_.gen_server_path = settings_.value("gen_server_path").toString();
   options_.gen_server_type = settings_.value("gen_server_type").toInt();
@@ -390,10 +416,11 @@ void MainWindow::saveConfig() {
   settings_.setValue("gen_local_type", options_.gen_local_type);
 }
 
-
-void MainWindow::updateComBoxIndexs()
-{
-  options_.gen_server_type = ui->server_cb->itemData(ui->server_cb->currentIndex()).toInt();
-  options_.gen_client_type = ui->client_cb->itemData(ui->client_cb->currentIndex()).toInt();
-  options_.gen_local_type = ui->local_cb->itemData(ui->local_cb->currentIndex()).toInt();
+void MainWindow::updateComBoxIndexs() {
+  options_.gen_server_type =
+      ui->server_cb->itemData(ui->server_cb->currentIndex()).toInt();
+  options_.gen_client_type =
+      ui->client_cb->itemData(ui->client_cb->currentIndex()).toInt();
+  options_.gen_local_type =
+      ui->local_cb->itemData(ui->local_cb->currentIndex()).toInt();
 }

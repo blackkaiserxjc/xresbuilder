@@ -126,6 +126,18 @@ public:
     return true;
   }
 
+  void parse_error(size_t parsed_offset, size_t error_offset) {
+    throw fmt::format(
+        "msgpack parse_error : parsed_offset = {}, error_offset = {}.",
+        parsed_offset, error_offset);
+  }
+
+  void insufficient_bytes(size_t parsed_offset, size_t error_offset) {
+    throw fmt::format(
+        "msgpack insufficient_bytes : parsed_offset = {}, error_offset = {}.",
+        parsed_offset, error_offset);
+  }
+
 private:
   std::string to_case_name(const std::string &input) {
     if (field_name_case_ == IDLOptions::NamingStyle::kCamelCase) {

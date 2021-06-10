@@ -89,7 +89,11 @@ int Compiler::run(int argc, char **argv) {
     }
   }
 
-  generate(opts);
+  try {
+    generate(opts);
+  } catch (std::exception &e) {
+    std::cerr << e.what() << std::endl;
+  }
   return EXIT_SUCCESS;
 }
 
@@ -133,15 +137,16 @@ int Compiler::run_with_gui(const IDLOptions &opts) {
 
   auto generate_code = [&](auto &&src, auto &&dest, auto &&filename) {
     auto relative_src_path = fs::relative(src, src_path);
-    debug("===================================================");
-    debug(fmt::format("load start: path = {}", relative_src_path.string()));
+    auto relative_dest_path = fs::relative(dest, dest_path);
+    debug("================================================================");
+    debug(fmt::format("convert [{}] from [{}]", filename,
+                      relative_src_path.string()));
     DataTable dt("data table");
     if (!DataLoader::execute(src.string(), dt)) {
       error("data load failed.");
       return;
     }
 
-    debug(fmt::format("generate start."));
     Model model(dt);
     for (size_t index = 0; index < params_.num_generators; ++index) {
       auto &generator = params_.generators[index];
@@ -149,7 +154,7 @@ int Compiler::run_with_gui(const IDLOptions &opts) {
         generator.generate(model, opts, dest.string(), filename);
       }
     }
-    debug(fmt::format("generate finish.", src.string()));
+    debug(fmt::format("success.", src.string()));
   };
 
   std::for_each(full_paths.begin(), full_paths.end(), [&](auto &&value) {
@@ -163,6 +168,12 @@ int Compiler::run_with_gui(const IDLOptions &opts) {
       generate_code(cur_path, code_path, filename);
     } catch (std::exception &e) {
       error(e.what());
+    } catch(const char* e) {
+      error(e);
+    } catch(std::string e) {
+      error(e);
+    } catch(...) {
+      error("Unhandled exception");
     }
   });
 
@@ -231,6 +242,12 @@ void Compiler::generate(const IDLOptions &opts) {
       generate_code(cur_path, code_path, filename);
     } catch (std::exception &e) {
       std::cout << e.what() << std::endl;
+    } catch(const char* e) {
+      std::cout << e << std::endl;
+    } catch(std::string e) {
+      std::cout << e << std::endl;
+    } catch(...) {
+      std::cout << "Unhandled exception" << std::endl;
     }
   });
 }
