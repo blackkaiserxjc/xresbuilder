@@ -102,8 +102,7 @@ private:
   void gen_pod(const Type &type, const std::string &name,
                uint32_t field_index) {
     if (!pod_depth_ && !field_index) {
-      code_ +=
-          fmt::format("public {} {} {{get; set;}}", get_type_basic(type), name);
+      code_ += fmt::format("public {} {} {{get; set;}}", get_type_basic(type), name);
     } else {
       code_ += fmt::format("public {} {};", get_type_basic(type), name);
     }

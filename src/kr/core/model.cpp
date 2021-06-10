@@ -1,3 +1,4 @@
+#include <boost/algorithm/string.hpp>
 #include <fmt/format.h>
 
 #include <kr/core/model.h>
@@ -58,8 +59,33 @@ void Model::parse_table_def(DataTable &table) {
     auto field_def = std::make_shared<FieldDef>();
     field_def->value.type = child_type;
     field_def->index = column.index();
-    field_def->name = column.name();
-    obj_def->fields.add(column.name(), field_def);
+    parse_table_ki(field_def, child_type.base_type, column.index(), column.name());
+    obj_def->fields.add(field_def->name, field_def);
+  }
+}
+
+void Model::parse_table_ki(std::shared_ptr<FieldDef> field_def,
+                           uint32_t base_type, uint32_t field_index,
+                           const std::string &name) {
+  if (IsPod(static_cast<BaseType>(base_type)) && !field_index) {
+    field_def->is_key = true;
+    field_def->name = name;
+    return;
+  }
+
+  std::vector<std::string> results;
+  boost::split(results, name, boost::is_any_of(":"), boost::token_compress_on);
+  if (results.size() != 2) {
+    field_def->name = name;
+    return;
+  }
+
+  auto &back = results.back();
+  field_def->name = results.front();
+  if (back == "k" || back == "K") {
+    field_def->is_key == true;
+  } else if (back == "i" || back == "I") {
+    field_def->is_index = true;
   }
 }
 

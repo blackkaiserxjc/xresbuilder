@@ -58,6 +58,9 @@ private:
   void parse_table_def(DataTable &table);
   // 解析数据
   void parse_table_data(DataTable &table);
+  // 解析key index
+  void parse_table_ki(std::shared_ptr<FieldDef> field_def, uint32_t base_type,
+                      uint32_t field_index, const std::string &name);
   // 解析器
   std::shared_ptr<Parser> parser_;
   // 表结构

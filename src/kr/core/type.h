@@ -84,10 +84,11 @@ struct Definition {
 };
 
 struct FieldDef : public Definition {
-  FieldDef() : key(false) {}
+  FieldDef() : is_key(false), is_index(false) {}
 
   Value value;
-  bool key;
+  bool is_key;
+  bool is_index;
   std::uint32_t begin_index;
   std::uint32_t end_index;
 };
