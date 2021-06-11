@@ -8,7 +8,7 @@ enum GenLanguageType {
 
 struct ConfigOptions {
   ConfigOptions()
-      : gen_server_path{}, gen_client_path{}, gen_local_path{},
+	  : gen_server_path{}, gen_client_path{}, gen_local_path{}, csv_tmp_path{},
         gen_server_type(LUA), gen_client_type(CSHARP), gen_local_type(JSON),
         log_level(1) {}
 
@@ -21,4 +21,5 @@ struct ConfigOptions {
   int gen_local_type;
   QString name_filters;
   int log_level;
+  QString csv_tmp_path;
 };

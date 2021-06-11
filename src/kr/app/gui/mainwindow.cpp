@@ -1,5 +1,7 @@
 ﻿#include <memory>
+#include <map>
 #include <filesystem>
+#include <fmt/format.h>
 
 #include <QDebug>
 #include <QFileDialog>
@@ -11,6 +13,8 @@
 #include "fsmodel.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+namespace fs = std::filesystem;
 
 static void CompilerDebug(const std::string &debug_msg) {
   QLOG_DEBUG() << QString::fromLocal8Bit(debug_msg.c_str());
@@ -33,6 +37,56 @@ void Worker::doWork(WorkerParam param) {
   if (param.options.data_path.isEmpty() || !param.paths.length()) {
     emit resultReady(1);
     return;
+  }
+
+  std::vector<std::string> full_paths;
+  for (auto &&p : param.paths) {
+    std::string str = p.toLocal8Bit().data();
+    if (fs::is_regular_file(str)) {
+      full_paths.emplace_back(str);
+    } else if (fs::is_directory(str)) {
+      for (auto &entry : fs::recursive_directory_iterator(str)) {
+        if (entry.is_regular_file()) {
+          full_paths.emplace_back(entry.path().string());
+        }
+      }
+    }
+  }
+
+  std::map<std::string, std::string> path_map;
+  fs::path xm_root_path(std::string(param.options.data_path.toLocal8Bit().data()));
+  fs::path csv_root_path(std::string(param.options.csv_tmp_path.toLocal8Bit().data()));
+  fs::remove_all(csv_root_path);
+  for (auto &&p : full_paths) {
+    fs::path xm_path(p);
+    auto relative_path = fs::relative(xm_path, xm_root_path);
+    auto target_path = csv_root_path;
+    target_path /= relative_path;
+    auto parent_path = target_path.parent_path();
+    if (!fs::exists(parent_path)) {
+      fs::create_directories(parent_path);
+    }
+    auto target_path_str = fmt::format("{}/{}.csv", target_path.parent_path().string(), xm_path.stem().string());
+    path_map.emplace(xm_path.string(), target_path_str);
+  }
+
+  auto gen_relative_path = [](auto&&root, auto&& p) {
+	  fs::path cur_path(p);
+	  auto relative_path = fs::relative(cur_path, root);
+	  return relative_path.string();
+  };
+
+  for (auto &&[key, value] : path_map) {
+    auto src_path =
+        QDir::fromNativeSeparators(QString::fromLocal8Bit(key.data()));
+    auto dest_path =
+        QDir::fromNativeSeparators(QString::fromLocal8Bit(value.data()));
+    auto src_rel_path = gen_relative_path(xm_root_path, key);
+    auto dest_rel_path = gen_relative_path(csv_root_path, value);
+    auto process = std::make_shared<QProcess>();
+    process->start("xlsx2csv", QStringList() << src_path << dest_path);
+    process->waitForFinished();
+    QLOG_INFO() << "convert" << QDir::fromNativeSeparators(QString::fromLocal8Bit(src_rel_path.data())) << "to" << QDir::fromNativeSeparators(QString::fromLocal8Bit(dest_rel_path.data()));
   }
 
   const Compiler::Generator generators[] = {
@@ -65,10 +119,8 @@ void Worker::doWork(WorkerParam param) {
   };
 
   IDLOptions options;
-  options.src = param.options.data_path.toLocal8Bit().data();
-  for (auto &&p : param.paths) {
-    options.src_paths_.emplace_back(p.toLocal8Bit().data());
-  }
+  options.src = param.options.csv_tmp_path.toLocal8Bit().data();
+  options.src_paths_.emplace_back(param.options.csv_tmp_path.toLocal8Bit().data());
 
   if (is_vaild_path(param.options.gen_server_path,
                     param.options.gen_server_type)) {
@@ -391,7 +443,9 @@ void MainWindow::OnClickRefreshSVN() {
 
 void MainWindow::loadConfig() {
   settings_.setIniCodec("UTF8");
+  options_.log_level = settings_.value("log_level").toInt();
   options_.data_path = settings_.value("data_path").toString();
+  options_.csv_tmp_path = settings_.value("csv_tmp_path").toString();
   options_.gen_server_path = settings_.value("gen_server_path").toString();
   options_.gen_server_type = settings_.value("gen_server_type").toInt();
   options_.gen_client_path = settings_.value("gen_client_path").toString();
@@ -399,7 +453,6 @@ void MainWindow::loadConfig() {
   options_.gen_local_path = settings_.value("gen_local_path").toString();
   options_.gen_local_type = settings_.value("gen_local_type").toInt();
   options_.name_filters = settings_.value("name_filters").toString();
-  options_.log_level = settings_.value("log_level").toInt();
   auto &logger = QsLogging::Logger::instance();
   if (options_.log_level != 0) {
     logger.setLoggingLevel(static_cast<QsLogging::Level>(options_.log_level));
