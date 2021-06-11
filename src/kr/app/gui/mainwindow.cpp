@@ -1,7 +1,8 @@
-﻿#include <memory>
-#include <map>
-#include <filesystem>
+﻿#include <filesystem>
 #include <fmt/format.h>
+#include <map>
+#include <memory>
+
 
 #include <QDebug>
 #include <QFileDialog>
@@ -54,8 +55,10 @@ void Worker::doWork(WorkerParam param) {
   }
 
   std::map<std::string, std::string> path_map;
-  fs::path xm_root_path(std::string(param.options.data_path.toLocal8Bit().data()));
-  fs::path csv_root_path(std::string(param.options.csv_tmp_path.toLocal8Bit().data()));
+  fs::path xm_root_path(
+      std::string(param.options.data_path.toLocal8Bit().data()));
+  fs::path csv_root_path(
+      std::string(param.options.csv_tmp_path.toLocal8Bit().data()));
   fs::remove_all(csv_root_path);
   for (auto &&p : full_paths) {
     fs::path xm_path(p);
@@ -66,14 +69,16 @@ void Worker::doWork(WorkerParam param) {
     if (!fs::exists(parent_path)) {
       fs::create_directories(parent_path);
     }
-    auto target_path_str = fmt::format("{}/{}.csv", target_path.parent_path().string(), xm_path.stem().string());
+    auto target_path_str =
+        fmt::format("{}/{}.csv", target_path.parent_path().string(),
+                    xm_path.stem().string());
     path_map.emplace(xm_path.string(), target_path_str);
   }
 
-  auto gen_relative_path = [](auto&&root, auto&& p) {
-	  fs::path cur_path(p);
-	  auto relative_path = fs::relative(cur_path, root);
-	  return relative_path.string();
+  auto gen_relative_path = [](auto &&root, auto &&p) {
+    fs::path cur_path(p);
+    auto relative_path = fs::relative(cur_path, root);
+    return relative_path.string();
   };
 
   for (auto &&[key, value] : path_map) {
@@ -86,7 +91,12 @@ void Worker::doWork(WorkerParam param) {
     auto process = std::make_shared<QProcess>();
     process->start("xlsx2csv", QStringList() << src_path << dest_path);
     process->waitForFinished();
-    QLOG_INFO() << "convert" << QDir::fromNativeSeparators(QString::fromLocal8Bit(src_rel_path.data())) << "to" << QDir::fromNativeSeparators(QString::fromLocal8Bit(dest_rel_path.data()));
+    QLOG_INFO() << "convert"
+                << QDir::fromNativeSeparators(
+                       QString::fromLocal8Bit(src_rel_path.data()))
+                << "to"
+                << QDir::fromNativeSeparators(
+                       QString::fromLocal8Bit(dest_rel_path.data()));
   }
 
   const Compiler::Generator generators[] = {
@@ -120,34 +130,41 @@ void Worker::doWork(WorkerParam param) {
 
   IDLOptions options;
   options.src = param.options.csv_tmp_path.toLocal8Bit().data();
-  options.src_paths_.emplace_back(param.options.csv_tmp_path.toLocal8Bit().data());
+  options.src_paths_.emplace_back(
+      param.options.csv_tmp_path.toLocal8Bit().data());
 
   if (is_vaild_path(param.options.gen_server_path,
                     param.options.gen_server_type)) {
     options.filename_naming_style = 0;
     options.dest = param.options.gen_server_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_server_type);
-    QLOG_INFO() << "======================ServerConfig===============================";
+    QLOG_INFO()
+        << "======================ServerConfig===============================";
     compiler.run_with_gui(options);
-    QLOG_INFO() << "=================================================================\n";
+    QLOG_INFO() << "==========================================================="
+                   "======\n";
   }
   if (is_vaild_path(param.options.gen_client_path,
                     param.options.gen_client_type)) {
     options.filename_naming_style = IDLOptions::kPascalCase;
     options.dest = param.options.gen_client_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_client_type);
-    QLOG_INFO() << "======================ClientConfig===============================";
+    QLOG_INFO()
+        << "======================ClientConfig===============================";
     compiler.run_with_gui(options);
-    QLOG_INFO() << "=================================================================\n";
+    QLOG_INFO() << "==========================================================="
+                   "======\n";
   }
   if (is_vaild_path(param.options.gen_local_path,
                     param.options.gen_local_type)) {
     options.filename_naming_style = IDLOptions::kPascalCase;
     options.dest = param.options.gen_local_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_local_type);
-    QLOG_INFO() << "======================LocalConfig===============================";
+    QLOG_INFO()
+        << "======================LocalConfig===============================";
     compiler.run_with_gui(options);
-    QLOG_INFO() << "=================================================================\n";
+    QLOG_INFO() << "==========================================================="
+                   "======\n";
   }
   emit resultReady(0);
 }
@@ -362,7 +379,7 @@ void MainWindow::OnActionOpenDataDir() {
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Open Directory"), "/",
       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-      
+
   if (!dir.isEmpty()) {
     QModelIndex index = model_->index(dir);
     ui->treeView->setRootIndex(index);
@@ -437,9 +454,7 @@ void MainWindow::OnClickExportConfig() {
   emit startWork(param);
 }
 
-void MainWindow::OnClickRefreshSVN() {
-  refreshSvnModel();
-}
+void MainWindow::OnClickRefreshSVN() { refreshSvnModel(); }
 
 void MainWindow::loadConfig() {
   settings_.setIniCodec("UTF8");

@@ -83,7 +83,7 @@ void Model::parse_table_ki(std::shared_ptr<FieldDef> field_def,
   auto &back = results.back();
   field_def->name = results.front();
   if (back == "k" || back == "K") {
-    field_def->is_key == true;
+    field_def->is_key = true;
   } else if (back == "i" || back == "I") {
     field_def->is_index = true;
   }
