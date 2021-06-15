@@ -261,6 +261,8 @@ void MainWindow::initUI() {
   ui->client_edit->setText(options_.gen_client_path);
   ui->local_edit->setText(options_.gen_local_path);
 
+  setWindowState(Qt::WindowMaximized);
+
   refreshSvnModel();
 }
 

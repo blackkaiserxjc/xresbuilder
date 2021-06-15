@@ -13,10 +13,17 @@ namespace core {
 
 class JsonVisitor : public msgpack::null_visitor {
 public:
+  struct Context {
+    Context() : row{}, field{} {}
+    int row;
+    std::string field;
+  };
+
   JsonVisitor(std::string &writer, uint32_t field_name_case,
               uint32_t indent_step)
       : writer_{writer}, field_name_case_{field_name_case},
-        indent_step_{indent_step}, indent_string_{}, is_map_key(false) {}
+        indent_step_{indent_step}, indent_string_{},
+        is_map_key(false), ctx_{}, map_level_{} {}
 
   bool visit_nil() {
     writer_ += "null";
@@ -57,6 +64,9 @@ public:
     if (is_map_key) {
       key = to_case_name(key);
     }
+    if (is_map_key && map_level_ == 1) {
+        ctx_.field = key;
+    }
     writer_ += fmt::format("\"{}\"", key);
     return true;
   }
@@ -91,6 +101,10 @@ public:
   }
 
   bool start_map(uint32_t num_kv_pairs) {
+    if (!map_level_) {
+      ctx_.row++;
+    }
+    ++map_level_;
     current_size_.push_back(num_kv_pairs);
     writer_ += "{\n";
     indent();
@@ -122,20 +136,19 @@ public:
     outdent();
     write_indent();
     current_size_.pop_back();
+    --map_level_;
     writer_ += "}";
     return true;
   }
 
   void parse_error(size_t parsed_offset, size_t error_offset) {
     throw fmt::format(
-        "msgpack parse_error : parsed_offset = {}, error_offset = {}.",
-        parsed_offset, error_offset);
+        "msgpack parse_error : row = {}, field = {}.", ctx_.row, ctx_.field);
   }
 
   void insufficient_bytes(size_t parsed_offset, size_t error_offset) {
     throw fmt::format(
-        "msgpack insufficient_bytes : parsed_offset = {}, error_offset = {}.",
-        parsed_offset, error_offset);
+        "msgpack insufficient_error : row = {}, field = {}.", ctx_.row, ctx_.field);
   }
 
 private:
@@ -164,6 +177,8 @@ private:
   uint32_t field_name_case_;
   uint32_t indent_step_;
   std::string indent_string_;
+  uint32_t map_level_;
+  Context ctx_;
 };
 
 class JsonGenerator : public CodeGenerator {

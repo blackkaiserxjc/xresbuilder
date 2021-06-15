@@ -25,31 +25,37 @@ void pack_pod(Packer &packer, const Type &type, const Reader &reader) {
   switch (type.base_type) {
   case BASE_TYPE_BOOL: {
     reader.template to<bool>([&packer](bool value) { packer.pack(value); },
-                             [] { throw "invaild_cast"; });
+                             [] { throw "bool invaild_cast"; });
   } break;
 
   case BASE_TYPE_INT: {
     reader.template to<std::int64_t>(
         [&packer](std::int64_t value) { packer.pack(value); },
-        [] { throw "invalid_cast"; });
+        [] { throw "int invalid_cast"; });
+  } break;
+
+  case BASE_TYPE_LONG: {
+    reader.template to<std::int64_t>(
+        [&packer](std::int64_t value) { packer.pack(value); },
+        [] { throw "long invalid_cast"; });
   } break;
 
   case BASE_TYPE_FLOAT: {
     reader.template to<double>([&packer](double value) { packer.pack(value); },
-                               [] { throw "invaild_cast"; });
+                               [] { throw "double invaild_cast"; });
   } break;
 
   case BASE_TYPE_STRING: {
     reader.template to<std::string_view>(
         [&packer](std::string_view value) { packer.pack(value); },
-        [] { throw "invaild_cast"; });
+        [] { throw "string invaild_cast"; });
   } break;
   }
 }
 
 template <typename Packer, typename Reader>
 void pack_object(Packer &packer, const Type &type, const Reader &reader) {
-  if (type.base_type != BASE_TYPE_OBJECT && type.obj_def) {
+  if (type.base_type != BASE_TYPE_OBJECT || type.obj_def == nullptr) {
     throw std::runtime_error("invaild type.");
   }
   packer.pack_begin_map(type.obj_def->fields.size());

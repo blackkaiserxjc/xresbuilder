@@ -10,6 +10,8 @@ antlrcpp::Any IDLAstBuilder::visitPod(IDLParser::PodContext *ctx) {
     base_type = BASE_TYPE_BOOL;
   } else if (ctx->Int()) {
     base_type = BASE_TYPE_INT;
+  } else if (ctx->Long()) {
+    base_type = BASE_TYPE_LONG;
   } else if (ctx->Float()) {
     base_type = BASE_TYPE_FLOAT;
   } else if (ctx->String()) {

@@ -7,10 +7,11 @@ enum BaseType {
   BASE_TYPE_NONE = 0,
   BASE_TYPE_BOOL = 1,
   BASE_TYPE_INT = 2,
-  BASE_TYPE_FLOAT = 3,
-  BASE_TYPE_STRING = 4,
-  BASE_TYPE_ARRAY = 5,
-  BASE_TYPE_OBJECT = 6
+  BASE_TYPE_LONG = 3,
+  BASE_TYPE_FLOAT = 4,
+  BASE_TYPE_STRING = 5,
+  BASE_TYPE_ARRAY = 6,
+  BASE_TYPE_OBJECT = 7
 };
 
 inline bool IsPod(BaseType type) {
@@ -18,10 +19,11 @@ inline bool IsPod(BaseType type) {
 };
 inline bool IsBool(BaseType type) { return type == BASE_TYPE_BOOL; }
 inline bool IsInt(BaseType type) { return type == BASE_TYPE_INT; }
+inline bool IsLong(BaseType type) { return type == BASE_TYPE_LONG;}
 inline bool IsFloat(BaseType type) { return type == BASE_TYPE_FLOAT; }
 inline bool IsString(BaseType type) { return type == BASE_TYPE_STRING; }
 inline bool IsArray(BaseType type) { return type == BASE_TYPE_ARRAY; }
-inline bool IsObject(BaseType type) { return type == BASE_TYPE_OBJECT; };
+inline bool IsObject(BaseType type) { return type == BASE_TYPE_OBJECT; }
 
 struct ObjectDef;
 struct Type {

@@ -12,9 +12,10 @@
 class  IDLParser : public antlr4::Parser {
 public:
   enum {
-    BooleanLiteral = 1, Bool = 2, Int = 3, Float = 4, False_ = 5, String = 6, 
-    LeftBracket = 7, RightBracket = 8, LeftBrace = 9, RightBrace = 10, True_ = 11, 
-    Comma = 12, Colon = 13, Identifier = 14, Whitespace = 15, Newline = 16
+    BooleanLiteral = 1, Bool = 2, Int = 3, Long = 4, Float = 5, False_ = 6, 
+    String = 7, LeftBracket = 8, RightBracket = 9, LeftBrace = 10, RightBrace = 11, 
+    True_ = 12, Comma = 13, Colon = 14, Identifier = 15, Whitespace = 16, 
+    Newline = 17
   };
 
   enum {
@@ -73,6 +74,7 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *Bool();
     antlr4::tree::TerminalNode *Int();
+    antlr4::tree::TerminalNode *Long();
     antlr4::tree::TerminalNode *Float();
     antlr4::tree::TerminalNode *String();
 

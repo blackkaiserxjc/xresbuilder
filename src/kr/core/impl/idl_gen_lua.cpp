@@ -13,10 +13,16 @@ namespace kr {
 namespace core {
 
 struct LuaVisitor : public msgpack::null_visitor {
+  struct Context {
+    Context() : row{}, field{} {}
+    int row;
+    std::string field;
+  };
+
   LuaVisitor(std::string &writer, uint32_t field_name_case,
              uint32_t indent_step)
-      : writer_{writer}, field_name_case_{field_name_case}, indent_step_{
-                                                                indent_step} {}
+      : writer_{writer}, field_name_case_{field_name_case},
+        indent_step_{indent_step}, ctx_{}, map_level_{} {}
 
   bool visit_null() {
     writer_ += "nil";
@@ -57,6 +63,10 @@ struct LuaVisitor : public msgpack::null_visitor {
     if (is_map_key) {
       key = to_case_name(key);
     }
+
+    if (is_map_key && map_level_ == 1) {
+      ctx_.field = key;
+    }
     writer_ += fmt::format("\"{}\"", key);
     return true;
   }
@@ -90,6 +100,10 @@ struct LuaVisitor : public msgpack::null_visitor {
   }
 
   bool start_map(uint32_t num_kv_pairs) {
+    if (!map_level_) {
+      ctx_.row++;
+    }
+    ++map_level_;
     current_size_.emplace_back(0, num_kv_pairs);
     indent();
     writer_ += "{";
@@ -118,6 +132,7 @@ struct LuaVisitor : public msgpack::null_visitor {
 
   bool end_map() {
     current_size_.pop_back();
+    --map_level_;
     outdent();
     write_indent();
     writer_ += "}";
@@ -126,14 +141,12 @@ struct LuaVisitor : public msgpack::null_visitor {
 
   void parse_error(size_t parsed_offset, size_t error_offset) {
     throw fmt::format(
-        "msgpack parse_error : parsed_offset = {}, error_offset = {}.",
-        parsed_offset, error_offset);
+        "msgpack parse_error : row = {}, field = {}.", ctx_.row, ctx_.field);
   }
 
   void insufficient_bytes(size_t parsed_offset, size_t error_offset) {
     throw fmt::format(
-        "msgpack insufficient_bytes : parsed_offset = {}, error_offset = {}.",
-        parsed_offset, error_offset);
+        "msgpack insufficient_error : row = {}, field = {}.", ctx_.row, ctx_.field);
   }
   
 private:
@@ -163,6 +176,8 @@ private:
   bool is_map_key;
   uint32_t indent_step_;
   std::string indent_string_;
+  uint32_t map_level_;
+  Context ctx_;
 };
 
 class LuaGenerator : public CodeGenerator {

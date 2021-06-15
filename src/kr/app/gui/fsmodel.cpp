@@ -23,7 +23,6 @@ QVariant FSModel::data(const QModelIndex &idx, int role) const {
     } else if (_partialChecklist.contains(idx)) {
       return Qt::PartiallyChecked;
     } else {
-      // Returns PartiallyChecked if any ancestor is checked.
       QModelIndex parent = idx.parent();
       while (parent.isValid()) {
         if (_checklist.contains(parent))
@@ -79,8 +78,6 @@ void FSModel::setUncheckedRecursive(const QModelIndex &idx) {
     for (int i = 0; i < rowCount(idx); i++) {
       QModelIndex child = index(i, idx.column(), idx);
       if (child.isValid()) {
-        // Only alter a child if it was previously Checked or
-        // PartiallyChecked.
         if (dataInternal(child) != Qt::Unchecked) {
           setDataInternal(child, Qt::Unchecked);
           if (isDir(child))

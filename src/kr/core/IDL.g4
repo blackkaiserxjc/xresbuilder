@@ -13,6 +13,7 @@ statement
 pod
   : Bool
   | Int
+  | Long
   | Float
   | String;
 
@@ -35,6 +36,8 @@ BooleanLiteral: False_ | True_;
 Bool: 'bool';
 
 Int: 'int';
+
+Long: 'long';
 
 Float: 'float';
 

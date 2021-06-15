@@ -60,6 +60,7 @@ private:
         {BASE_TYPE_NONE, nullptr},
         {BASE_TYPE_BOOL, "bool"},
         {BASE_TYPE_INT, "int"},
+        {BASE_TYPE_LONG, "long"},
         {BASE_TYPE_FLOAT, "float"},
         {BASE_TYPE_STRING, "string"}};
     return csharp_typenames[type.base_type];
