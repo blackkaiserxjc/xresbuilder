@@ -18,7 +18,7 @@ struct IDLOptions {
 
   IDLOptions()
       : src{}, dest{}, extension{}, lang_to_generate{}, filename_naming_style{},
-        field_naming_style{}, indent_step{2}, src_paths_{} {}
+        field_naming_style{}, folder_naming_style{}, indent_step{2}, src_paths_{} {}
 
   std::string src;
   std::string dest;
@@ -26,6 +26,7 @@ struct IDLOptions {
   std::uint32_t lang_to_generate;
   std::uint32_t filename_naming_style;
   std::uint32_t field_naming_style;
+  std::uint32_t folder_naming_style;
   std::uint32_t indent_step;
   std::vector<std::string> src_paths_;
 };

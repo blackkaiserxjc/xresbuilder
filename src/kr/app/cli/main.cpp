@@ -1,4 +1,5 @@
 #include <kr/core/compiler.h>
+#include <kr/core/generator_helpers.h>
 
 #include <iostream>
 

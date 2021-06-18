@@ -10,6 +10,7 @@
 #include <kr/core/data_loader.h>
 #include <kr/core/data_table.h>
 #include <kr/core/model.h>
+#include <kr/core/generator_helpers.h>
 
 namespace fs = std::filesystem;
 
@@ -29,7 +30,8 @@ int Compiler::run(int argc, char **argv) {
        ("indent-step", boost::program_options::value<int>(), "code generator indent step")
        ("filename-ext", boost::program_options::value<std::string>(),"filename extension")
        ("field-naming-style",boost::program_options::value<std::string>(), "field naming style: camel or pascal")
-       ("filename-naming-style", boost::program_options::value<std::string>(),"filename naming style: camel or pascal");
+       ("filename-naming-style", boost::program_options::value<std::string>(),"filename naming style: camel or pascal")
+       ("folder-naming-style", boost::program_options::value<std::string>(), "folder naming style: camel or pascal");
 
   for (size_t index = 0; index < params_.num_generators; index++) {
     auto generator = params_.generators[index];
@@ -83,6 +85,14 @@ int Compiler::run(int argc, char **argv) {
     }
   }
 
+  if (vm.count("folder-naming-style")) {
+    auto style = vm["folder-naming-style"].as<std::string>();
+    if (naming_styles.count(style)) {
+      opts.folder_naming_style = naming_styles[style];
+    }
+  }
+
+
   for (size_t index = 0; index < params_.num_generators; index++) {
     if (vm.count(params_.generators[index].generator_opt)) {
       opts.lang_to_generate |= params_.generators[index].lang;
@@ -128,10 +138,36 @@ int Compiler::run_with_gui(const IDLOptions &opts) {
     }
   }
 
-  auto generate_path = [&dest_path, &src_path](auto &&cur_path) {
+  auto folder_naming_style = opts.folder_naming_style;
+  auto generate_path = [&dest_path, &src_path,
+                        folder_naming_style](auto &&cur_path) {
     auto gen_path = dest_path;
     auto relative_path = fs::relative(cur_path, src_path);
-    gen_path /= relative_path;
+    if (folder_naming_style) {
+      auto naming = [folder_naming_style](auto &&src) {
+        auto result = src;
+        switch (folder_naming_style) {
+        case IDLOptions::kPascalCase: {
+          result = generator::underscores_to_pascalcase(src);
+        } break;
+        case IDLOptions::kCamelCase: {
+          result = generator::underscores_to_camelcase(src);
+        } break;
+        default:
+          break;
+        }
+        return result;
+      };
+      for (auto iter = relative_path.begin(); iter != relative_path.end();
+           ++iter) {
+        auto p = iter->string();
+        if (!(p.empty() || p == "/" || p == "\\")) {
+          gen_path /= naming(p);
+        }
+      }
+    } else {
+      gen_path /= relative_path;
+    }
     return gen_path.parent_path();
   };
 
@@ -200,10 +236,36 @@ void Compiler::generate(const IDLOptions &opts) {
     }
   }
 
-  auto generate_path = [&dest_path, &src_path](auto &&cur_path) {
+  auto folder_naming_style = opts.folder_naming_style;
+  auto generate_path = [&dest_path, &src_path,
+                        folder_naming_style](auto &&cur_path) {
     auto gen_path = dest_path;
     auto relative_path = fs::relative(cur_path, src_path);
-    gen_path /= relative_path;
+    if (folder_naming_style) {
+      auto naming = [folder_naming_style](auto &&src) {
+        auto result = src;
+        switch (folder_naming_style) {
+        case IDLOptions::kCamelCase: {
+          result = generator::underscores_to_camelcase(src);
+        } break;
+        case IDLOptions::kPascalCase: {
+          result = generator::underscores_to_pascalcase(src);
+        } break;
+        default:
+          break;
+        }
+        return result;
+      };
+      for (auto iter = relative_path.begin(); iter != relative_path.end();
+           ++iter) {
+        auto p = iter->string();
+        if (!(p.empty() || p == "/" || p == "\\")) {
+          gen_path /= naming(p);
+        }
+      }
+    } else {
+      gen_path /= relative_path;
+    }
     return gen_path.parent_path();
   };
 

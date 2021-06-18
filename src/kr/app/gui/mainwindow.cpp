@@ -3,7 +3,6 @@
 #include <map>
 #include <memory>
 
-
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -138,6 +137,10 @@ void Worker::doWork(WorkerParam param) {
     options.filename_naming_style = 0;
     options.dest = param.options.gen_server_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_server_type);
+	if (options.lang_to_generate == IDLOptions::kCSharp)
+	{
+		options.folder_naming_style = IDLOptions::kPascalCase;
+	}
     QLOG_INFO()
         << "======================ServerConfig===============================";
     compiler.run_with_gui(options);
@@ -149,6 +152,10 @@ void Worker::doWork(WorkerParam param) {
     options.filename_naming_style = IDLOptions::kPascalCase;
     options.dest = param.options.gen_client_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_client_type);
+	if (options.lang_to_generate == IDLOptions::kCSharp)
+	{
+		options.folder_naming_style = IDLOptions::kPascalCase;
+	}
     QLOG_INFO()
         << "======================ClientConfig===============================";
     compiler.run_with_gui(options);
@@ -160,6 +167,10 @@ void Worker::doWork(WorkerParam param) {
     options.filename_naming_style = IDLOptions::kPascalCase;
     options.dest = param.options.gen_local_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_local_type);
+	if (options.lang_to_generate == IDLOptions::kCSharp)
+	{
+		options.folder_naming_style = IDLOptions::kPascalCase;
+	}
     QLOG_INFO()
         << "======================LocalConfig===============================";
     compiler.run_with_gui(options);
@@ -342,6 +353,17 @@ void MainWindow::initSignals() {
                    SLOT(OnClickExportConfig()));
   QObject::connect(ui->refresh_svn_btn, SIGNAL(clicked()), this,
                    SLOT(OnClickRefreshSVN()));
+
+  QObject::connect(ui->server_edit, &QLineEdit::textChanged, [this](QString arg){
+    options_.gen_server_path = arg;
+  });
+  QObject::connect(ui->client_edit, &QLineEdit::textChanged, [this](QString arg){
+    options_.gen_client_path = arg;
+  });
+  QObject::connect(ui->local_edit, &QLineEdit::textChanged, [this](QString arg){
+    options_.gen_local_path = arg;
+  });
+
 }
 
 void MainWindow::Log(const QString &message, int level) {

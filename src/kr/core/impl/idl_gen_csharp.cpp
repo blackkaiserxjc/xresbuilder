@@ -16,7 +16,7 @@ class CSharpGenerator : public CodeGenerator {
 public:
   CSharpGenerator(Model &model, const IDLOptions &opts, const std::string &path,
                   const std::string &file_name)
-      : CodeGenerator(model, opts, path, file_name), root_ns_("ETModel"),
+      : CodeGenerator(model, opts, path, file_name), root_ns_("ETModel.Config"),
         pod_depth_(0), obj_depth_(0) {
     code_.indent();
   }
