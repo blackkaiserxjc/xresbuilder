@@ -127,6 +127,19 @@ void Worker::doWork(WorkerParam param) {
       return 0;
   };
 
+  auto naming_style_rule = [](auto &&options) {
+    if (options.lang_to_generate == IDLOptions::kCSharp) {
+      options.filename_naming_style = IDLOptions::kPascalCase;
+      options.folder_naming_style = IDLOptions::kPascalCase;
+    } else if (options.lang_to_generate == IDLOptions::kJson) {
+      options.filename_naming_style = IDLOptions::kPascalCase;
+      options.folder_naming_style = 0;
+    } else if (options.lang_to_generate == IDLOptions::kLua) {
+      options.filename_naming_style = 0;
+      options.folder_naming_style = 0;
+    }
+  };
+
   IDLOptions options;
   options.src = param.options.csv_tmp_path.toLocal8Bit().data();
   options.src_paths_.emplace_back(
@@ -134,13 +147,9 @@ void Worker::doWork(WorkerParam param) {
 
   if (is_vaild_path(param.options.gen_server_path,
                     param.options.gen_server_type)) {
-    options.filename_naming_style = 0;
     options.dest = param.options.gen_server_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_server_type);
-	if (options.lang_to_generate == IDLOptions::kCSharp)
-	{
-		options.folder_naming_style = IDLOptions::kPascalCase;
-	}
+    naming_style_rule(options);
     QLOG_INFO()
         << "======================ServerConfig===============================";
     compiler.run_with_gui(options);
@@ -149,13 +158,9 @@ void Worker::doWork(WorkerParam param) {
   }
   if (is_vaild_path(param.options.gen_client_path,
                     param.options.gen_client_type)) {
-    options.filename_naming_style = IDLOptions::kPascalCase;
     options.dest = param.options.gen_client_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_client_type);
-	if (options.lang_to_generate == IDLOptions::kCSharp)
-	{
-		options.folder_naming_style = IDLOptions::kPascalCase;
-	}
+    naming_style_rule(options);
     QLOG_INFO()
         << "======================ClientConfig===============================";
     compiler.run_with_gui(options);
@@ -164,13 +169,9 @@ void Worker::doWork(WorkerParam param) {
   }
   if (is_vaild_path(param.options.gen_local_path,
                     param.options.gen_local_type)) {
-    options.filename_naming_style = IDLOptions::kPascalCase;
     options.dest = param.options.gen_local_path.toLocal8Bit().data();
     options.lang_to_generate = convert_gen_type(param.options.gen_local_type);
-	if (options.lang_to_generate == IDLOptions::kCSharp)
-	{
-		options.folder_naming_style = IDLOptions::kPascalCase;
-	}
+    naming_style_rule(options);
     QLOG_INFO()
         << "======================LocalConfig===============================";
     compiler.run_with_gui(options);
