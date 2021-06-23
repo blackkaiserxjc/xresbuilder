@@ -40,8 +40,7 @@ class QObject;
 #define QSLOG_SHARED_OBJECT
 #endif
 
-namespace QsLogging
-{
+namespace QsLogging {
 
 class QSLOG_SHARED_OBJECT Destination
 {
@@ -50,40 +49,50 @@ public:
 
 public:
     virtual ~Destination();
-    virtual void write(const QString& message, Level level) = 0;
+    virtual void write(const QString &message, Level level) = 0;
     virtual bool isValid() = 0; // returns whether the destination was created correctly
 };
 typedef QSharedPointer<Destination> DestinationPtr;
-
 
 // a series of "named" paramaters, to make the file destination creation more readable
 enum LogRotationOption
 {
     DisableLogRotation = 0,
-    EnableLogRotation  = 1
+    EnableLogRotation = 1
 };
 
 struct QSLOG_SHARED_OBJECT MaxSizeBytes
 {
-    MaxSizeBytes() : size(0) {}
-    explicit MaxSizeBytes(qint64 size_) : size(size_) {}
+    MaxSizeBytes()
+        : size(0)
+    {
+    }
+    explicit MaxSizeBytes(qint64 size_)
+        : size(size_)
+    {
+    }
     qint64 size;
 };
 
 struct QSLOG_SHARED_OBJECT MaxOldLogCount
 {
-    MaxOldLogCount() : count(0) {}
-    explicit MaxOldLogCount(int count_) : count(count_) {}
+    MaxOldLogCount()
+        : count(0)
+    {
+    }
+    explicit MaxOldLogCount(int count_)
+        : count(count_)
+    {
+    }
     int count;
 };
-
 
 //! Creates logging destinations/sinks. The caller shares ownership of the destinations with the logger.
 //! After being added to a logger, the caller can discard the pointers.
 class QSLOG_SHARED_OBJECT DestinationFactory
 {
 public:
-    static DestinationPtr MakeFileDestination(const QString& filePath,
+    static DestinationPtr MakeFileDestination(const QString &filePath,
         LogRotationOption rotation = DisableLogRotation,
         const MaxSizeBytes &sizeInBytesToRotateAfter = MaxSizeBytes(),
         const MaxOldLogCount &oldLogsToKeep = MaxOldLogCount());
@@ -94,6 +103,6 @@ public:
     static DestinationPtr MakeFunctorDestination(QObject *receiver, const char *member);
 };
 
-} // end namespace
+} // namespace QsLogging
 
 #endif // QSLOGDEST_H

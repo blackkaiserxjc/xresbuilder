@@ -12,11 +12,41 @@
 #undef QLOG_ERROR
 #undef QLOG_FATAL
 
-#define QLOG_TRACE() if (1) {} else qDebug()
-#define QLOG_DEBUG() if (1) {} else qDebug()
-#define QLOG_INFO()  if (1) {} else qDebug()
-#define QLOG_WARN()  if (1) {} else qDebug()
-#define QLOG_ERROR() if (1) {} else qDebug()
-#define QLOG_FATAL() if (1) {} else qDebug()
+#define QLOG_TRACE() \
+    if (1)           \
+    {                \
+    }                \
+    else             \
+        qDebug()
+#define QLOG_DEBUG() \
+    if (1)           \
+    {                \
+    }                \
+    else             \
+        qDebug()
+#define QLOG_INFO() \
+    if (1)          \
+    {               \
+    }               \
+    else            \
+        qDebug()
+#define QLOG_WARN() \
+    if (1)          \
+    {               \
+    }               \
+    else            \
+        qDebug()
+#define QLOG_ERROR() \
+    if (1)           \
+    {                \
+    }                \
+    else             \
+        qDebug()
+#define QLOG_FATAL() \
+    if (1)           \
+    {                \
+    }                \
+    else             \
+        qDebug()
 
 #endif // QSLOGDISABLEFORTHISFILE_H

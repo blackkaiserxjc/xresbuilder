@@ -28,12 +28,11 @@
 
 #include "QsLogDest.h"
 #include <QFile>
+#include <QSharedPointer>
 #include <QTextStream>
 #include <QtGlobal>
-#include <QSharedPointer>
 
-namespace QsLogging
-{
+namespace QsLogging {
 class RotationStrategy
 {
 public:
@@ -50,11 +49,23 @@ public:
 class NullRotationStrategy : public RotationStrategy
 {
 public:
-    virtual void setInitialInfo(const QFile &) {}
-    virtual void includeMessageInCalculation(const QString &) {}
-    virtual bool shouldRotate() { return false; }
-    virtual void rotate() {}
-    virtual QIODevice::OpenMode recommendedOpenModeFlag() { return QIODevice::Truncate; }
+    virtual void setInitialInfo(const QFile &)
+    {
+    }
+    virtual void includeMessageInCalculation(const QString &)
+    {
+    }
+    virtual bool shouldRotate()
+    {
+        return false;
+    }
+    virtual void rotate()
+    {
+    }
+    virtual QIODevice::OpenMode recommendedOpenModeFlag()
+    {
+        return QIODevice::Truncate;
+    }
 };
 
 // Rotates after a size is reached, keeps a number of <= 10 backups, appends to existing file.
@@ -86,8 +97,8 @@ typedef QSharedPointer<RotationStrategy> RotationStrategyPtr;
 class FileDestination : public Destination
 {
 public:
-    FileDestination(const QString& filePath, RotationStrategyPtr rotationStrategy);
-    virtual void write(const QString& message, Level level);
+    FileDestination(const QString &filePath, RotationStrategyPtr rotationStrategy);
+    virtual void write(const QString &message, Level level);
     virtual bool isValid();
 
 private:
@@ -96,6 +107,6 @@ private:
     QSharedPointer<RotationStrategy> mRotationStrategy;
 };
 
-}
+} // namespace QsLogging
 
 #endif // QSLOGDESTFILE_H

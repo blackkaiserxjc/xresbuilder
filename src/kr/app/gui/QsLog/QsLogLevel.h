@@ -26,8 +26,7 @@
 #ifndef QSLOGLEVEL_H
 #define QSLOGLEVEL_H
 
-namespace QsLogging
-{
+namespace QsLogging {
 
 enum Level
 {

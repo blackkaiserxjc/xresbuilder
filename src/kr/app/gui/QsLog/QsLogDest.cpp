@@ -29,19 +29,19 @@
 #include "QsLogDestFunctor.h"
 #include <QString>
 
-namespace QsLogging
-{
+namespace QsLogging {
 
 Destination::~Destination()
 {
 }
 
 //! destination factory
-DestinationPtr DestinationFactory::MakeFileDestination(const QString& filePath,
+DestinationPtr DestinationFactory::MakeFileDestination(const QString &filePath,
     LogRotationOption rotation, const MaxSizeBytes &sizeInBytesToRotateAfter,
     const MaxOldLogCount &oldLogsToKeep)
 {
-    if (EnableLogRotation == rotation) {
+    if (EnableLogRotation == rotation)
+    {
         QScopedPointer<SizeRotationStrategy> logRotation(new SizeRotationStrategy);
         logRotation->setMaximumSizeInBytes(sizeInBytesToRotateAfter.size);
         logRotation->setBackupCount(oldLogsToKeep.count);
@@ -67,4 +67,4 @@ DestinationPtr DestinationFactory::MakeFunctorDestination(QObject *receiver, con
     return DestinationPtr(new FunctorDestination(receiver, member));
 }
 
-} // end namespace
+} // namespace QsLogging

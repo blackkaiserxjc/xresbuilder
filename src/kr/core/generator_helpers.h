@@ -7,7 +7,7 @@ namespace core {
 namespace generator {
 
 std::string underscores_to_camelcase(const std::string &input,
-                                     bool lower_first = true);
+    bool lower_first = true);
 
 std::string underscores_to_pascalcase(const std::string &input);
 
