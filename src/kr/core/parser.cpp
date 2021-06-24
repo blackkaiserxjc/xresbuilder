@@ -9,15 +9,11 @@ bool Parser::parse_field(const std::string &source, Type &type) {
   IDLLexer lexer(&input);
   CommonTokenStream tokens(&lexer);
   IDLParser parser(&tokens);
-
+  parser.setErrorHandler(std::make_shared<ErrorStrategy>());
+  
   IDLAstBuilder ast_builder;
   auto tree = parser.program();
-  try {
-    type = ast_builder.visitProgram(tree).as<Type>();
-  } catch (const std::exception &e) {
-    std::cerr << e.what() << std::endl;
-    return false;
-  }
+  type = ast_builder.visitProgram(tree).as<Type>();
   return true;
 }
 } // namespace core

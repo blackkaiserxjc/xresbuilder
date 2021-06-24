@@ -1,8 +1,57 @@
+#include <exception>
+
 #include "ast_builder.h"
 #include "type.h"
 
 namespace kr {
 namespace core {
+
+ErrorStrategy::ErrorStrategy() {}
+
+ErrorStrategy::~ErrorStrategy() {}
+
+void ErrorStrategy::reportNoViableAlternative(antlr4::Parser *recognizer, const antlr4::NoViableAltException &e) {
+  antlr4::TokenStream *tokens = recognizer->getTokenStream();
+  std::string input;
+  if (tokens != nullptr) {
+    if (e.getStartToken()->getType() == antlr4::Token::EOF) {
+      input = "<EOF>";
+    } else {
+      input = tokens->getText(e.getStartToken(), e.getOffendingToken());
+    }
+  } else {
+    input = "<unknown input>";
+  }
+  std::string msg = "no viable alternative at input " + escapeWSAndQuote(input);
+  throw std::runtime_error(msg);
+}
+
+void ErrorStrategy::reportInputMismatch(antlr4::Parser *recognizer, const antlr4::InputMismatchException &e)
+{
+    std::string msg = "mismatched input " + getTokenErrorDisplay(e.getOffendingToken()) + " expecting " + e.getExpectedTokens().toString(recognizer->getVocabulary());
+    throw std::runtime_error(msg);
+}
+
+void ErrorStrategy::reportFailedPredicate(antlr4::Parser *recognizer, const antlr4::FailedPredicateException &e)
+{
+    const std::string& ruleName = recognizer->getRuleNames()[recognizer->getContext()->getRuleIndex()];
+    std::string msg = "rule " + ruleName + " " + e.what();
+    throw std::runtime_error(msg);
+}
+
+void ErrorStrategy::reportMissingToken(antlr4::Parser *recognizer)
+{
+  if (inErrorRecoveryMode(recognizer)) {
+    return;
+  }
+  beginErrorCondition(recognizer);
+
+  auto t = recognizer->getCurrentToken();
+  antlr4::misc::IntervalSet expecting = getExpectedTokens(recognizer);
+  std::string expectedText = expecting.toString(recognizer->getVocabulary());
+  std::string msg = "missing " + expectedText + " at " + getTokenErrorDisplay(t);
+  throw std::runtime_error(msg);
+}
 
 antlrcpp::Any IDLAstBuilder::visitPod(IDLParser::PodContext *ctx) {
   BaseType base_type;

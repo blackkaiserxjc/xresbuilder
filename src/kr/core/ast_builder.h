@@ -11,6 +11,23 @@
 namespace kr {
 namespace core {
 
+// 错误处理策略
+class ErrorStrategy : public antlr4::DefaultErrorStrategy  {
+public:
+    ErrorStrategy();
+    virtual ~ErrorStrategy();
+
+protected:
+  
+  virtual void reportNoViableAlternative(antlr4::Parser *recognizer, const antlr4::NoViableAltException &e);
+  
+  virtual void reportInputMismatch(antlr4::Parser *recognizer, const antlr4::InputMismatchException &e);
+
+  virtual void reportFailedPredicate(antlr4::Parser *recognizer, const antlr4::FailedPredicateException &e);
+
+  virtual void reportMissingToken(antlr4::Parser *recognizer);
+};
+
 /** 数据单元访问者模式解析 */
 template <typename Packer> class CellAstBuilder final : public CellBaseVisitor {
 public:
