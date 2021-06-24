@@ -89,9 +89,17 @@ private:
 template <typename Archive>
 void Object::serialize(Archive &ar)
 {
-    msgpack::object_handle oh = msgpack::unpack(buffer_.data(), buffer_.size());
-    UnPacker<msgpack::object> unpakcer(oh.get());
-    pack(ar, model_.type(), unpakcer);
+    ObjectPacker obj;
+    try
+    {
+        msgpack::object_handle oh = msgpack::unpack(buffer_.data(), buffer_.size());
+        UnPacker<msgpack::object> unpacker(oh.get());
+        obj.pack(ar, model_.type(), unpacker);
+    }
+    catch(const std::exception& e)
+    {   
+        throw fmt::format("compile error: row = {}, field = {}, {}.", id_, obj.ctx().field, e.what());
+    }
 }
 
 template <typename Archive>

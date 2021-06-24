@@ -43,8 +43,8 @@ struct UnPacker
     template <typename Init, typename Action>
     void visit_array(Init &&init, Action &&action) const;
 
-    template <typename Action>
-    void visit_map(Action &&action) const;
+    template <typename Init, typename Action>
+    void visit_map(Init &&init, Action &&action) const;
 };
 
 } // namespace core

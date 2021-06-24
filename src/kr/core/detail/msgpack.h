@@ -336,20 +336,21 @@ public:
     template <typename Init, typename Action>
     void visit_array(Init &&init, Action &&action) const
     {
+        init(object_.via.array.size);
         if (object_.type != ::msgpack::type::ARRAY)
         {
             throw "object type not array.";
         }
-        init(object_.via.array.size);
         for (std::size_t index = 0; index != object_.via.array.size; index++)
         {
             action(index, UnPacker((object_.via.array.ptr[index])));
         }
     }
 
-    template <typename Action>
-    void visit_map(Action &&action) const
-    {
+    template <typename Init, typename Action>
+    void visit_map(Init &&init, Action &&action) const
+    {   
+        init(object_.via.map.size);
         if (object_.type != ::msgpack::type::MAP) 
         {
             throw "object type not map.";

@@ -1,4 +1,4 @@
-﻿#pragma once
+﻿ #pragma once
 
 #include "CellBaseVisitor.h"
 #include "CellLexer.h"

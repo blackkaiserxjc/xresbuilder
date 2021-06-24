@@ -97,9 +97,13 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "csignal": "cpp",
+        "any": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp"
     },
-    "clang-format.executable": "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
+    //"clang-format.executable": "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
     "cmake.configureOnOpen": true,
     "cmake.buildArgs": [
         //"-DCMAKE_TOOLCHAIN_FILE=D:code/cpp/opensource/vcpkg/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake",
@@ -109,5 +113,6 @@
         "-DCMAKE_BUILD_TYPE=Debug"
         //"-DCMAKE_PREFIX_PATH=D:\\code\\cpp\\opensource\\qt\\5.14.0\\msvc2017"
     ],
-    "cmake.buildDirectory": "${workspaceFolder}/build/debug"
+    "cmake.buildDirectory": "${workspaceFolder}/build/debug",
+    "C_Cpp.errorSquiggles": "Disabled"
 }

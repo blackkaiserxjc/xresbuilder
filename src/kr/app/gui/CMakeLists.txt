@@ -89,7 +89,7 @@ set_target_properties(kr_app_builder_gui
 target_link_libraries(kr_app_builder_gui
     kr_app_core
     kr_app_utility
-    antlr4_shared
+    antlr4_static
     fmt::fmt
     Qt5::Core
     Qt5::Widgets
