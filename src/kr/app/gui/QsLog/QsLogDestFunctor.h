@@ -30,8 +30,7 @@
 #include "QsLogDest.h"
 #include <QObject>
 
-namespace QsLogging
-{
+namespace QsLogging {
 // Offers various types of function-like sinks.
 // This is an advanced destination type. Depending on your configuration, LogFunction might be
 // called from a different thread or even a different binary. You should not access QsLog from
@@ -54,6 +53,6 @@ protected:
 private:
     LogFunction mLogFunction;
 };
-}
+} // namespace QsLogging
 
 #endif // QSLOGDESTFUNCTOR_H

@@ -35,14 +35,16 @@ void Object::init(DataRow &data)
 
 void Object::pack_buffer(const std::string &source)
 {
-	try {
-		auto parser = model_.parser();
-		Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer_};
-		parser->parse_object(source, packer);
-	}
-	catch (std::exception& e) {
-		throw fmt::format("compile error: row = {}, info = {}.", id_, e.what());
-	}
+    try
+    {
+        auto parser = model_.parser();
+        Packer<msgpack::packer<msgpack::sbuffer>> packer{buffer_};
+        parser->parse_object(source, packer);
+    }
+    catch (std::exception &e)
+    {
+        throw fmt::format("compile error: row = {}, info = {}.", id_, e.what());
+    }
 }
 
 Model::Model(DataTable &table)
@@ -84,7 +86,7 @@ void Model::parse_table_def(DataTable &table)
             parse_table_ki(field_def, child_type.base_type, column.index(), column.name());
             obj_def->fields.add(field_def->name, field_def);
         }
-        catch (std::exception& e)
+        catch (std::exception &e)
         {
             throw fmt::format("compile error: column = {}, info = {}.", index + 1, e.what());
         }

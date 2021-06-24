@@ -33,20 +33,19 @@ class QString;
 class QsDebugOutput
 {
 public:
-   static void output(const QString& a_message);
+    static void output(const QString &a_message);
 };
 
-namespace QsLogging
-{
+namespace QsLogging {
 
 // debugger sink
 class DebugOutputDestination : public Destination
 {
 public:
-    virtual void write(const QString& message, Level level);
+    virtual void write(const QString &message, Level level);
     virtual bool isValid();
 };
 
-}
+} // namespace QsLogging
 
 #endif // QSLOGDESTCONSOLE_H

@@ -24,8 +24,8 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "QsLogDestFile.h"
-#include <QTextCodec>
 #include <QDateTime>
+#include <QTextCodec>
 #include <QtGlobal>
 #include <iostream>
 
@@ -42,9 +42,7 @@ QsLogging::RotationStrategy::~RotationStrategy()
 }
 
 QsLogging::SizeRotationStrategy::SizeRotationStrategy()
-    : mCurrentSizeInBytes(0)
-    , mMaxSizeInBytes(0)
-    , mBackupsCount(0)
+    : mCurrentSizeInBytes(0), mMaxSizeInBytes(0), mBackupsCount(0)
 {
 }
 
@@ -68,43 +66,48 @@ bool QsLogging::SizeRotationStrategy::shouldRotate()
 // All X's will be shifted up.
 void QsLogging::SizeRotationStrategy::rotate()
 {
-    if (!mBackupsCount) {
+    if (!mBackupsCount)
+    {
         if (!QFile::remove(mFileName))
             std::cerr << "QsLog: backup delete failed " << qPrintable(mFileName);
         return;
     }
 
-     // 1. find the last existing backup than can be shifted up
-     const QString logNamePattern = mFileName + QString::fromUtf8(".%1");
-     int lastExistingBackupIndex = 0;
-     for (int i = 1;i <= mBackupsCount;++i) {
-         const QString backupFileName = logNamePattern.arg(i);
-         if (QFile::exists(backupFileName))
-             lastExistingBackupIndex = qMin(i, mBackupsCount - 1);
-         else
-             break;
-     }
+    // 1. find the last existing backup than can be shifted up
+    const QString logNamePattern = mFileName + QString::fromUtf8(".%1");
+    int lastExistingBackupIndex = 0;
+    for (int i = 1; i <= mBackupsCount; ++i)
+    {
+        const QString backupFileName = logNamePattern.arg(i);
+        if (QFile::exists(backupFileName))
+            lastExistingBackupIndex = qMin(i, mBackupsCount - 1);
+        else
+            break;
+    }
 
-     // 2. shift up
-     for (int i = lastExistingBackupIndex;i >= 1;--i) {
-         const QString oldName = logNamePattern.arg(i);
-         const QString newName = logNamePattern.arg(i + 1);
-         QFile::remove(newName);
-         const bool renamed = QFile::rename(oldName, newName);
-         if (!renamed) {
-             std::cerr << "QsLog: could not rename backup " << qPrintable(oldName)
-                       << " to " << qPrintable(newName);
-         }
-     }
+    // 2. shift up
+    for (int i = lastExistingBackupIndex; i >= 1; --i)
+    {
+        const QString oldName = logNamePattern.arg(i);
+        const QString newName = logNamePattern.arg(i + 1);
+        QFile::remove(newName);
+        const bool renamed = QFile::rename(oldName, newName);
+        if (!renamed)
+        {
+            std::cerr << "QsLog: could not rename backup " << qPrintable(oldName)
+                      << " to " << qPrintable(newName);
+        }
+    }
 
-     // 3. rename current log file
-     const QString newName = logNamePattern.arg(1);
-     if (QFile::exists(newName))
-         QFile::remove(newName);
-     if (!QFile::rename(mFileName, newName)) {
-         std::cerr << "QsLog: could not rename log " << qPrintable(mFileName)
-                   << " to " << qPrintable(newName);
-     }
+    // 3. rename current log file
+    const QString newName = logNamePattern.arg(1);
+    if (QFile::exists(newName))
+        QFile::remove(newName);
+    if (!QFile::rename(mFileName, newName))
+    {
+        std::cerr << "QsLog: could not rename log " << qPrintable(mFileName)
+                  << " to " << qPrintable(newName);
+    }
 }
 
 QIODevice::OpenMode QsLogging::SizeRotationStrategy::recommendedOpenModeFlag()
@@ -124,8 +127,7 @@ void QsLogging::SizeRotationStrategy::setBackupCount(int backups)
     mBackupsCount = qMin(backups, SizeRotationStrategy::MaxBackupCount);
 }
 
-
-QsLogging::FileDestination::FileDestination(const QString& filePath, RotationStrategyPtr rotationStrategy)
+QsLogging::FileDestination::FileDestination(const QString &filePath, RotationStrategyPtr rotationStrategy)
     : mRotationStrategy(rotationStrategy)
 {
     mFile.setFileName(filePath);
@@ -137,10 +139,11 @@ QsLogging::FileDestination::FileDestination(const QString& filePath, RotationStr
     mRotationStrategy->setInitialInfo(mFile);
 }
 
-void QsLogging::FileDestination::write(const QString& message, Level)
+void QsLogging::FileDestination::write(const QString &message, Level)
 {
     mRotationStrategy->includeMessageInCalculation(message);
-    if (mRotationStrategy->shouldRotate()) {
+    if (mRotationStrategy->shouldRotate())
+    {
         mOutputStream.setDevice(NULL);
         mFile.close();
         mRotationStrategy->rotate();
@@ -158,4 +161,3 @@ bool QsLogging::FileDestination::isValid()
 {
     return mFile.isOpen();
 }
-

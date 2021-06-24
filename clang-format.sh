@@ -1,0 +1,1 @@
+find . -name "*.h" -o -name "*.cpp" | xargs clang-format -style=file -i
