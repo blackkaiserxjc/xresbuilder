@@ -326,14 +326,20 @@ public:
     template <typename Action>
     void visit_begin_array(Action &&action) const
     {
-        assert(object_.type == ::msgpack::type::ARRAY);
+        if (object_.type != ::msgpack::type::ARRAY)
+        {
+            throw "object type not array.";
+        }
         action(object_.via.array.size);
     }
 
     template <typename Init, typename Action>
     void visit_array(Init &&init, Action &&action) const
     {
-        assert(object_.type == ::msgpack::type::ARRAY);
+        if (object_.type != ::msgpack::type::ARRAY)
+        {
+            throw "object type not array.";
+        }
         init(object_.via.array.size);
         for (std::size_t index = 0; index != object_.via.array.size; index++)
         {
@@ -344,7 +350,10 @@ public:
     template <typename Action>
     void visit_map(Action &&action) const
     {
-        assert(object_.type == ::msgpack::type::MAP);
+        if (object_.type != ::msgpack::type::MAP) 
+        {
+            throw "object type not map.";
+        }
         for (std::size_t index = 0; index != object_.via.map.size; index++)
         {
             action(UnPacker(object_.via.map.ptr[index].key),
