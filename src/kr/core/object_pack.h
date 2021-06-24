@@ -10,9 +10,9 @@ template <typename Packer, typename Reader>
 class ObjectPacker
 {
 public:
-    struct context
+    struct Context
     {
-        context()
+        Context()
             : row{}, field{};
         int row;
         std::string field;
@@ -34,7 +34,7 @@ protected:
     void pack_array(Packer &packer, const Type &type, const Reader &reader);
 
     int depth_;
-    context ctx_;
+	Context ctx_;
 };
 
 template <typename Packer, typename Reader>
