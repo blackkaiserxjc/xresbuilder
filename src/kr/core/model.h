@@ -14,7 +14,6 @@
 #include <kr/core/pack.h>
 #include <kr/core/type.h>
 
-
 namespace kr {
 namespace core {
 
@@ -96,8 +95,8 @@ void Object::serialize(Archive &ar)
         UnPacker<msgpack::object> unpacker(oh.get());
         obj.pack(ar, model_.type(), unpacker);
     }
-    catch(const std::exception& e)
-    {   
+    catch (const std::exception &e)
+    {
         throw fmt::format("compile error: row = {}, field = {}, {}.", id_, obj.ctx().field, e.what());
     }
 }

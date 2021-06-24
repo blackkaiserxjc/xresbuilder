@@ -349,9 +349,9 @@ public:
 
     template <typename Init, typename Action>
     void visit_map(Init &&init, Action &&action) const
-    {   
+    {
         init(object_.via.map.size);
-        if (object_.type != ::msgpack::type::MAP) 
+        if (object_.type != ::msgpack::type::MAP)
         {
             throw "object type not map.";
         }

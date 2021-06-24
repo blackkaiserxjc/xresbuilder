@@ -6,7 +6,6 @@
 namespace kr {
 namespace core {
 
-
 template <typename Packer, typename Reader>
 void ObjectPacker::pack(Packer &packer, const Type &type, const Reader &reader)
 {
