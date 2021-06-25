@@ -88,7 +88,7 @@ void Model::parse_table_def(DataTable &table)
         }
         catch (std::exception &e)
         {
-            throw fmt::format("compile error: column = {}, info = {}.", index + 1, e.what());
+            throw fmt::format("compile error: column = {}, field = {}, info = {}.", index + 1, column.name(), e.what());
         }
     }
 }

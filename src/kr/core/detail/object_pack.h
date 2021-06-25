@@ -1,4 +1,3 @@
-#include <exception>
 
 #include <fmt/format.h>
 #include <msgpack.hpp>
@@ -34,34 +33,34 @@ void ObjectPacker::pack_pod(Packer &packer, const Type &type, const Reader &read
     {
     case BASE_TYPE_BOOL: {
         reader.template to<bool>([&packer](bool value) { packer.pack(value); },
-            [] { throw "bool invaild_cast"; });
+            [] { throw BadCastException("bool invaild_cast"); });
     }
     break;
 
     case BASE_TYPE_INT: {
         reader.template to<std::int64_t>(
             [&packer](std::int64_t value) { packer.pack(value); },
-            [] { throw "int invalid_cast"; });
+            [] { throw BadCastException("int invalid_cast"); });
     }
     break;
 
     case BASE_TYPE_LONG: {
         reader.template to<std::int64_t>(
             [&packer](std::int64_t value) { packer.pack(value); },
-            [] { throw "long invalid_cast"; });
+            [] { throw BadCastException("long invalid_cast"); });
     }
     break;
 
     case BASE_TYPE_FLOAT: {
         reader.template to<double>([&packer](double value) { packer.pack(value); },
-            [] { throw "double invaild_cast"; });
+            [] { throw BadCastException("double invaild_cast"); });
     }
     break;
 
     case BASE_TYPE_STRING: {
         reader.template to<std::string_view>(
             [&packer](std::string_view value) { packer.pack(value); },
-            [] { throw "string invaild_cast"; });
+            [] { throw BadCastException("string invaild_cast"); });
     }
     break;
     }

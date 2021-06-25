@@ -3,17 +3,20 @@
 
 #pragma once
 
-#include "CellParser.h"
+
 #include "antlr4-runtime.h"
+#include "CellParser.h"
+
+
 
 /**
  * This class defines an abstract visitor for a parse tree
  * produced by CellParser.
  */
-class CellVisitor : public antlr4::tree::AbstractParseTreeVisitor
-{
+class  CellVisitor : public antlr4::tree::AbstractParseTreeVisitor {
 public:
-    /**
+
+  /**
    * Visit parse trees produced by CellParser.
    */
     virtual antlrcpp::Any visitProgram(CellParser::ProgramContext *context) = 0;
@@ -27,4 +30,7 @@ public:
     virtual antlrcpp::Any visitPod(CellParser::PodContext *context) = 0;
 
     virtual antlrcpp::Any visitArray(CellParser::ArrayContext *context) = 0;
+
+
 };
+

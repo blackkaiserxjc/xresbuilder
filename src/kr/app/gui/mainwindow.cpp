@@ -502,6 +502,8 @@ void MainWindow::OnClickExportConfig()
         return;
     }
 
+    ui->logView->setPlainText("");
+
     WorkerParam param;
     options_.gen_server_type =
         ui->server_cb->itemData(ui->server_cb->currentIndex()).toInt();

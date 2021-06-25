@@ -3,17 +3,20 @@
 
 #pragma once
 
-#include "IDLParser.h"
+
 #include "antlr4-runtime.h"
+#include "IDLParser.h"
+
+
 
 /**
  * This class defines an abstract visitor for a parse tree
  * produced by IDLParser.
  */
-class IDLVisitor : public antlr4::tree::AbstractParseTreeVisitor
-{
+class  IDLVisitor : public antlr4::tree::AbstractParseTreeVisitor {
 public:
-    /**
+
+  /**
    * Visit parse trees produced by IDLParser.
    */
     virtual antlrcpp::Any visitProgram(IDLParser::ProgramContext *context) = 0;
@@ -27,4 +30,7 @@ public:
     virtual antlrcpp::Any visitField(IDLParser::FieldContext *context) = 0;
 
     virtual antlrcpp::Any visitArray(IDLParser::ArrayContext *context) = 0;
+
+
 };
+

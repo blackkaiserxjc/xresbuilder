@@ -1,10 +1,29 @@
 #pragma once
 
+#include <exception>
+
 #include "pack.h"
 #include "type.h"
 
 namespace kr {
 namespace core {
+
+class BadCastException: public std::bad_cast 
+{
+public: 
+    BadCastException(const std::string& what)
+        : what_{what}
+    {
+    }
+
+    virtual char const* what() const noexcept 
+    {
+        return !what_.empty() ? what_.c_str() : std::bad_cast::what();
+    }
+
+protected:
+    std::string what_;
+};
 
 class ObjectPacker
 {

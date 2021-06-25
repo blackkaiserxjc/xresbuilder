@@ -232,6 +232,9 @@ public:
             case ::msgpack::type::FLOAT64:
                 action(static_cast<std::int32_t>(object_.via.f64));
                 break;
+            default:
+                except();
+                break;
             }
         }
         else if constexpr (std::is_same_v<T, std::uint32_t>)
@@ -250,6 +253,9 @@ public:
             case ::msgpack::type::FLOAT32:
             case ::msgpack::type::FLOAT64:
                 action(static_cast<std::uint32_t>(object_.via.f64));
+                break;
+            default:
+                except();
                 break;
             }
         }
@@ -270,6 +276,9 @@ public:
             case ::msgpack::type::FLOAT64:
                 action(static_cast<std::int64_t>(object_.via.f64));
                 break;
+            default:
+                except();
+                break;
             }
         }
         else if constexpr (std::is_same_v<T, std::uint64_t>)
@@ -288,6 +297,9 @@ public:
             case ::msgpack::type::FLOAT32:
             case ::msgpack::type::FLOAT64:
                 action(static_cast<std::uint64_t>(object_.via.f64));
+                break;
+            default:
+                except();
                 break;
             }
         }
@@ -308,6 +320,9 @@ public:
             case ::msgpack::type::FLOAT64:
                 action(static_cast<double>(object_.via.f64));
                 break;
+            default:
+                except();
+                break;
             }
         }
         else if constexpr (std::is_same_v<T, std::string_view>)
@@ -318,6 +333,9 @@ public:
             case ::msgpack::type::BIN:
             case ::msgpack::type::EXT:
                 action(std::string_view(object_.via.str.ptr, object_.via.str.size));
+                break;
+            default:
+                except();
                 break;
             }
         }
