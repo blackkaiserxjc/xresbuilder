@@ -103,16 +103,13 @@
         "numbers": "cpp",
         "semaphore": "cpp"
     },
-    //"clang-format.executable": "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
     "cmake.configureOnOpen": true,
-    "cmake.buildArgs": [
-        //"-DCMAKE_TOOLCHAIN_FILE=D:code/cpp/opensource/vcpkg/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        //"-DVCPKG_TARGET_TRIPLET=x86-windows",
-        "-DCMAKE_TOOLCHAIN_FILE=/home/kaiser/Desktop/code/cpp/package/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "-DVCPKG_TARGET_TRIPLET=x64-linux",
-        "-DCMAKE_BUILD_TYPE=Debug"
-        //"-DCMAKE_PREFIX_PATH=D:\\code\\cpp\\opensource\\qt\\5.14.0\\msvc2017"
+    "cmake.configureArgs": [
+        "CMAKE_TOOLCHAIN_FILE=/home/kaiser/Desktop/code/cpp/package/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET=x64-linux",
+        "CMAKE_BUILD_TYPE=Debug",
     ],
     "cmake.buildDirectory": "${workspaceFolder}/build/debug",
+    "cmake.generator" : "Unix Makefiles",
     "C_Cpp.errorSquiggles": "Disabled"
 }
